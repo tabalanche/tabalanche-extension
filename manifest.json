@@ -5,7 +5,6 @@
   "icons": { "16": "images/tabalanche-box-16px.png",
              "48": "images/tabalanche-box-48px.png",
             "128": "images/tabalanche-box-128px-20pxborder.png" },
-  "default_locale": "en",
   "description": "An extension to stash and snapshot groups of tabs",
   "browser_action": {
     "default_icon": {
