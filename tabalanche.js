@@ -26,7 +26,7 @@ var tabalanche = {};
         };
       });
       whenDBReady(function() {
-        tabgroups.put({
+        tabgroups.post({
           name: sessionName || stashTime.toString(),
           created: stashTime.toISOString(),
           tabs: tabSave
@@ -58,7 +58,9 @@ var tabalanche = {};
 
   tabalanche.getAllTabGroups = function(cb) {
     whenDBReady(function(){
-      tabgroups.getAll().then(cb);
+      tabgroups.allDocs({include_docs: true}).then(function(response){
+        return cb(response.rows.map(function(row){return row.doc}));
+      });
     });
   };
 
