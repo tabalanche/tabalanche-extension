@@ -12,6 +12,7 @@ tabalanche.getAllTabGroups(function(tabGroups) {
     for (var j = 0; j < tabGroup.tabs.length; j++) {
       var tab = tabGroup.tabs[j];
       var tabIcon = document.createElement('img');
+      tabIcon.className = 'tabicon';
       var tabDomain = tab.url &&
         tab.url.replace(/^https?:\/?\/?([^\/]*)\/.*/, '$1');
       tabIcon.src = tab.icon ||
