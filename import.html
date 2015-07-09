@@ -3,21 +3,19 @@
 <head>
   <title>Tabalanche</title>
   <link rel="stylesheet" href="ui.css">
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="import.css">
 </head>
 <body>
   <header>
     <h1>Tabalanche</h1>
     <nav><ul>
-      <li><a href='import.html'>Import</a></li>
-      <li><a href='export.html'>Export</a></li>
       <li id="options">Options</li>
     </ul></nav>
   </header>
-  <div id="tab-groups"></div>
-  </div>
+  <textarea id="dump"></textarea>
+  <button type="button" id="import-button">Import JSON</button>
   <script src="vendor/pouchdb-3.6.0.js"></script>
   <script src="tabalanche.js"></script>
-  <script src="dashboard.js"></script>
+  <script src="import.js"></script>
 </body>
 </html>

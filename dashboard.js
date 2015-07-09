@@ -1,4 +1,4 @@
-/* global tabalanche */
+/* global chrome tabalanche */
 
 var tabGroupContainer = document.getElementById('tab-groups');
 
@@ -47,4 +47,8 @@ tabalanche.getAllTabGroups(function(tabGroups) {
   for (var i = 0; i < tabGroups.length; i++) {
     createTabGroupDiv(tabGroups[i]);
   }
+});
+
+document.getElementById('options').addEventListener('click', function(evt) {
+  chrome.runtime.openOptionsPage();
 });
