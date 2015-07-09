@@ -62,8 +62,8 @@ var tabalanche = {};
       });
       whenDBReady(function() {
         tabgroups.post({
-          name: sessionName || stashTime.toString(),
-          created: stashTime.toISOString(),
+          name: sessionName || stashTime.toLocaleString(),
+          created: stashTime.getTime(),
           tabs: tabSave
         }).then(function(response) {
           // TODO: close all tabs, navigate to stash
