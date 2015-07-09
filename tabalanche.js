@@ -1,10 +1,45 @@
-/* global PouchDB chrome */
+/* global PouchDB chrome emit */
 
 var tabalanche = {};
 (function(){
+  var dashboardDesignDoc = {
+    _id: '_design/dashboard',
+    version: 1,
+    views: {
+      by_creation: {
+        map: function(doc) {
+          emit(doc.created);
+        }.toString()
+      },
+      total_tabs: {
+        map: function(doc) {
+          emit(doc._id, doc.tabs.length);
+        }.toString(),
+        reduce: '_sum'
+      }
+    }
+  };
+
+  function ensureCurrentDesignDoc(db, designDoc) {
+    function checkAgainstExistingDesignDoc(existing) {
+      if (designDoc.version > existing.version) {
+        designDoc._rev = existing._rev;
+        return ensureCurrentDesignDoc(db, designDoc);
+      }
+    }
+
+    return db.put(designDoc).catch(function (err) {
+      if (err.name == 'conflict') {
+        return db.get(designDoc._id)
+          .then(checkAgainstExistingDesignDoc);
+      } else throw(err);
+    });
+  }
+
   var tabgroups;
   var tabgroupsPromise = new PouchDB('tabgroups').then(function(db){
     tabgroups = db;
+    return ensureCurrentDesignDoc(db, dashboardDesignDoc);
   });
 
   function whenDBReady(cb) {
@@ -58,9 +93,10 @@ var tabalanche = {};
 
   tabalanche.getAllTabGroups = function(cb) {
     whenDBReady(function(){
-      tabgroups.allDocs({include_docs: true}).then(function(response){
-        return cb(response.rows.map(function(row){return row.doc}));
-      });
+      tabgroups.query('dashboard/by_creation', {include_docs: true})
+        .then(function(response){
+          return cb(response.rows.map(function(row){return row.doc}));
+        });
     });
   };
 
