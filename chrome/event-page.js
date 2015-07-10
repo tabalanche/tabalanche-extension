@@ -48,14 +48,16 @@ function definiteIntent(possibilities) {
 
 chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
   var actions = matchingActions(text);
-  if (actions[0][0] == text || definiteIntent(actions)) {
-    chrome.omnibox.setDefaultSuggestion({
-      description: matchDescription(text, actions[0])});
-    actions = actions.slice(1);
-  } else if (actions.length > 0) {
-    chrome.omnibox.setDefaultSuggestion({
-      description: '<match>' + escapeXml(text) +
-      '</match> <dim>(ambiguous)</dim>'});
+  if (actions.length > 0) {
+    if (actions[0][0] == text || definiteIntent(actions)) {
+      chrome.omnibox.setDefaultSuggestion({
+        description: matchDescription(text, actions[0])});
+      actions = actions.slice(1);
+    } else  {
+      chrome.omnibox.setDefaultSuggestion({
+        description: '<match>' + escapeXml(text) +
+        '</match> <dim>(ambiguous)</dim>'});
+    }
   } else {
     chrome.omnibox.setDefaultSuggestion({
       description: escapeXml(text) + ' <dim>(no match)</dim>'});
