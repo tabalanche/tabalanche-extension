@@ -22,8 +22,8 @@ function matchingActions(prefix) {
 
 chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
   return matchingActions(text).map(function (tuple) {
-    return {content: tuple[0],
-      description: tuple[0] + ' <dim>' +  tuple[1] + '</dim>'};
+    return suggest({content: tuple[0],
+      description: tuple[0] + ' <dim>' +  tuple[1] + '</dim>'});
   });
 });
 
