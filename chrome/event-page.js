@@ -16,7 +16,7 @@ var actions = [
 
 function matchingActions(prefix) {
   return actions.filter(function (tuple) {
-    return tuple.slice(0, prefix.length) == prefix;
+    return tuple[0].slice(0, prefix.length) == prefix;
   });
 }
 
