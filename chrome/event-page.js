@@ -48,7 +48,7 @@ function definiteIntent(possibilities) {
 
 chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
   var actions = matchingActions(text);
-  if (definiteIntent(actions)) {
+  if (actions[0][0] == text || definiteIntent(actions)) {
     chrome.omnibox.setDefaultSuggestion({
       description: matchDescription(text, actions[0])});
     actions = actions.slice(1);
@@ -67,11 +67,17 @@ chrome.omnibox.onInputChanged.addListener(function(text, suggest) {
 });
 
 chrome.omnibox.onInputEntered.addListener(function(text, disposition) {
-  // Get unique action, or null if no action, or true if multiple actions
-  var action = definiteIntent(matchingActions(text));
+  // Get unique action, or null if no action, or false if multiple actions
+  var actions = matchingActions(text);
+  var action;
+  if (actions[0][0] == text) {
+    action = actions[0][2];
+  } else {
+    action = definiteIntent(actions);
+  }
 
   // if there was only one action
-  if (action && action !== true) {
+  if (action) {
     // do it
     action();
   }
