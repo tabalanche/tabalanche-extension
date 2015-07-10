@@ -3,8 +3,10 @@
 // Saves options to chrome.storage.sync.
 function save_options() {
   var magicNewTab = document.getElementById('magicnewtab').checked;
+  var saveIcons = document.getElementById('saveicons').checked;
   chrome.storage.sync.set({
-    magicNewTab: magicNewTab
+    magicNewTab: magicNewTab,
+    saveIcons: saveIcons
   }, function() {
     // Update status to let user know options were saved.
   });
@@ -15,9 +17,11 @@ function save_options() {
 function restore_options() {
   // Use default values.
   chrome.storage.sync.get({
-    magicNewTab: true
+    magicNewTab: true,
+    saveIcons: true
   }, function(items) {
-    document.getElementById('magicNewTab').checked = items.magicNewTab;
+    document.getElementById('magicnewtab').checked = items.magicNewTab;
+    document.getElementById('saveicons').checked = items.saveIcons;
   });
 }
 document.addEventListener('DOMContentLoaded', restore_options);
