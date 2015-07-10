@@ -31,7 +31,7 @@ function escapeXml(unsafe) {
 
 function matchDescription(text, tuple) {
   return '<match>' + escapeXml(text) + '</match>' +
-    escapeXml(tuple[0].slice(0, text.length)) +
+    escapeXml(tuple[0].slice(text.length)) +
     ' <dim>' +  escapeXml(tuple[1]) + '</dim>';
 }
 
