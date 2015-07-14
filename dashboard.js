@@ -25,7 +25,7 @@ var templateTabGroupContainer = cre('div.tabgroup');
 var templateTabList = cre('ul.tablist');
 
 function createTabGroupDiv(tabGroup) {
-  var tabListItems = tabGroup.map(createTabListItem);
+  var tabListItems = tabGroup.tabs.map(createTabListItem);
 
   var name = cre('h2', [tabGroup.name]);
   var list = cre(templateTabList, tabListItems);
