@@ -1,39 +1,34 @@
-/* global chrome tabalanche */
+/* global chrome tabalanche cre */
 
 var tabGroupContainer = document.getElementById('tab-groups');
 
 var tabGroupElems = new Map();
 
-function populateTabList(listElement, tabs) {
-  for (var j = 0; j < tabs.length; j++) {
-    var tab = tabs[j];
-    var tabIcon = document.createElement('img');
-    tabIcon.className = 'tabicon';
-    var tabDomain = tab.url &&
-      tab.url.replace(/^https?:\/?\/?([^\/]*)\/.*/, '$1');
-    tabIcon.src = tab.icon ||
-      'https://www.google.com/s2/favicons?domain=' + tabDomain;
-    var tabLink = document.createElement('a');
-    var tabLi = document.createElement('li');
-    tabLink.appendChild(tabIcon);
-    tabLink.appendChild(document.createTextNode(' ' + tab.title));
-    tabLink.href = tab.url;
-    tabLi.appendChild(tabLink);
-    listElement.appendChild(tabLi);
-  }
+var templateTabIcon = cre('img.tabicon');
+var templateTabLink = cre('a.tablink');
+
+function createTabListItem(tab) {
+  var tabDomain = tab.url &&
+    tab.url.replace(/^https?:\/?\/?([^\/]*)\/.*/, '$1');
+
+  var tabIcon = cre(templateTabIcon, {src: tab.icon ||
+    'https://www.google.com/s2/favicons?domain=' + tabDomain});
+
+  var tabLink = cre(templateTabLink, {href: tab.url},
+    [tabIcon, ' ' + tab.title]);
+
+  return cre('li', [tabLink]);
 }
 
+var templateTabGroupContainer = cre('div.tabgroup');
+
 function createTabGroupDiv(tabGroup) {
-  var container = document.createElement('div');
+  var tabListItems = tabGroup.map(createTabListItem);
 
-  var name = document.createElement('h2');
-  name.textContent = tabGroup.name;
+  var name = cre('h2', [tabGroup.name]);
+  var list = cre('ul', tabListItems);
 
-  var list = document.createElement('ul');
-  populateTabList(list, tabGroup.tabs);
-
-  container.appendChild(name);
-  container.appendChild(list);
+  var container = cre(templateTabGroupContainer, [name, list]);
 
   tabGroupContainer.appendChild(container);
   tabGroupElems.set(tabGroup._id, {
