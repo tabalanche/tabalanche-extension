@@ -1,10 +1,45 @@
-/* global PouchDB chrome */
+/* global PouchDB chrome emit */
 
 var tabalanche = {};
 (function(){
+  var dashboardDesignDoc = {
+    _id: '_design/dashboard',
+    version: 1,
+    views: {
+      by_creation: {
+        map: function(doc) {
+          emit(doc.created);
+        }.toString()
+      },
+      total_tabs: {
+        map: function(doc) {
+          emit(doc._id, doc.tabs.length);
+        }.toString(),
+        reduce: '_sum'
+      }
+    }
+  };
+
+  function ensureCurrentDesignDoc(db, designDoc) {
+    function checkAgainstExistingDesignDoc(existing) {
+      if (designDoc.version > existing.version) {
+        designDoc._rev = existing._rev;
+        return ensureCurrentDesignDoc(db, designDoc);
+      }
+    }
+
+    return db.put(designDoc).catch(function (err) {
+      if (err.name == 'conflict') {
+        return db.get(designDoc._id)
+          .then(checkAgainstExistingDesignDoc);
+      } else throw(err);
+    });
+  }
+
   var tabgroups;
   var tabgroupsPromise = new PouchDB('tabgroups').then(function(db){
     tabgroups = db;
+    return ensureCurrentDesignDoc(db, dashboardDesignDoc);
   });
 
   function whenDBReady(cb) {
@@ -27,8 +62,8 @@ var tabalanche = {};
       });
       whenDBReady(function() {
         tabgroups.post({
-          name: sessionName || stashTime.toString(),
-          created: stashTime.toISOString(),
+          name: sessionName || stashTime.toLocaleString(),
+          created: stashTime.getTime(),
           tabs: tabSave
         }).then(function(response) {
           // TODO: close all tabs, navigate to stash
@@ -36,6 +71,25 @@ var tabalanche = {};
       });
     });
   }
+
+  tabalanche.stashThisTab = function() {
+    return stashTabs(function(tab){return tab.highlighted || tab.active});
+  };
+  tabalanche.stashAllTabs = function() {
+    return stashTabs(function(){return true});
+  };
+  tabalanche.stashOtherTabs = function() {
+    return stashTabs(function(tab){return !tab.highlighted});
+  };
+  tabalanche.stashTabsToTheRight = function() {
+    // todo: refactor so this doesn't have to be a (terrible) filter
+    return stashTabs(function(tab, i, tabs) {
+      var lastTab = tabs.length-1;
+      while (!tabs[lastTab].highlighted && lastTab > 0 && lastTab > i)
+        lastTab--;
+      return i > lastTab;
+    });
+  };
 
   tabalanche.importTabGroup = function importTabGroup(tabGroup, opts) {
     opts = opts || {};
@@ -62,29 +116,15 @@ var tabalanche = {};
     });
   };
 
-  tabalanche.stashThisTab = function() {
-    return stashTabs(function(tab){return tab.highlighted || tab.active});
-  };
-  tabalanche.stashAllTabs = function() {
-    return stashTabs(function(){return true});
-  };
-  tabalanche.stashOtherTabs = function() {
-    return stashTabs(function(tab){return !tab.highlighted});
-  };
-  tabalanche.stashTabsToTheRight = function() {
-    // todo: refactor so this doesn't have to be a (terrible) filter
-    return stashTabs(function(tab, i, tabs) {
-      var lastTab = tabs.length-1;
-      while (!tabs[lastTab].highlighted && lastTab > 0 && lastTab > i)
-        lastTab--;
-      return i > lastTab;
-    });
-  };
-
   tabalanche.getAllTabGroups = function(cb) {
-    whenDBReady(function(){
-      tabgroups.allDocs({include_docs: true}).then(function(response){
-        return cb(response.rows.map(function(row){return row.doc}));
+    whenDBReady(function () {
+      tabgroups.query('dashboard/by_creation', {
+        include_docs: true,
+        descending: true
+      }).then(function (response) {
+        return cb(response.rows.map(function (row) {
+          return row.doc;
+        }));
       });
     });
   };
