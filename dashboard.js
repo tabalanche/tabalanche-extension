@@ -6,6 +6,7 @@ var tabGroupElems = new Map();
 
 var templateTabIcon = cre('img.tabicon');
 var templateTabLink = cre('a.tablink');
+var templateTabListItem = cre('li.tablist-item');
 
 function createTabListItem(tab) {
   var tabDomain = tab.url &&
@@ -17,16 +18,17 @@ function createTabListItem(tab) {
   var tabLink = cre(templateTabLink, {href: tab.url},
     [tabIcon, ' ' + tab.title]);
 
-  return cre('li', [tabLink]);
+  return cre(templateTabListItem, [tabLink]);
 }
 
 var templateTabGroupContainer = cre('div.tabgroup');
+var templateTabList = cre('ul.tablist');
 
 function createTabGroupDiv(tabGroup) {
   var tabListItems = tabGroup.map(createTabListItem);
 
   var name = cre('h2', [tabGroup.name]);
-  var list = cre('ul', tabListItems);
+  var list = cre(templateTabList, tabListItems);
 
   var container = cre(templateTabGroupContainer, [name, list]);
 

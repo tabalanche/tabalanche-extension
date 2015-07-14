@@ -1,4 +1,19 @@
 .tabicon {
   height: 16px;
   width: 16px;
+  vertical-align: bottom;
+}
+.tablink {
+  text-decoration: none;
+  color: #234da7;
+}
+.tablist {
+  list-style: none;
+  padding: 0;
+}
+.tablist-item {
+  margin: 4px;
+}
+#tab-groups {
+  margin: 24px;
 }
