@@ -104,7 +104,10 @@ function cre(base, opts, children) {
     }
   }
 
-  elem.className = classList.join(' ');
+  if (classList.length > 0) {
+    elem.className = classList.join(' ');
+  }
+
   return elem;
 }
 
