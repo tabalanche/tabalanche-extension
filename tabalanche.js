@@ -1,4 +1,4 @@
-/* global PouchDB chrome emit */
+/* global PouchDB platform emit */
 
 var tabalanche = {};
 (function(){
@@ -46,49 +46,44 @@ var tabalanche = {};
     return tabgroupsPromise.then(cb);
   }
 
-  function stashTabs(filter) {
-    // TODO: refactor to come from chrome.tabs.query:
-    // https://developer.chrome.com/extensions/tabs#method-query
-    chrome.windows.getCurrent({populate: true}, function (crWindow) {
-      var sessionName = sessionStorage.getItem(
-        'windowcontext_' + crWindow.id + '_name');
+  function stashTabs(tabs) {
+    return platform.getCurrentWindowContext().then(function(wndCtx) {
       var stashTime = new Date();
-      var tabSave = crWindow.tabs.filter(filter).map(function (tab) {
-        return {
+      var tabSave = tabs.map(function (tab) {
+        var tabDoc = {
           url: tab.url,
-          title: tab.title,
-          icon: tab.favIconUrl
+          title: tab.title
         };
+
+        if (tab.favIconUrl) tabDoc.icon = tab.favIconUrl;
+
+        return tabDoc;
       });
-      whenDBReady(function() {
-        tabgroups.post({
-          name: sessionName || stashTime.toLocaleString(),
+      return whenDBReady(function() {
+        return tabgroups.post({
+          name: wndCtx.name || stashTime.toLocaleString(),
           created: stashTime.getTime(),
           tabs: tabSave
         }).then(function(response) {
-          // TODO: close all tabs, navigate to stash
+          platform.closeTabs(tabs);
+          var dashboard = platform.extensionURL('dashboard.html');
+          open(dashboard + '#' + response.id, '_blank');
         });
       });
     });
   }
 
   tabalanche.stashThisTab = function() {
-    return stashTabs(function(tab){return tab.highlighted || tab.active});
+    return platform.getWindowTabs.highlighted().then(stashTabs);
   };
   tabalanche.stashAllTabs = function() {
-    return stashTabs(function(){return true});
+    return platform.getWindowTabs.all().then(stashTabs);
   };
   tabalanche.stashOtherTabs = function() {
-    return stashTabs(function(tab){return !tab.highlighted});
+    return platform.getWindowTabs.other().then(stashTabs);
   };
   tabalanche.stashTabsToTheRight = function() {
-    // todo: refactor so this doesn't have to be a (terrible) filter
-    return stashTabs(function(tab, i, tabs) {
-      var lastTab = tabs.length-1;
-      while (!tabs[lastTab].highlighted && lastTab > 0 && lastTab > i)
-        lastTab--;
-      return i > lastTab;
-    });
+    return platform.getWindowTabs.right().then(stashTabs);
   };
 
   tabalanche.importTabGroup = function importTabGroup(tabGroup, opts) {
