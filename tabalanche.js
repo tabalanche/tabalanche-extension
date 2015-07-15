@@ -113,7 +113,7 @@ var tabalanche = {};
 
   tabalanche.getAllTabGroups = function() {
     return whenDBReady(function () {
-      tabgroups.query('dashboard/by_creation', {
+      return tabgroups.query('dashboard/by_creation', {
         include_docs: true,
         descending: true
       }).then(function (response) {
