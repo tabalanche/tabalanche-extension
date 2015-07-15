@@ -7,14 +7,37 @@
   </style>
 </head>
 <body>
-  <label>
-    <input type="checkbox" id="magicnewtab">
-    Magic New Tab
-  </label>
-  <label>
-    <input type="checkbox" id="saveicons">
-    Save exact icons
-  </label>
+  <figure>
+    <label>
+      <input type="checkbox" id="savelinkicons">
+      Save link icons
+    </label>
+    <figcaption><p>
+    This saves the icons of pages that use a specific remote image to represent
+    their icon when saving. If link icons aren't saved, the page's icon will be
+    retrieved via the browser's history icon mechanism, which may be not be
+    the same as what icon was visible when the tab was closed, and may be lost
+    when importing or exporting tab data.
+    </p></figcaption>
+  </figure>
+  <figure>
+    <label>
+      <input type="checkbox" id="savedataicons">
+      Save data icons
+    </label>
+    <figcaption><p>
+    This saves icons for pages that compute a local image for their icon, such
+    as the icon with a number of unread messages in Gmail. While this will give
+    an exact record for the page's icon, it is usually an unnecessarily precise
+    amount of detail, and it will take up most of the storage space for saving
+    any tab that specifies its icon as local data (several times more than the
+    tab's location and title).
+    </p><p>
+    As this is useful on some sites, but not others, this will likely be
+    <a href="https://github.com/tabalanche/tabalanche-extension/issues/14">superseded
+    by a whitelist</a> at some point in the future.
+    </p></figcaption>
+  </figure>
   <button type="button" id="save">Save</button>
   <script src="options.js"></script>
 </body>

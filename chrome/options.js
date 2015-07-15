@@ -1,8 +1,8 @@
 /* global chrome */
 
 var boundInputs = [
-  {id: 'magicnewtab', opt: 'magicNewTab', def: true},
-  {id: 'saveicons', opt: 'saveIcons', def: true},
+  {id: 'savelinkicons', opt: 'saveLinkIcons', def: true},
+  {id: 'savedataicons', opt: 'saveDataIcons', def: false},
 ];
 
 // Saves options to chrome.storage.sync.
