@@ -49,7 +49,7 @@ function getAllWindowTabs() {
   return queryCurrentWindowTabs({});
 };
 
-platform.getWindowTabs.all = getAllWindowTabs();
+platform.getWindowTabs.all = getAllWindowTabs;
 
 function getHighlightedWindowTabs() {
   return queryCurrentWindowTabs({highlighted: true});
