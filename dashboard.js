@@ -40,7 +40,7 @@ function createTabGroupDiv(tabGroup) {
   });
 }
 
-tabalanche.getAllTabGroups(function(tabGroups) {
+tabalanche.getAllTabGroups().then(function(tabGroups) {
   for (var i = 0; i < tabGroups.length; i++) {
     createTabGroupDiv(tabGroups[i]);
   }

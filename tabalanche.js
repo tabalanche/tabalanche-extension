@@ -111,15 +111,15 @@ var tabalanche = {};
     });
   };
 
-  tabalanche.getAllTabGroups = function(cb) {
-    whenDBReady(function () {
+  tabalanche.getAllTabGroups = function() {
+    return whenDBReady(function () {
       tabgroups.query('dashboard/by_creation', {
         include_docs: true,
         descending: true
       }).then(function (response) {
-        return cb(response.rows.map(function (row) {
+        return response.rows.map(function (row) {
           return row.doc;
-        }));
+        });
       });
     });
   };
