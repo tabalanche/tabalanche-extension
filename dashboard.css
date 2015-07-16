@@ -17,3 +17,30 @@
 #tab-groups {
   margin: 24px;
 }
+header {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px dashed #ddd;
+}
+h1 {
+  margin: 24px 32px;
+}
+nav {
+  margin: 0 24px;
+}
+nav ul {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-flow: row;
+}
+nav li {
+  display: block;
+  margin: 0 12px;
+}
+nav a {
+  color: inherit;
+  text-decoration: none;
+}
