@@ -42,7 +42,7 @@ function createTabGroupDiv(tabGroupDoc) {
   function updateTabGroup() {
     function putNewTabGroupDoc() {
       pendingPutIsStale = false;
-      return tabalanche.withDB(function(db) {
+      return tabalanche.getDB().then(function(db) {
         return db.put(tabGroupDoc).then(function (result) {
           tabGroupDoc._rev = result.rev;
           if (pendingPutIsStale) {

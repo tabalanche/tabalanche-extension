@@ -130,5 +130,7 @@ var tabalanche = {};
     }
   };
 
-  tabalanche.withDB = whenDBReady;
+  tabalanche.getDB = function getDB() {
+    return tabgroupsPromise.then();
+  };
 })();
