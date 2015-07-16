@@ -32,8 +32,9 @@ function queryCurrentWindowTabs (params) {
       return chrome.tabs.query(params, function(tabs) {
 
         for (var i = 0; i < tabs.length; i++) {
-          if (/^data:/.test(tabs[i].favIconUrl) ?
-            !opts.saveDataIcons : !opts.saveLinkIcons) {
+          if (/^chrome:/.test(tabs[i].favIconUrl) ||
+            /^data:/.test(tabs[i].favIconUrl) ?
+              !opts.saveDataIcons : !opts.saveLinkIcons) {
 
             tabs[i].favIconUrl = '';
           }
