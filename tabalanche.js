@@ -22,10 +22,17 @@ var tabalanche = {};
 
   function ensureCurrentDesignDoc(db, designDoc) {
     function checkAgainstExistingDesignDoc(existing) {
+
+      // If we have a newer design doc than the current one
       if (designDoc.version > existing.version) {
+
+        // Note the revision we're clobbering and try the put again
         designDoc._rev = existing._rev;
         return ensureCurrentDesignDoc(db, designDoc);
-      }
+
+      // If the existing design doc appears to be up to date then
+      // return the DB for stuff like getDB
+      } else return db;
     }
 
     return db.put(designDoc).then(function() {
