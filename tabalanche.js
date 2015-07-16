@@ -28,7 +28,10 @@ var tabalanche = {};
       }
     }
 
-    return db.put(designDoc).catch(function (err) {
+    return db.put(designDoc).then(function() {
+      // return the DB for stuff like getDB
+      return db;
+    }).catch(function (err) {
       if (err.name == 'conflict') {
         return db.get(designDoc._id)
           .then(checkAgainstExistingDesignDoc);
