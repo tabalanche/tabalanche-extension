@@ -1,4 +1,4 @@
-/* global chrome tabalanche cre */
+/* global platform tabalanche cre */
 
 var tabGroupContainer = document.getElementById('tab-groups');
 
@@ -9,11 +9,8 @@ var templateTabLink = cre('a.tablink');
 var templateTabListItem = cre('li.tablist-item');
 
 function createTabListItem(tab) {
-  var tabDomain = tab.url &&
-    tab.url.replace(/^https?:\/?\/?([^\/]*)\/.*/, '$1');
-
   var tabIcon = cre(templateTabIcon, {src: tab.icon ||
-    'https://www.google.com/s2/favicons?domain=' + tabDomain});
+    platform.faviconPath(tab.url)});
 
   var tabLink = cre(templateTabLink, {href: tab.url},
     [tabIcon, ' ' + tab.title]);
@@ -47,5 +44,5 @@ tabalanche.getAllTabGroups().then(function(tabGroups) {
 });
 
 document.getElementById('options').addEventListener('click', function(evt) {
-  chrome.runtime.openOptionsPage();
+  platform.openOptionsPage();
 });

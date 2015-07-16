@@ -47,7 +47,7 @@ function queryCurrentWindowTabs (params) {
 
 function getAllWindowTabs() {
   return queryCurrentWindowTabs({});
-};
+}
 
 platform.getWindowTabs.all = getAllWindowTabs;
 
@@ -91,5 +91,7 @@ platform.faviconPath = function faviconPath(url) {
 platform.extensionURL = function extensionURL(path) {
   return chrome.extension.getURL(path);
 };
+
+platform.openOptionsPage = chrome.runtime.openOptionsPage;
 
 })();
