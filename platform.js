@@ -93,6 +93,10 @@ platform.extensionURL = function extensionURL(path) {
   return chrome.extension.getURL(path);
 };
 
+platform.getOptionsURL = function getOptionsURL() {
+  return 'chrome://extensions/?options=' + chrome.runtime.id;
+};
+
 platform.openOptionsPage = chrome.runtime.openOptionsPage;
 
 })();

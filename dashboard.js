@@ -43,6 +43,9 @@ tabalanche.getAllTabGroups().then(function(tabGroups) {
   }
 });
 
-document.getElementById('options').addEventListener('click', function(evt) {
+var optslink = document.getElementById('options');
+optslink.href = platform.getOptionsURL();
+optslink.addEventListener('click', function(evt) {
   platform.openOptionsPage();
+  evt.preventDefault();
 });
