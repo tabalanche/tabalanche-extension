@@ -99,4 +99,10 @@ platform.getOptionsURL = function getOptionsURL() {
 
 platform.openOptionsPage = chrome.runtime.openOptionsPage;
 
+platform.openBackgroundTab = function openBackgroundTab(url) {
+  return new Promise(function(resolve){
+    return chrome.tabs.create({url: url, active: false}, resolve);
+  });
+};
+
 })();

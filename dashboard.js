@@ -2,35 +2,113 @@
 
 var tabGroupContainer = document.getElementById('tab-groups');
 
-var tabGroupElems = new Map();
+var tabGroupData = new Map();
 
 var templateTabIcon = cre('img.tabicon');
 var templateTabLink = cre('a.tablink');
 var templateTabListItem = cre('li.tablist-item');
-
-function createTabListItem(tab) {
-  var tabIcon = cre(templateTabIcon, {src: tab.icon ||
-    platform.faviconPath(tab.url)});
-
-  var tabLink = cre(templateTabLink, {href: tab.url},
-    [tabIcon, ' ' + tab.title]);
-
-  return cre(templateTabListItem, [tabLink]);
-}
-
 var templateTabGroupContainer = cre('div.tabgroup');
 var templateTabList = cre('ul.tablist');
 
-function createTabGroupDiv(tabGroup) {
-  var tabListItems = tabGroup.tabs.map(createTabListItem);
+function getElementIndex(node) {
+  var i = 0;
+  while (node = node.previousElementSibling) ++i;
+  return i;
+}
 
-  var name = cre('h2', [tabGroup.name]);
+// blame http://stackoverflow.com/q/20087368
+function getLinkClickType(evt) {
+  // Technically the click event is only supposed to fire for button 0,
+  // but WebKit has shipped it for middle-click (button 1) for years.
+  // See http://specifiction.org/t/fixing-the-click-event-in-browsers/933
+  if (evt.button == 1 ||
+    evt.button === 0 && (evt.ctrlKey || evt.shiftKey || evt.metaKey)) {
+    return 'new';
+
+  // If the primary button triggered the click with no modifier keys
+  } else if (evt.button === 0) {
+    return 'visit';
+
+  // We are *really* not supposed to get here
+  } else {
+    return 'other';
+  }
+}
+
+function createTabGroupDiv(tabGroupDoc) {
+  var pendingPutPromise = null;
+  var pendingPutIsStale = false;
+
+  function updateTabGroup() {
+    function putNewTabGroupDoc() {
+      pendingPutIsStale = false;
+      return tabalanche.getDB().put(tabGroupDoc)
+      .then(function (result) {
+        tabGroupDoc._rev = result.rev;
+        if (pendingPutIsStale) {
+          return putNewTabGroupDoc();
+        } else {
+          pendingPutPromise = null;
+        }
+      }, function(err) {
+        if (err.name == 'conflict') {
+          return tabalanche.getDB().get(tabGroupDoc._id)
+          .then(function(newDoc) {
+            tabGroupDoc._rev = newDoc._rev;
+            return putNewTabGroupDoc();
+          });
+        }
+      });
+    }
+
+    if (!pendingPutPromise) {
+      pendingPutPromise = putNewTabGroupDoc();
+    } else pendingPutIsStale = true;
+    return pendingPutPromise;
+  }
+
+  function createTabListItem(tab) {
+    var tabIcon = cre(templateTabIcon,
+      {src: tab.icon || platform.faviconPath(tab.url)});
+
+    var tabLink = cre(templateTabLink, {href: tab.url},
+      [tabIcon, ' ' + tab.title]);
+
+    var listItem = cre(templateTabListItem, [tabLink]);
+
+    tabLink.addEventListener('click', function(evt) {
+      var type = getLinkClickType(evt);
+
+      // we have a special behavior for normal-visiting
+      if (type == 'visit') {
+        platform.openBackgroundTab(tab.url);
+
+        // We could technically do this stuff in a callback that only fires
+        // once the background tab is opened, but then we'd run into issues
+        // with the link getting clicked twice, or the tab group getting
+        // updated before the link gets removed, or a bunch of issues it's
+        // better to just not have to deal with.
+        tabGroupDoc.tabs.splice(getElementIndex(listItem), 1);
+        listItem.remove();
+        updateTabGroup();
+
+        evt.preventDefault();
+      }
+    });
+
+    return listItem;
+  }
+
+  var tabListItems = tabGroupDoc.tabs.map(createTabListItem);
+
+  var name = cre('h2', [tabGroupDoc.name]);
   var list = cre(templateTabList, tabListItems);
 
   var container = cre(templateTabGroupContainer, [name, list]);
 
   tabGroupContainer.appendChild(container);
-  tabGroupElems.set(tabGroup._id, {
+  tabGroupData.set(tabGroupDoc._id, {
+    doc: tabGroupDoc,
     container: container,
     list: list,
     name: name
@@ -44,7 +122,11 @@ tabalanche.getAllTabGroups().then(function(tabGroups) {
 });
 
 var optslink = document.getElementById('options');
+
+// Set href so this link works mostly like the others
 optslink.href = platform.getOptionsURL();
+
+// Perform platform-specific options opening on click anyway
 optslink.addEventListener('click', function(evt) {
   platform.openOptionsPage();
   evt.preventDefault();
