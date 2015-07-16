@@ -42,22 +42,23 @@ function createTabGroupDiv(tabGroupDoc) {
   function updateTabGroup() {
     function putNewTabGroupDoc() {
       pendingPutIsStale = false;
-      return tabalanche.getDB().put(tabGroupDoc)
-      .then(function (result) {
-        tabGroupDoc._rev = result.rev;
-        if (pendingPutIsStale) {
-          return putNewTabGroupDoc();
-        } else {
-          pendingPutPromise = null;
-        }
-      }, function(err) {
-        if (err.name == 'conflict') {
-          return tabalanche.getDB().get(tabGroupDoc._id)
-          .then(function(newDoc) {
-            tabGroupDoc._rev = newDoc._rev;
+      return tabalanche.getDB().then(function(db) {
+        return db.put(tabGroupDoc).then(function (result) {
+          tabGroupDoc._rev = result.rev;
+          if (pendingPutIsStale) {
             return putNewTabGroupDoc();
-          });
-        }
+          } else {
+            pendingPutPromise = null;
+          }
+        }, function(err) {
+          if (err.name == 'conflict') {
+            return db.get(tabGroupDoc._id)
+            .then(function(newDoc) {
+              tabGroupDoc._rev = newDoc._rev;
+              return putNewTabGroupDoc();
+            });
+          }
+        });
       });
     }
 
