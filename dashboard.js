@@ -43,7 +43,8 @@ function createTabGroupDiv(tabGroupDoc) {
     function putNewTabGroupDoc() {
       pendingPutIsStale = false;
       return tabalanche.getDB().then(function(db) {
-        return db.put(tabGroupDoc).then(function (result) {
+        var action = tabGroupDoc.tabs.length > 0 ? 'put' : 'remove';
+        return db[action](tabGroupDoc).then(function (result) {
           tabGroupDoc._rev = result.rev;
           if (pendingPutIsStale) {
             return putNewTabGroupDoc();
@@ -68,6 +69,8 @@ function createTabGroupDiv(tabGroupDoc) {
     return pendingPutPromise;
   }
 
+  var container;
+
   function createTabListItem(tab) {
     var tabIcon = cre(templateTabIcon,
       {src: tab.icon || platform.faviconPath(tab.url)});
@@ -90,7 +93,11 @@ function createTabGroupDiv(tabGroupDoc) {
         // updated before the link gets removed, or a bunch of issues it's
         // better to just not have to deal with.
         tabGroupDoc.tabs.splice(getElementIndex(listItem), 1);
-        listItem.remove();
+        if (tabGroupDoc.tabs.length == 0) {
+          container.remove();
+        } else {
+          listItem.remove();
+        }
         updateTabGroup();
 
         evt.preventDefault();
@@ -105,7 +112,7 @@ function createTabGroupDiv(tabGroupDoc) {
   var name = cre('h2', [tabGroupDoc.name]);
   var list = cre(templateTabList, tabListItems);
 
-  var container = cre(templateTabGroupContainer, [name, list]);
+  container = cre(templateTabGroupContainer, [name, list]);
 
   tabGroupContainer.appendChild(container);
   tabGroupData.set(tabGroupDoc._id, {
