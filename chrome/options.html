@@ -7,38 +7,44 @@
   </style>
 </head>
 <body>
-  <figure>
-    <label>
-      <input type="checkbox" id="savelinkicons">
-      Save link icons
-    </label>
-    <figcaption><p>
-    This saves the icons of pages that use a specific remote image to represent
-    their icon when saving. If link icons aren't saved, the page's icon will be
-    retrieved via the browser's history icon mechanism, which may be not be
-    the same as what icon was visible when the tab was closed, and may be lost
-    when importing or exporting tab data.
-    </p></figcaption>
-  </figure>
-  <figure>
-    <label>
-      <input type="checkbox" id="savedataicons">
-      Save data icons
-    </label>
-    <figcaption><p>
-    This saves icons for pages that compute a local image for their icon, such
-    as the icon with a number of unread messages in Gmail. While this will give
-    an exact record for the page's icon, it is usually an unnecessarily precise
-    amount of detail, and it will take up most of the storage space for saving
-    any tab that specifies its icon as local data (several times more than the
-    tab's location and title).
-    </p><p>
-    As this is useful on some sites, but not others, this will likely be
-    <a href="https://github.com/tabalanche/tabalanche-extension/issues/14">superseded
-    by a whitelist</a> at some point in the future.
-    </p></figcaption>
-  </figure>
+  <label>
+    <input type="checkbox" id="ignorepin">
+    Ignore pinned tabs
+  </label>
+  <div id="advanced" hidden>
+    <figure>
+      <label>
+        Data icon saving whitelist
+        <textarea id="whitelist"></textarea>
+      </label>
+      <button id="load-default-whitelist"
+        type="button">Restore defaults</button>
+      <figcaption><p>
+      Data icons are usually used to represent page state that will not apply
+      when a tab is saved and resumed (such as an unread message count), which
+      take a disproportionate amount of space to save. However, some pages use
+      data icons to actually distinguish the page, in which case it is useful
+      to save the data icon. This list describes the domains on which data
+      icons should be saved, rather than being omitted from the saved data.
+      </p></figcaption>
+      </figure>
+      <figure>
+      <label>
+        <input type="checkbox" id="savelinkicons">
+        Save link icons
+      </label>
+      <figcaption><p>
+      This saves the icons of pages that use a specific remote image to
+      represent their icon when saving. If link icons aren't saved, the page's
+      listed icon will be displayed using the browser's history icon mechanism,
+      which may differ from what icon was visible when the tab was closed, and
+      may be lost when importing or exporting tab data.
+      </p></figcaption>
+    </figure>
+  </div>
+  <a is="action-link" id="show-advanced">Show advanced options...</a>
   <button type="button" id="save">Save</button>
+  <script src="../platform.js"></script>
   <script src="options.js"></script>
 </body>
 </html>
