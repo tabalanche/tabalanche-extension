@@ -92,7 +92,9 @@ function queryCurrentWindowTabs (params) {
         return tabs;
       }
 
-      if (opts.ignorePinnedTabs) {
+      // Ignore pinned tabs (When set), except for highlighted tab queries
+      // (because you don't *inadvertently* highlight pinned tabs)
+      if (opts.ignorePinnedTabs && !params.highlighted) {
         params.pinned = false;
       }
 
