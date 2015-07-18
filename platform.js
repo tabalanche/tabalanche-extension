@@ -3,7 +3,11 @@
 var platform = {};
 (function(){
 
+// The list of default domains to save 'data:' favicons for.
+// Right now, there aren't any known sites that really use data favicons
+// in a way where they're useful to save, so the default list is empty.
 var defaultDataIconWhitelist = [];
+
 var optionDefaults = {
   ignorePinnedTabs: true,
   saveLinkIcons: true,
