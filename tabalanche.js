@@ -70,11 +70,14 @@ var tabalanche = {};
         return tabDoc;
       });
       return whenDBReady(function() {
-        return tabgroups.post({
-          name: wndCtx.name || stashTime.toLocaleString(),
+        var tabGroupDoc = {
           created: stashTime.getTime(),
           tabs: tabSave
-        }).then(function(response) {
+        };
+
+        if (wndCtx.name) tabGroupDoc.name = wndCtx.name;
+
+        return tabgroups.post(tabGroupDoc).then(function(response) {
           platform.closeTabs(tabs);
           var dashboard = platform.extensionURL('dashboard.html');
           open(dashboard + '#' + response.id, '_blank');
@@ -98,22 +101,17 @@ var tabalanche = {};
 
   tabalanche.importTabGroup = function importTabGroup(tabGroup, opts) {
     opts = opts || {};
-    var tabGroupName = tabGroup.name ||
-      (tabGroup.created &&
-        new Date(tabGroup.created).toLocaleString()) ||
-      opts.defaultName ||
-      (tabGroup.tabs || []).length + ' Tabs';
     return whenDBReady(function() {
       if (tabGroup._id) {
         return tabgroups.put({
           _id: tabGroup._id,
-          name: tabGroupName,
+          name: tabGroup.name,
           created: tabGroup.created,
           tabs: tabGroup.tabs
         });
       } else {
         return tabgroups.post({
-          name: tabGroupName,
+          name: tabGroup.name,
           created: tabGroup.created,
           tabs: tabGroup.tabs
         });
