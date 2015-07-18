@@ -3,7 +3,7 @@
 var platform = {};
 (function(){
 
-var defaultDataIconWhitelist = ['trello.com'];
+var defaultDataIconWhitelist = [];
 var optionDefaults = {
   ignorePinnedTabs: true,
   saveLinkIcons: true,
