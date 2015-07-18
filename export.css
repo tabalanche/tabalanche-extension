@@ -7,4 +7,5 @@ body {
 }
 textarea {
   flex: 1;
+  font-family: monospace, monospace;
 }
