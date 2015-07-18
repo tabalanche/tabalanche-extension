@@ -78,7 +78,18 @@ function cre(base, opts, children) {
   for (var opt in opts) {
     if (Object.prototype.hasOwnProperty.call(opts, opt)) switch (opt) {
       case 'classList':
-        Array.prototype.push.apply(classList, opts.classList);
+
+        // If the list is empty
+        if (opts.classList.length == 0) {
+
+          // Push a sentinel value to mark there was actually an explicitly
+          // empty class marker
+          classList.push('');
+
+        // If the list has items, append the items of the list to this one
+        } else {
+          Array.prototype.push.apply(classList, opts.classList);
+        }
         break;
       case 'className':
         classList.push(opts.className);
