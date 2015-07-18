@@ -7,13 +7,18 @@ var tabGroupData = new Map();
 var templateTabIcon = cre('img.tabicon');
 var templateTabLink = cre('a.tablink');
 var templateTabListItem = cre('li.tablist-item');
-var templateTabGroupContainer = cre('div.tabgroup');
+var templateTabStash = cre('div.tabgroup.tabstash');
+var templateFlap = cre('div.flap');
 var templateTabList = cre('ul.tablist');
 
 function getElementIndex(node) {
   var i = 0;
   while (node = node.previousElementSibling) ++i;
   return i;
+}
+
+function tabCountString(num) {
+  return num + (num == 1 ? 'tab' : 'tabs');
 }
 
 // blame http://stackoverflow.com/q/20087368
@@ -70,6 +75,7 @@ function createTabGroupDiv(tabGroupDoc) {
   }
 
   var container;
+  var tabCount = cre('span', [tabCountString(tabGroupDoc.tabs.length)]);
 
   function createTabListItem(tab) {
     var tabIcon = cre(templateTabIcon,
@@ -97,6 +103,7 @@ function createTabGroupDiv(tabGroupDoc) {
           container.remove();
         } else {
           listItem.remove();
+          tabCount.textContent = tabCountString(tabGroupDoc.tabs.length);
         }
         updateTabGroup();
 
@@ -109,16 +116,25 @@ function createTabGroupDiv(tabGroupDoc) {
 
   var tabListItems = tabGroupDoc.tabs.map(createTabListItem);
 
-  var name = cre('h2', [tabGroupDoc.name]);
+  var nameString = tabGroupDoc.name ||
+    new Date(tabGroupDoc.created).toLocaleString();
+
+  var className = tabGroupDoc.name ? 'explicit-name' : 'implicit-name';
+
+  var name = cre('h3', {className: className}, [nameString]);
+  var details = cre('h4', [tabCount]);
+  var hgroup = cre('hgroup', [name, details]);
+  var flap = cre(templateFlap, [hgroup]);
   var list = cre(templateTabList, tabListItems);
 
-  container = cre(templateTabGroupContainer, [name, list]);
+  container = cre(templateTabStash, [flap, list]);
 
   tabGroupContainer.appendChild(container);
   tabGroupData.set(tabGroupDoc._id, {
     doc: tabGroupDoc,
     container: container,
     list: list,
+    count: tabCount,
     name: name
   });
 }

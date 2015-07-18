@@ -9,13 +9,24 @@
 }
 .tablist {
   list-style: none;
-  padding: 0;
+  padding: 6px;
 }
 .tablist-item {
   margin: 4px;
 }
+.tabgroup {
+  margin: 12px;
+  box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+}
+.tabstash {
+  background-color: #eacfbc;
+}
+.tabstash .flap {
+  background-color: #deaa87;
+}
 #tab-groups {
-  margin: 24px;
+  padding: 24px;
+  background-color: #b7daf5;
 }
 header {
   display: flex;
