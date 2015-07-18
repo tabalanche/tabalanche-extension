@@ -18,7 +18,7 @@ function getElementIndex(node) {
 }
 
 function tabCountString(num) {
-  return num + (num == 1 ? 'tab' : 'tabs');
+  return num + (num == 1 ? ' tab' : ' tabs');
 }
 
 // blame http://stackoverflow.com/q/20087368

@@ -1,3 +1,6 @@
+body {
+  font-size: 10pt;
+}
 .tabicon {
   height: 16px;
   width: 16px;
@@ -10,16 +13,29 @@
 .tablist {
   list-style: none;
   padding: 6px;
+  margin: 0;
 }
 .tablist-item {
   margin: 4px;
 }
 .tabgroup {
   margin: 12px;
-  box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2);
 }
 .tabstash {
   background-color: #eacfbc;
+}
+.flap {
+  padding: 6px;
+}
+h3, h4 {
+  margin: 0 6px;
+}
+h3 {
+  opacity: 0.8;
+}
+h4 {
+  opacity: 0.7;
 }
 .tabstash .flap {
   background-color: #deaa87;
