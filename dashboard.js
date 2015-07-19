@@ -82,7 +82,7 @@ function createTabGroupDiv(tabGroupDoc) {
       {src: tab.icon || platform.faviconPath(tab.url)});
 
     var tabLink = cre(templateTabLink, {href: tab.url},
-      [tabIcon, ' ' + tab.title]);
+      [tabIcon, tab.title]);
 
     var listItem = cre(templateTabListItem, [tabLink]);
 

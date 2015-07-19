@@ -4,19 +4,20 @@ body {
 .tabicon {
   height: 16px;
   width: 16px;
+  margin-right: 8px;
   vertical-align: bottom;
 }
 .tablink {
   text-decoration: none;
-  color: #234da7;
+  color: #22a;
 }
 .tablist {
   list-style: none;
-  padding: 6px;
+  padding: 2px 6px;
   margin: 0;
 }
 .tablist-item {
-  margin: 4px;
+  margin: 8px;
 }
 .tabgroup {
   margin: 12px;
@@ -42,17 +43,20 @@ h4 {
 }
 #tab-groups {
   padding: 24px;
-  background-color: #b7daf5;
+  background-color: #953;
 }
 header {
   display: flex;
   flex-flow: row;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px dashed #ddd;
 }
 h1 {
-  margin: 24px 32px;
+  margin: 0;
+}
+h1 img {
+  vertical-align: middle;
+  height: 90px;
 }
 nav {
   margin: 0 24px;
