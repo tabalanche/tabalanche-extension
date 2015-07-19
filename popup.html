@@ -7,7 +7,20 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <button type="button" id="stash">Stash all tabs</button>
+  <div id="stash-ui">
+    <h2>Stash</h2>
+    <div class="button-row">
+      <button type="button" id="stash-all">All tabs</button>
+    </div>
+    <div class="button-row">
+      <button type="button" id="stash-this">Selected</button>
+      <button type="button" id="stash-other">Other tabs</button>
+      <button type="button" id="stash-right">Tabs to the right</button>
+    </div>
+    <input id="stash-name">
+  </div>
+  <div id="snapshot-ui" hidden>
+  </div>
   <button type="button" id="dash">Open dashboard</button>
   <script src="vendor/pouchdb-3.6.0.js"></script>
   <script src="platform.js"></script>

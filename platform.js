@@ -20,11 +20,21 @@ var optionDefaults = {
 platform.optionDefaults = optionDefaults;
 platform.defaultDataIconWhitelist = defaultDataIconWhitelist.join('\n');
 
-platform.getCurrentWindowContext = function getCurrentWindowContext() {
+platform.currentWindowContext = function currentWindowContext() {
+  var itemName = 'windowcontext_';
+
+  function getContext() {
+    return JSON.parse(sessionStorage.getItem(itemName) || '{}');
+  }
+  function setContext(ctx) {
+    sessionStorage.setItem(itemName, JSON.stringify(ctx));
+  }
+
+  var iface = {get: getContext, set: setContext};
   return new Promise(function(resolve, reject) {
     chrome.windows.getCurrent({populate: false}, function (crWindow) {
-      return resolve(JSON.parse(sessionStorage.getItem(
-        'windowcontext_' + crWindow.id) || '{}'));
+      itemName += crWindow.id;
+      return resolve(iface);
     });
   });
 };

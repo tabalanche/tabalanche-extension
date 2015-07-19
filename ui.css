@@ -1,0 +1,7 @@
+.button-row {
+  display: flex;
+  flex-flow: row;
+}
+.button-row button {
+  flex: 1;
+}
