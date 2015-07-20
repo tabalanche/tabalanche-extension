@@ -32,7 +32,7 @@ platform.currentWindowContext = function currentWindowContext() {
   // See http://discourse.wicg.io/t/cross-window-session-storage/943
 
   function getContext() {
-    var cookies = document.cookie.split(';');
+    var cookies = document.cookie.split(/;\s*/g);
     for (var i = 0; i < cookies.length; i++) {
       if (cookies[i].slice(0,preLength) == prefix) {
         return JSON.parse(decodeURIComponent(cookies[i].slice(preLength)));
