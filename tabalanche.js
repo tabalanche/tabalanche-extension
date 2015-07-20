@@ -57,7 +57,8 @@ var tabalanche = {};
   }
 
   function stashTabs(tabs) {
-    return platform.getCurrentWindowContext().then(function(wndCtx) {
+    return platform.currentWindowContext().then(function(store) {
+      var wndCtx = store.get();
       var stashTime = new Date();
       var tabSave = tabs.map(function (tab) {
         var tabDoc = {
