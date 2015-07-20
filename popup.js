@@ -10,7 +10,7 @@ platform.currentWindowContext().then(function(store){
   windowContext = windowStore.get();
   if (stashName.value) {
     windowContext.name = stashName.value;
-    windowStore.save(windowContext);
+    windowStore.set(windowContext);
   } else if (windowContext.name) {
     stashName.value = windowContext.name;
   }
@@ -18,7 +18,7 @@ platform.currentWindowContext().then(function(store){
 
 stashName.addEventListener('input', function(evt) {
   windowContext.name = stashName.value;
-  windowStore.save(windowContext);
+  windowStore.set(windowContext);
 });
 
 function onclick(elementId,handler) {
