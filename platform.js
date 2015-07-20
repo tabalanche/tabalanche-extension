@@ -21,23 +21,44 @@ platform.optionDefaults = optionDefaults;
 platform.defaultDataIconWhitelist = defaultDataIconWhitelist.join('\n');
 
 platform.currentWindowContext = function currentWindowContext() {
-  var itemName = 'windowcontext_';
+  var prefix, preLength;
+
+  // Yes, really. We save window state using document.cookie. That is the
+  // *only mechanism* we have for saving window state. IKR, it's 2015, WTF.
+  // It's this, or have a persistent background page that we query with
+  // postMessage, or try to maintain a window context store using a mechanism
+  // like localStorage that is persistent *across reboots* (which doesn't crash
+  // cleanly and would generally be even crazier than cookies).
+  // See http://discourse.wicg.io/t/cross-window-session-storage/943
 
   function getContext() {
-    return JSON.parse(sessionStorage.getItem(itemName) || '{}');
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+      if (cookies[i].slice(0,preLength) == prefix) {
+        return JSON.parse(decodeURIComponent(cookies[i].slice(preLength)));
+      }
+    }
+    return {};
   }
+
   function setContext(ctx) {
-    sessionStorage.setItem(itemName, JSON.stringify(ctx));
+    document.cookie = prefix + encodeURIComponent(JSON.stringify(ctx));
   }
 
   var iface = {get: getContext, set: setContext};
   return new Promise(function(resolve, reject) {
     chrome.windows.getCurrent({populate: false}, function (crWindow) {
-      itemName += crWindow.id;
+      prefix = 'wins_' + crWindow.id + '=';
+      preLength = prefix.length;
       return resolve(iface);
     });
   });
 };
+
+// clear window session cookies when the window is closed
+chrome.windows.onRemoved.addListener(function (wid) {
+  document.cookie = 'wins_' + wid + '=';
+});
 
 platform.getWindowTabs = {};
 
