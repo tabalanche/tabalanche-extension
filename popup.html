@@ -7,11 +7,11 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
+  <header>
+    <h2>Stash</h2>
+  </header>
   <div id="stash-ui">
-    <header>
-      <h2>Stash</h2>
-    </header>
-    <div class="button-row">
+    <div class="input-row">
       <button type="button" id="stash-this" class="stash-button">
         <img src="images/stash-sets/this-tab.svg">
         <label>Highlighted</label>
@@ -21,7 +21,7 @@
         <label>To the right</label>
       </button>
     </div>
-    <div class="button-row">
+    <div class="input-row">
       <button type="button" id="stash-all" class="stash-button">
         <img src="images/stash-sets/all-tabs.svg">
         <label>All in window</label>
@@ -31,12 +31,16 @@
         <label>Other tabs</label>
       </button>
     </div>
-    <label for="stash-name">Stash name</label>
-    <input id="stash-name">
+    <div class="input-row"><div>
+      <label for="stash-name">Stash name</label>
+      <input id="stash-name">
+    </div></div>
   </div>
   <div id="snapshot-ui" hidden>
   </div>
-  <button type="button" id="dash">Open dashboard</button>
+  <div class="input-row">
+    <button type="button" id="dash">Open dashboard</button>
+  </div>
   <script src="vendor/pouchdb-3.6.0.js"></script>
   <script src="platform.js"></script>
   <script src="tabalanche.js"></script>

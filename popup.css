@@ -1,11 +1,10 @@
-body {
-  width: 360px;
-}
 input {
   width: 100%;
 }
 #dash {
   background-color: #b7daf5;
+  box-sizing: border-box;
+  padding: 6px;
 }
 header {
   display: flex;
@@ -14,26 +13,29 @@ header {
   align-items: center;
   background-color: #f8f8f8;
 }
-#stash-ui {
-  background-color: #953;
-}
 button {
   border: none;
 }
 label {
   display: block;
 }
+.stash-button {
+  padding: 0;
+  background-color: #deaa87;
+}
 .stash-button img {
   display: block;
-  width: 165px;
+  width: 80px;
+  padding: 0;
+  margin: 8px 4px 0;
   background-color: #deaa87;
 }
 .stash-button label {
   background-color: #eacfbc;
 }
-.button-row {
-  padding: 5px;
+.input-row {
+  margin: 10px 5px;
 }
-.button-row button {
-  margin: 5px;
+.input-row > * {
+  margin: 0 5px;
 }

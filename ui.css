@@ -1,7 +1,10 @@
-.button-row {
+.input-row {
   display: flex;
   flex-flow: row;
 }
-.button-row button {
+.input-row > * {
   flex: 1;
+}
+button {
+  border-radius: 4px;
 }
