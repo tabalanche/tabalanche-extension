@@ -4,3 +4,36 @@ body {
 input {
   width: 100%;
 }
+#dash {
+  background-color: #b7daf5;
+}
+header {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f8f8;
+}
+#stash-ui {
+  background-color: #953;
+}
+button {
+  border: none;
+}
+label {
+  display: block;
+}
+.stash-button img {
+  display: block;
+  width: 165px;
+  background-color: #deaa87;
+}
+.stash-button label {
+  background-color: #eacfbc;
+}
+.button-row {
+  padding: 5px;
+}
+.button-row button {
+  margin: 5px;
+}

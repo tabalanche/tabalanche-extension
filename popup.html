@@ -8,15 +8,30 @@
 </head>
 <body>
   <div id="stash-ui">
-    <h2>Stash</h2>
+    <header>
+      <h2>Stash</h2>
+    </header>
     <div class="button-row">
-      <button type="button" id="stash-all">All tabs</button>
+      <button type="button" id="stash-this" class="stash-button">
+        <img src="images/stash-sets/this-tab.svg">
+        <label>Highlighted</label>
+      </button>
+      <button type="button" id="stash-right" class="stash-button">
+        <img src="images/stash-sets/tabs-to-the-right.svg">
+        <label>To the right</label>
+      </button>
     </div>
     <div class="button-row">
-      <button type="button" id="stash-this">Selected</button>
-      <button type="button" id="stash-other">Other tabs</button>
-      <button type="button" id="stash-right">Tabs to the right</button>
+      <button type="button" id="stash-all" class="stash-button">
+        <img src="images/stash-sets/all-tabs.svg">
+        <label>All in window</label>
+      </button>
+      <button type="button" id="stash-other" class="stash-button">
+        <img src="images/stash-sets/other-tabs.svg">
+        <label>Other tabs</label>
+      </button>
     </div>
+    <label for="stash-name">Stash name</label>
     <input id="stash-name">
   </div>
   <div id="snapshot-ui" hidden>
