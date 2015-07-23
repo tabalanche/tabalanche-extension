@@ -16,7 +16,7 @@
    id="svg3488"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="tabalanche-topper.svg">
+   sodipodi:docname="tabs-to-the-right.svg">
   <defs
      id="defs3490">
     <linearGradient
@@ -51,7 +51,7 @@
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient3833-3"
+       xlink:href="#linearGradient4202-0"
        id="linearGradient4351"
        gradientUnits="userSpaceOnUse"
        gradientTransform="translate(19.999997,862.36218)"
@@ -238,7 +238,7 @@
          style="fill:url(#linearGradient5166);fill-opacity:1;stroke:none" />
     </g>
     <g
-       transform="translate(516.42857,176.42862)"
+       transform="matrix(-1,0,0,1,656.42857,176.42862)"
        style="display:inline"
        id="g4223">
       <path
@@ -246,7 +246,7 @@
          inkscape:connector-curvature="0"
          id="path3865"
          d="m 40,952.36218 c 5,0 25,-90 30,-90 l 25,0 c 5,0 25,90 30,90"
-         style="fill:url(#linearGradient4351);fill-opacity:1;stroke:none" />
+         style="fill:url(#linearGradient4351);fill-opacity:1.0;stroke:none" />
       <path
          style="fill:url(#linearGradient3791);fill-opacity:1;stroke:none"
          d="m 40,952.36218 c 5,0 25,-90 30,-90 l 25,0 c 5,0 25,90 30,90"
@@ -255,7 +255,7 @@
          sodipodi:nodetypes="czsc" />
     </g>
     <g
-       transform="translate(516.42857,176.42862)"
+       transform="translate(541.42857,176.42862)"
        style="display:inline"
        id="g4214">
       <path

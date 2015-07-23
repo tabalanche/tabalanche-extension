@@ -16,7 +16,7 @@
    id="svg3488"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="tabalanche-topper.svg">
+   sodipodi:docname="other-tabs.svg">
   <defs
      id="defs3490">
     <linearGradient
@@ -166,7 +166,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="7.525"
-     inkscape:cx="56.677741"
+     inkscape:cx="80"
      inkscape:cy="44.999999"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -238,7 +238,7 @@
          style="fill:url(#linearGradient5166);fill-opacity:1;stroke:none" />
     </g>
     <g
-       transform="translate(516.42857,176.42862)"
+       transform="matrix(-1,0,0,1,656.42857,176.42862)"
        style="display:inline"
        id="g4223">
       <path
@@ -255,7 +255,7 @@
          sodipodi:nodetypes="czsc" />
     </g>
     <g
-       transform="translate(516.42857,176.42862)"
+       transform="translate(541.42857,176.42862)"
        style="display:inline"
        id="g4214">
       <path
