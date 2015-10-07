@@ -1,3 +1,7 @@
+/* override base full-height */
+html, body {
+  height: auto;
+}
 h2 {
   margin: 5px 10px;
 }
@@ -19,10 +23,4 @@ label {
   width: 80px;
   padding: 0;
   margin: 8px 4px 0;
-}
-.input-row {
-  margin: 10px 5px;
-}
-.input-row > * {
-  margin: 0 5px;
 }
