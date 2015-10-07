@@ -18,7 +18,7 @@
   "background": {
     "scripts": [
       "vendor/pouchdb-3.6.0.js",
-      "tabalanche.js",
+      "scripts/tabalanche.js",
       "chrome/event-page.js" ],
     "persistent": false
   },

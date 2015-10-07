@@ -5,7 +5,6 @@ input {
   width: 100%;
 }
 #dash {
-  background-color: #b7daf5;
   box-sizing: border-box;
   padding: 6px;
 }
@@ -14,7 +13,6 @@ header {
   flex-flow: row;
   justify-content: space-between;
   align-items: center;
-  background-color: #f8f8f8;
 }
 button {
   border: none;
@@ -24,17 +22,12 @@ label {
 }
 .stash-button {
   padding: 0;
-  background-color: #deaa87;
 }
 .stash-button img {
   display: block;
   width: 80px;
   padding: 0;
   margin: 8px 4px 0;
-  background-color: #deaa87;
-}
-.stash-button label {
-  background-color: #eacfbc;
 }
 .input-row {
   margin: 10px 5px;

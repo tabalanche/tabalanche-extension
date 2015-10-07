@@ -3,17 +3,12 @@ body, html {
 }
 body {
   font-size: 10pt;
-  background-color: #953;
 }
 .tabicon {
   height: 16px;
   width: 16px;
   margin-right: 8px;
   vertical-align: bottom;
-}
-.tablink {
-  text-decoration: none;
-  color: #22a;
 }
 .tablist {
   list-style: none;
@@ -25,10 +20,6 @@ body {
 }
 .tabgroup {
   margin: 12px;
-  box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2);
-}
-.tabstash {
-  background-color: #eacfbc;
 }
 .flap {
   padding: 6px;
@@ -36,25 +27,14 @@ body {
 h3, h4 {
   margin: 0 6px;
 }
-h3 {
-  opacity: 0.8;
-}
-h4 {
-  opacity: 0.7;
-}
-.tabstash .flap {
-  background-color: #deaa87;
-}
 #tab-groups {
   padding: 24px;
-  background-color: #953;
 }
 header {
   display: flex;
   flex-flow: row;
   justify-content: space-between;
   align-items: center;
-  background-color: #f8f8f8;
 }
 h1 {
   margin: 0;
@@ -75,8 +55,4 @@ nav ul {
 nav li {
   display: block;
   margin: 0 12px;
-}
-nav a {
-  color: inherit;
-  text-decoration: none;
 }
