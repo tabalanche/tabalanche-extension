@@ -2,35 +2,35 @@
   font-family: 'Arimo';
   font-style: normal;
   font-weight: 400;
-  src: local('Arimo'), url('/fonts/Arimo/Arimo-Regular.ttf') format('ttf');
+  src: local('Arimo'), url('/fonts/Arimo/Arimo-Regular.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Arimo';
   font-style: normal;
   font-weight: 700;
-  src: local('Arimo-Bold'), url('/fonts/Arimo/Arimo-Bold.ttf') format('ttf');
+  src: local('Arimo-Bold'), url('/fonts/Arimo/Arimo-Bold.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Arimo';
   font-style: italic;
   font-weight: 400;
-  src: local('Arimo-Italic'), url('/fonts/Arimo/Arimo-Italic.ttf') format('ttf');
+  src: local('Arimo-Italic'), url('/fonts/Arimo/Arimo-Italic.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Arimo';
   font-style: italic;
   font-weight: 700;
-  src: local('Arimo-BoldItalic'), url('/fonts/Arimo/Arimo-BoldItalic.ttf') format('ttf');
+  src: local('Arimo-BoldItalic'), url('/fonts/Arimo/Arimo-BoldItalic.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Montserrat';
   font-style: normal;
   font-weight: 400;
-  src: local('Montserrat-Regular'), url('/fonts/Montserrat/Montserrat-Regular.ttf') format('ttf');
+  src: local('Montserrat-Regular'), url('/fonts/Montserrat/Montserrat-Regular.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Montserrat';
   font-style: normal;
   font-weight: 700;
-  src: local('Montserrat-Bold'), url('/fonts/Montserrat/Montserrat-Bold.ttf') format('ttf');
+  src: local('Montserrat-Bold'), url('/fonts/Montserrat/Montserrat-Bold.ttf') format('truetype');
 }
