@@ -1,0 +1,32 @@
+html, body {
+  height: 100%;
+}
+body {
+  font-size: 10pt;
+}
+header {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  align-items: center;
+}
+h1 {
+  margin: 0;
+}
+h1 img {
+  vertical-align: middle;
+  height: 90px;
+}
+nav {
+  margin: 0 24px;
+}
+nav ul {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  flex-flow: row;
+}
+nav li {
+  display: block;
+  margin: 0 12px;
+}

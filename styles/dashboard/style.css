@@ -1,6 +1,3 @@
-body {
-  background-color: #953;
-}
 .tablink {
   text-decoration: none;
   color: #22a;
@@ -22,11 +19,4 @@ h4 {
 }
 #tab-groups {
   background-color: #953;
-}
-header {
-  background-color: #f8f8f8;
-}
-nav a {
-  color: inherit;
-  text-decoration: none;
 }

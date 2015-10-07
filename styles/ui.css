@@ -5,6 +5,3 @@
 .input-row > * {
   flex: 1;
 }
-button {
-  border-radius: 4px;
-}

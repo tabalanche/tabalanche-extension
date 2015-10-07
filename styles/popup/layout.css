@@ -8,15 +8,6 @@ input {
   box-sizing: border-box;
   padding: 6px;
 }
-header {
-  display: flex;
-  flex-flow: row;
-  justify-content: space-between;
-  align-items: center;
-}
-button {
-  border: none;
-}
 label {
   display: block;
 }
