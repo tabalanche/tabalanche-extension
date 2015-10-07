@@ -17,7 +17,7 @@
   "author": "Stuart P. Bentley",
   "background": {
     "scripts": [
-      "vendor/pouchdb-3.6.0.js",
+      "vendor/pouchdb-5.0.0.js",
       "scripts/tabalanche.js",
       "chrome/event-page.js" ],
     "persistent": false
