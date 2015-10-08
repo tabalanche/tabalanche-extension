@@ -187,8 +187,7 @@ var loadMoreMargin = 1/2;
 
 function loadMoreIfNearBottom() {
   var bottomOffset = window.innerHeight * (1 - loadMoreMargin);
-  // TODO: Maybe base this on the scroll position of the tab group list
-  var scrollTop = document.documentElement.scrollTop;
+  var scrollTop = window.scrollY;
   var scrollHeight = document.documentElement.scrollHeight;
 
   if (scrollTop + bottomOffset >= scrollHeight) {
