@@ -186,7 +186,7 @@ tabalanche.getSomeTabGroups().then(showLoadedTabGroups);
 var loadMoreMargin = 1/2;
 
 function loadMoreIfNearBottom() {
-  var bottomOffset = window.innerHeight * (1 - loadMoreMargin);
+  var bottomOffset = window.innerHeight * (1 + loadMoreMargin);
   var scrollTop = window.scrollY;
   var scrollHeight = document.documentElement.scrollHeight;
 
