@@ -1,7 +1,9 @@
 .input-row {
   display: flex;
   flex-flow: row;
+  margin: 10px 5px;
 }
 .input-row > * {
   flex: 1;
+  margin: 0 5px;
 }
