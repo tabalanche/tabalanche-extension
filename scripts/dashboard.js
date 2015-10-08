@@ -139,11 +139,64 @@ function createTabGroupDiv(tabGroupDoc) {
   });
 }
 
-tabalanche.getAllTabGroups().then(function(tabGroups) {
+var lastTabGroup;
+var loadingTabGroups = false;
+var allTabGroupsLoaded = false;
+
+function capTabGroupLoading() {
+  allTabGroupsLoaded = true;
+  // we can stop listening to load on scroll
+  document.removeEventListener('scroll', loadMoreIfNearBottom);
+  // TODO: set the "Loading..." message to be "No older tab groups"
+  // or a message stating there are *no* tab groups
+}
+
+function showLoadedTabGroups(tabGroups) {
+  loadingTabGroups = false;
   for (var i = 0; i < tabGroups.length; i++) {
     createTabGroupDiv(tabGroups[i]);
   }
-});
+  if (tabGroups.length > 0) {
+    lastTabGroup = tabGroups[tabGroups.length-1];
+    // in case there's still visible window, recurse
+    return loadMoreIfNearBottom();
+  } else {
+    return capTabGroupLoading();
+  }
+}
+
+function loadMoreTabGroups() {
+  if (!loadingTabGroups && !allTabGroupsLoaded) {
+    loadingTabGroups = true;
+
+    // TODO: Set "Loading..." message
+    // (which could technically always be visible)
+
+    // Get the next groups
+    tabalanche.getSomeTabGroups([lastTabGroup.created, lastTabGroup._id])
+      .then(showLoadedTabGroups);
+  }
+}
+
+// Get the first groups
+tabalanche.getSomeTabGroups().then(showLoadedTabGroups);
+
+// How many window-heights from the bottom of the page we should be before
+// loading more tabs.
+var loadMoreMargin = 1/2;
+
+function loadMoreIfNearBottom() {
+  var bottomOffset = window.innerHeight * (1 - loadMoreMargin);
+  // TODO: Maybe base this on the scroll position of the tab group list
+  var scrollTop = document.documentElement.scrollTop;
+  var scrollHeight = document.documentElement.scrollHeight;
+
+  if (scrollTop + bottomOffset >= scrollHeight) {
+    loadMoreTabGroups();
+  }
+}
+
+document.addEventListener('scroll', loadMoreIfNearBottom);
 
 var optslink = document.getElementById('options');
 

@@ -4,11 +4,11 @@ var tabalanche = {};
 (function(){
   var dashboardDesignDoc = {
     _id: '_design/dashboard',
-    version: 1,
+    version: 2,
     views: {
       by_creation: {
         map: function(doc) {
-          emit(doc.created);
+          emit([doc.created, doc._id]);
         }.toString()
       },
       total_tabs: {
@@ -121,6 +121,28 @@ var tabalanche = {};
         include_docs: true,
         descending: true
       }).then(function (response) {
+        return response.rows.map(function (row) {
+          return row.doc;
+        });
+      });
+    });
+  };
+
+  tabalanche.getSomeTabGroups = function(startKey) {
+    var queryOpts = {
+      include_docs: true,
+      descending: true,
+      limit: 5 // TODO: Make configurable or something
+    };
+
+    if (startKey) {
+      queryOpts.startkey = startKey;
+      queryOpts.skip = 1;
+    }
+
+    return whenDBReady(function () {
+      return tabgroups.query('dashboard/by_creation', queryOpts)
+      .then(function (response) {
         return response.rows.map(function (row) {
           return row.doc;
         });
