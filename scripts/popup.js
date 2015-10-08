@@ -1,24 +1,12 @@
 /* global platform tabalanche */
 
-var stashName = document.getElementById('stash-name');
-
 var windowStore;
 var windowContext;
 
 platform.currentWindowContext().then(function(store){
   windowStore = store;
   windowContext = windowStore.get();
-  if (stashName.value) {
-    windowContext.name = stashName.value;
-    windowStore.set(windowContext);
-  } else if (windowContext.name) {
-    stashName.value = windowContext.name;
-  }
-});
-
-stashName.addEventListener('input', function(evt) {
-  windowContext.name = stashName.value;
-  windowStore.set(windowContext);
+  // TODO: Set / restore window state
 });
 
 function onclick(elementId,handler) {

@@ -58,7 +58,6 @@ var tabalanche = {};
 
   function stashTabs(tabs) {
     return platform.currentWindowContext().then(function(store) {
-      var wndCtx = store.get();
       var stashTime = new Date();
       var tabSave = tabs.map(function (tab) {
         var tabDoc = {
@@ -75,8 +74,6 @@ var tabalanche = {};
           created: stashTime.getTime(),
           tabs: tabSave
         };
-
-        if (wndCtx.name) tabGroupDoc.name = wndCtx.name;
 
         return tabgroups.post(tabGroupDoc).then(function(response) {
           platform.closeTabs(tabs);
@@ -106,13 +103,11 @@ var tabalanche = {};
       if (tabGroup._id) {
         return tabgroups.put({
           _id: tabGroup._id,
-          name: tabGroup.name,
           created: tabGroup.created,
           tabs: tabGroup.tabs
         });
       } else {
         return tabgroups.post({
-          name: tabGroup.name,
           created: tabGroup.created,
           tabs: tabGroup.tabs
         });

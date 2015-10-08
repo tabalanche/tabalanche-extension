@@ -5,9 +5,6 @@ html, body {
 h2 {
   margin: 5px 10px;
 }
-input {
-  width: 100%;
-}
 #dash {
   box-sizing: border-box;
   padding: 6px;
