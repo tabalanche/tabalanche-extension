@@ -18,10 +18,10 @@ function save_options() {
     }
   }
   var whitelistValue = whitelistTextarea.value.trim();
-  if (whitelistValue === platform.defaultDataIconWhitelist) {
-    opts.dataIconWhitelist = null;
+  if (whitelistValue === platform.defaultIconSavingWhitelist) {
+    opts.iconSavingWhitelist = null;
   } else {
-    opts.dataIconWhitelist = whitelistValue;
+    opts.iconSavingWhitelist = whitelistValue;
   }
 
   chrome.storage.sync.set(opts, function() {
@@ -66,5 +66,5 @@ advancedLink.addEventListener('click', function (evt) {
 var revertWhitelistButton = document.getElementById('load-default-whitelist');
 
 revertWhitelistButton.addEventListener('click', function (evt) {
-  whitelistTextarea.value = platform.defaultDataIconWhitelist;
+  whitelistTextarea.value = platform.defaultIconSavingWhitelist;
 });

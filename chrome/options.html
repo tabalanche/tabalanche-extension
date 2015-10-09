@@ -14,31 +14,16 @@
   <div id="advanced" hidden>
     <figure>
       <label>
-        Data icon saving whitelist
+        Remember icons for domains
         <textarea id="whitelist"></textarea>
       </label>
       <button id="load-default-whitelist"
         type="button">Restore defaults</button>
       <figcaption><p>
-      Data icons are usually used to represent page state that will not apply
-      when a tab is saved and resumed (such as an unread message count), which
-      take a disproportionate amount of space to save. However, some pages use
-      data icons to actually distinguish the page, in which case it is useful
-      to save the data icon. This list describes the domains on which data
-      icons should be saved, rather than being omitted from the saved data.
-      </p></figcaption>
-      </figure>
-      <figure>
-      <label>
-        <input type="checkbox" id="savelinkicons">
-        Save link icons
-      </label>
-      <figcaption><p>
-      This saves the icons of pages that use a specific remote image to
-      represent their icon when saving. If link icons aren't saved, the page's
-      listed icon will be displayed using the browser's history icon mechanism,
-      which may differ from what icon was visible when the tab was closed, and
-      may be lost when importing or exporting tab data.
+      Adding a domain to this list will cause icons to be saved exactly as
+      listed on the tab, and to be retrieved from the site / saved as a large
+      chunk of data (depending on how the icon is specified by the site),
+      rather than using the browser's cached icon for listing.
       </p></figcaption>
     </figure>
   </div>

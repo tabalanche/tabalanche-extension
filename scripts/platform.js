@@ -3,26 +3,22 @@
 var platform = {};
 (function(){
 
-// The list of default domains to save 'data:' favicons for.
-// Right now, there aren't any known sites that really use data favicons
-// in a way where they're useful to save, so the default list is empty.
-var defaultDataIconWhitelist = [];
-
-// The list of default domains to not save non-data favicon URLs for.
-// By default, it's assumed that all domains are OK to save icons for.
-var defaultIconSavingBlacklist = [];
+// The list of default domains to save favicons for.
+// By default, the list is empty (all domains are considered to be better
+// tracked by the browser's favicon mechanism).
+var defaultIconSavingWhitelist = [];
 
 var optionDefaults = {
   ignorePinnedTabs: true,
   saveLinkIcons: true,
   // the default for the whitelist value is 'null' so we know to skip ahead
   // and load the default list without going through the split/trim step
-  dataIconWhitelist: null
+  iconSavingWhitelist: null
 };
 
 // exposed for the options page
 platform.optionDefaults = optionDefaults;
-platform.defaultDataIconWhitelist = defaultDataIconWhitelist.join('\n');
+platform.defaultIconSavingWhitelist = defaultIconSavingWhitelist.join('\n');
 
 platform.currentWindowContext = function currentWindowContext() {
   var prefix, preLength;
@@ -70,7 +66,7 @@ function listItems(listText) {
   // For each line
   return listText.split('\n')
     // remove indentation / whitespace-at-EOL
-    .map(function(s){return s.trim})
+    .map(function(s){return s.trim()})
     // remove blank lines and lines with comments
     .filter(function(s){return s && s[0] != '#'});
 }
@@ -109,41 +105,30 @@ function queryCurrentWindowTabs (params) {
 
   return new Promise(function(resolve) {
     chrome.storage.sync.get(optionDefaults, function(opts) {
-      var isDataIconOkay = globListMatcher(
-        opts.dataIconWhitelist
-        ? listItems(opts.dataIconWhitelist)
-        : defaultDataIconWhitelist);
-      var iconSavingIsBlacklisted = globListMatcher(
-        opts.iconSavingBlacklist
-        ? listItems(opts.iconSavingBlacklist)
-        : defaultIconSavingBlacklist);
+      var shouldSaveIcon = globListMatcher(
+        opts.iconSavingWhitelist
+        ? listItems(opts.iconSavingWhitelist)
+        : defaultIconSavingWhitelist);
 
-      function filterTabData(tabs) {
+      function savedTabInfo(tab) {
+        var tabDoc = {
+          url: tab.url,
+          title: tab.title
+        };
 
-        // For every tab in the list
-        for (var i = 0; i < tabs.length; i++) {
+        if (shouldSaveIcon(tab.url)) tabDoc.icon = tab.favIconUrl;
 
-          // If the favicon is one of the types we don't save
-          if (/^chrome:/.test(tabs[i].favIconUrl) ||
-            /^data:/.test(tabs[i].favIconUrl)
-              ? !isDataIconOkay(tabs[i].url)
-              : iconSavingIsBlacklisted(tabs[i].url)) {
-
-            // Remove the favicon data
-            tabs[i].favIconUrl = '';
-          }
-        }
-        return tabs;
+        return tabDoc;
       }
 
-      // Ignore pinned tabs (When set), except for highlighted tab queries
+      // Ignore pinned tabs (when set), except for highlighted tab queries
       // (because you don't *inadvertently* highlight pinned tabs)
       if (opts.ignorePinnedTabs && !params.highlighted) {
         params.pinned = false;
       }
 
       return chrome.tabs.query(params, function(tabs) {
-        return resolve(filterTabData(tabs));
+        return resolve(tabs.map(savedTabInfo));
       });
     });
   });
