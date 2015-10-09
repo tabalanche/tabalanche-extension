@@ -8,6 +8,10 @@ var platform = {};
 // in a way where they're useful to save, so the default list is empty.
 var defaultDataIconWhitelist = [];
 
+// The list of default domains to not save non-data favicon URLs for.
+// By default, it's assumed that all domains are OK to save icons for.
+var defaultIconSavingBlacklist = [];
+
 var optionDefaults = {
   ignorePinnedTabs: true,
   saveLinkIcons: true,
@@ -62,21 +66,22 @@ chrome.windows.onRemoved.addListener(function (wid) {
 
 platform.getWindowTabs = {};
 
-function whitelistMatcher(whitelist) {
-  whitelist = whitelist ?
-    // For each line
-    whitelist.split('\n')
-      // remove indentation / whitespace-at-EOL
-      .map(function(s){return s.trim})
-      // remove blank lines and lines with comments
-      .filter(function(s){return s && s[0] != '#'})
-  : defaultDataIconWhitelist;
+function listItems(listText) {
+  // For each line
+  return listText.split('\n')
+    // remove indentation / whitespace-at-EOL
+    .map(function(s){return s.trim})
+    // remove blank lines and lines with comments
+    .filter(function(s){return s && s[0] != '#'});
+}
+
+function globListMatcher(globList) {
 
   // Quick shortcuts
-  if (whitelist.length == 0) {
+  if (globList.length == 0) {
     return function(s) {return false;};
   // if global whitelisting has been enabled
-  } else if (whitelist.indexOf('*') > -1) {
+  } else if (globList.indexOf('*') > -1) {
     return function(s) {return true;};
   }
 
@@ -85,14 +90,14 @@ function whitelistMatcher(whitelist) {
 
   // Convert each item to a regex
   // TODO: handle paths
-  for (var i = 0; i < whitelist.length; i++) {
-    var prefix = whitelist[i].slice(0,2) == '*.' ? arbitraryPrefix : '';
-    var item = prefix ? whitelist[i].slice(2) : whitelist[i];
-    whitelist[i] = prefix + item.replace(/\./g, '\\.');
+  for (var i = 0; i < globList.length; i++) {
+    var prefix = globList[i].slice(0,2) == '*.' ? arbitraryPrefix : '';
+    var item = prefix ? globList[i].slice(2) : globList[i];
+    globList[i] = prefix + item.replace(/\./g, '\\.');
   }
 
   // it's okay to be this strict because we're comparing to normalized URLs
-  var finalRegexp = new RegExp('^https?://(?:' + whitelist.join('|') + ')/');
+  var finalRegexp = new RegExp('^https?://(?:' + globList.join('|') + ')/');
   return function testWhitelistRegex(s) {
     return finalRegexp.test(s);
   };
@@ -104,7 +109,14 @@ function queryCurrentWindowTabs (params) {
 
   return new Promise(function(resolve) {
     chrome.storage.sync.get(optionDefaults, function(opts) {
-      var isDataIconOkay = whitelistMatcher(opts.dataIconWhitelist);
+      var isDataIconOkay = globListMatcher(
+        opts.dataIconWhitelist
+        ? listItems(opts.dataIconWhitelist)
+        : defaultDataIconWhitelist);
+      var iconSavingIsBlacklisted = globListMatcher(
+        opts.iconSavingBlacklist
+        ? listItems(opts.iconSavingBlacklist)
+        : defaultIconSavingBlacklist);
 
       function filterTabData(tabs) {
 
@@ -113,8 +125,9 @@ function queryCurrentWindowTabs (params) {
 
           // If the favicon is one of the types we don't save
           if (/^chrome:/.test(tabs[i].favIconUrl) ||
-            /^data:/.test(tabs[i].favIconUrl) ?
-              !isDataIconOkay(tabs[i].url) : !opts.saveLinkIcons) {
+            /^data:/.test(tabs[i].favIconUrl)
+              ? !isDataIconOkay(tabs[i].url)
+              : iconSavingIsBlacklisted(tabs[i].url)) {
 
             // Remove the favicon data
             tabs[i].favIconUrl = '';
