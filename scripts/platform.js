@@ -110,10 +110,12 @@ function queryCurrentWindowTabs (params) {
         ? listItems(opts.iconSavingWhitelist)
         : defaultIconSavingWhitelist);
 
-      function savedTabInfo(tab) {
+      function exposedTabInfo(tab) {
         var tabDoc = {
           url: tab.url,
-          title: tab.title
+          title: tab.title,
+          // id for round-tripping when closing tabs
+          id: tab.id
         };
 
         if (shouldSaveIcon(tab.url)) tabDoc.icon = tab.favIconUrl;
@@ -128,7 +130,7 @@ function queryCurrentWindowTabs (params) {
       }
 
       return chrome.tabs.query(params, function(tabs) {
-        return resolve(tabs.map(savedTabInfo));
+        return resolve(tabs.map(exposedTabInfo));
       });
     });
   });
