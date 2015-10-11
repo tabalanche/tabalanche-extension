@@ -60,11 +60,18 @@ var tabalanche = {};
     return platform.currentWindowContext().then(function(store) {
       var stashTime = new Date();
 
+      function stashedTab(tab) {
+        return {
+          url: tab.url,
+          title: tab.title,
+        };
+      }
+
       return whenDBReady(function() {
         if (tabs.length > 0) {
           var tabGroupDoc = {
             created: stashTime.getTime(),
-            tabs: tabs
+            tabs: tabs.map(stashedTab)
           };
 
           return tabgroups.post(tabGroupDoc).then(function(response) {

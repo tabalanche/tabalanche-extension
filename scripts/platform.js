@@ -58,17 +58,6 @@ function getOptions() {
   });
 }
 
-// Strips all Chomre-specific/should-not-be-saved info from tabs.
-function finalizeTabs(tabs) {
-  function exposedTabInfo(tab) {
-    return {
-      url: tab.url,
-      title: tab.title,
-    };
-  }
-  return tabs.map(exposedTabInfo);
-}
-
 function queryCurrentWindowTabs (params) {
   return new Promise(function (resolve) {
     params.currentWindow = true;
@@ -81,11 +70,11 @@ platform.getWindowTabs.all = function getAllWindowTabs() {
   return getOptions().then(function (opts) {
     if (opts.ignorePinnedTabs) params.pinned = false;
     return queryCurrentWindowTabs(params);
-  }).then(finalizeTabs);
+  });
 };
 
 platform.getWindowTabs.highlighted = function getHighlightedWindowTabs() {
-  return queryCurrentWindowTabs({highlighted: true}).then(finalizeTabs);
+  return queryCurrentWindowTabs({highlighted: true});
 };
 
 platform.getWindowTabs.other = function getAllWindowTabs() {
@@ -93,7 +82,7 @@ platform.getWindowTabs.other = function getAllWindowTabs() {
   return getOptions().then(function (opts) {
     if (opts.ignorePinnedTabs) params.pinned = false;
     return queryCurrentWindowTabs(params);
-  }).then(finalizeTabs);
+  });
 };
 
 platform.getWindowTabs.right = function getRightWindowTabs() {
@@ -106,7 +95,7 @@ platform.getWindowTabs.right = function getRightWindowTabs() {
     return tabs.filter(function (tab) {
       return tab.index > rightEdge;
     });
-  }).then(finalizeTabs);
+  });
 };
 
 function tabIdMap(tab) {
