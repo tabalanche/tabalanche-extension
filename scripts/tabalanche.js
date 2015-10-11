@@ -46,15 +46,8 @@ var tabalanche = {};
     });
   }
 
-  var tabgroups;
-  var tabgroupsPromise = new PouchDB('tabgroups').then(function(db){
-    tabgroups = db;
-    return ensureCurrentDesignDoc(db, dashboardDesignDoc);
-  });
-
-  function whenDBReady(cb) {
-    return tabgroupsPromise.then(cb);
-  }
+  var tabgroups = new PouchDB('tabgroups');
+  var tabgroupsReady = ensureCurrentDesignDoc(tabgroups, dashboardDesignDoc);
 
   function stashTabs(tabs) {
     return platform.currentWindowContext().then(function(store) {
@@ -67,7 +60,7 @@ var tabalanche = {};
         };
       }
 
-      return whenDBReady(function() {
+      return tabgroupsReady.then(function() {
         if (tabs.length > 0) {
           var tabGroupDoc = {
             created: stashTime.getTime(),
@@ -101,7 +94,7 @@ var tabalanche = {};
 
   tabalanche.importTabGroup = function importTabGroup(tabGroup, opts) {
     opts = opts || {};
-    return whenDBReady(function() {
+    return tabgroupsReady.then(function() {
       if (tabGroup._id) {
         return tabgroups.put({
           _id: tabGroup._id,
@@ -118,7 +111,7 @@ var tabalanche = {};
   };
 
   tabalanche.getAllTabGroups = function() {
-    return whenDBReady(function () {
+    return tabgroupsReady.then(function () {
       return tabgroups.query('dashboard/by_creation', {
         include_docs: true,
         descending: true
@@ -142,7 +135,7 @@ var tabalanche = {};
       queryOpts.skip = 1;
     }
 
-    return whenDBReady(function () {
+    return tabgroupsReady.then(function () {
       return tabgroups.query('dashboard/by_creation', queryOpts)
       .then(function (response) {
         return response.rows.map(function (row) {
@@ -152,13 +145,7 @@ var tabalanche = {};
     });
   };
 
-  tabalanche.addEventListener = function (name, cb) {
-    if (name == 'dbready') {
-      whenDBReady(cb);
-    }
-  };
-
   tabalanche.getDB = function getDB() {
-    return tabgroupsPromise.then();
+    return tabgroupsReady.then();
   };
 })();
