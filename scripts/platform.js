@@ -3,22 +3,12 @@
 var platform = {};
 (function(){
 
-// The list of default domains to save favicons for.
-// By default, the list is empty (all domains are considered to be better
-// tracked by the browser's favicon mechanism).
-var defaultIconSavingWhitelist = [];
-
 var optionDefaults = {
   ignorePinnedTabs: true,
-  saveLinkIcons: true,
-  // the default for the whitelist value is 'null' so we know to skip ahead
-  // and load the default list without going through the split/trim step
-  iconSavingWhitelist: null
 };
 
 // exposed for the options page
 platform.optionDefaults = optionDefaults;
-platform.defaultIconSavingWhitelist = defaultIconSavingWhitelist.join('\n');
 
 platform.currentWindowContext = function currentWindowContext() {
   var prefix, preLength;
@@ -62,107 +52,61 @@ chrome.windows.onRemoved.addListener(function (wid) {
 
 platform.getWindowTabs = {};
 
-function listItems(listText) {
-  // For each line
-  return listText.split('\n')
-    // remove indentation / whitespace-at-EOL
-    .map(function(s){return s.trim()})
-    // remove blank lines and lines with comments
-    .filter(function(s){return s && s[0] != '#'});
+function getOptions() {
+  return new Promise(function(resolve) {
+    chrome.storage.sync.get(optionDefaults, resolve);
+  });
 }
 
-function globListMatcher(globList) {
-
-  // Quick shortcuts
-  if (globList.length == 0) {
-    return function(s) {return false;};
-  // if global whitelisting has been enabled
-  } else if (globList.indexOf('*') > -1) {
-    return function(s) {return true;};
+// Strips all Chomre-specific/should-not-be-saved info from tabs.
+function finalizeTabs(tabs) {
+  function exposedTabInfo(tab) {
+    return {
+      url: tab.url,
+      title: tab.title,
+    };
   }
-
-  // any number of domain levels before this
-  var arbitraryPrefix = '(?:[a-zA-Z0-9_-]*\\.)*';
-
-  // Convert each item to a regex
-  // TODO: handle paths
-  for (var i = 0; i < globList.length; i++) {
-    var prefix = globList[i].slice(0,2) == '*.' ? arbitraryPrefix : '';
-    var item = prefix ? globList[i].slice(2) : globList[i];
-    globList[i] = prefix + item.replace(/\./g, '\\.');
-  }
-
-  // it's okay to be this strict because we're comparing to normalized URLs
-  var finalRegexp = new RegExp('^https?://(?:' + globList.join('|') + ')/');
-  return function testWhitelistRegex(s) {
-    return finalRegexp.test(s);
-  };
+  return tabs.map(exposedTabInfo);
 }
 
 function queryCurrentWindowTabs (params) {
-
-  params.currentWindow = true;
-
-  return new Promise(function(resolve) {
-    chrome.storage.sync.get(optionDefaults, function(opts) {
-      var shouldSaveIcon = globListMatcher(
-        opts.iconSavingWhitelist
-        ? listItems(opts.iconSavingWhitelist)
-        : defaultIconSavingWhitelist);
-
-      function exposedTabInfo(tab) {
-        var tabDoc = {
-          url: tab.url,
-          title: tab.title,
-          // id for round-tripping when closing tabs
-          id: tab.id
-        };
-
-        if (shouldSaveIcon(tab.url)) tabDoc.icon = tab.favIconUrl;
-
-        return tabDoc;
-      }
-
-      // Ignore pinned tabs (when set), except for highlighted tab queries
-      // (because you don't *inadvertently* highlight pinned tabs)
-      if (opts.ignorePinnedTabs && !params.highlighted) {
-        params.pinned = false;
-      }
-
-      return chrome.tabs.query(params, function(tabs) {
-        return resolve(tabs.map(exposedTabInfo));
-      });
-    });
+  return new Promise(function (resolve) {
+    params.currentWindow = true;
+    return chrome.tabs.query(params, resolve);
   });
 }
 
-function getAllWindowTabs() {
-  return queryCurrentWindowTabs({});
-}
+platform.getWindowTabs.all = function getAllWindowTabs() {
+  var params = {};
+  return getOptions().then(function (opts) {
+    if (opts.ignorePinnedTabs) params.pinned = false;
+    return queryCurrentWindowTabs(params);
+  }).then(finalizeTabs);
+};
 
-platform.getWindowTabs.all = getAllWindowTabs;
-
-function getHighlightedWindowTabs() {
-  return queryCurrentWindowTabs({highlighted: true});
-}
-
-platform.getWindowTabs.highlighted = getHighlightedWindowTabs;
+platform.getWindowTabs.highlighted = function getHighlightedWindowTabs() {
+  return queryCurrentWindowTabs({highlighted: true}).then(finalizeTabs);
+};
 
 platform.getWindowTabs.other = function getAllWindowTabs() {
-  return queryCurrentWindowTabs({highlighted: false});
+  var params = {highlighted: false};
+  return getOptions().then(function (opts) {
+    if (opts.ignorePinnedTabs) params.pinned = false;
+    return queryCurrentWindowTabs(params);
+  }).then(finalizeTabs);
 };
 
 platform.getWindowTabs.right = function getRightWindowTabs() {
-  return getHighlightedWindowTabs().then(function(tabs) {
-    var rightEdge = tabs.reduce(function(max, tab) {
-      return Math.max(tab.index, max);
+  return queryCurrentWindowTabs({}).then(function (tabs) {
+    var rightEdge = tabs.reduce(function (max, tab) {
+      return tab.highlighted || tab.pinned
+        ? Math.max(tab.index, max)
+        : max;
     }, 0);
-    return getAllWindowTabs().then(function(tabs) {
-      return tabs.filter(function(tab){
-        return tab.index > rightEdge;
-      });
+    return tabs.filter(function (tab) {
+      return tab.index > rightEdge;
     });
-  });
+  }).then(finalizeTabs);
 };
 
 function tabIdMap(tab) {

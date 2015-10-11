@@ -1,11 +1,8 @@
 /* global chrome platform */
 
 var boundInputs = [
-  {id: 'savelinkicons', opt: 'saveLinkIcons'},
   {id: 'ignorepin', opt: 'ignorePinnedTabs'},
 ];
-
-var whitelistTextarea = document.getElementById('whitelist');
 
 // Saves options to chrome.storage.sync.
 function save_options() {
@@ -16,12 +13,6 @@ function save_options() {
     if (input.type == 'checkbox') {
       opts[boundInputs[i].opt] = input.checked;
     }
-  }
-  var whitelistValue = whitelistTextarea.value.trim();
-  if (whitelistValue === platform.defaultIconSavingWhitelist) {
-    opts.iconSavingWhitelist = null;
-  } else {
-    opts.iconSavingWhitelist = whitelistValue;
   }
 
   chrome.storage.sync.set(opts, function() {
@@ -39,32 +30,8 @@ function restore_options() {
         input.checked = items[boundInputs[i].opt];
       }
     }
-    if (items.dataIconWhitelist === null) {
-      whitelistTextarea.value = platform.defaultDataIconWhitelist;
-    } else {
-      whitelistTextarea.value = items.dataIconWhitelist;
-    }
   });
 }
 
 document.addEventListener('DOMContentLoaded', restore_options);
 document.getElementById('save').addEventListener('click', save_options);
-
-var advancedDiv = document.getElementById('advanced');
-var advancedLink = document.getElementById('show-advanced');
-
-advancedLink.addEventListener('click', function (evt) {
-  if (advancedDiv.hidden) {
-    advancedDiv.hidden = false;
-    advancedLink.textContent = 'Hide advanced options...';
-  } else {
-    advancedDiv.hidden = true;
-    advancedLink.textContent = 'Show advanced options...';
-  }
-});
-
-var revertWhitelistButton = document.getElementById('load-default-whitelist');
-
-revertWhitelistButton.addEventListener('click', function (evt) {
-  whitelistTextarea.value = platform.defaultIconSavingWhitelist;
-});

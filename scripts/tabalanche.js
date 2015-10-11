@@ -57,23 +57,13 @@ var tabalanche = {};
   }
 
   function stashTabs(tabs) {
-    function savedTabInfo(tab) {
-      var tabDoc = {
-        url: tab.url,
-        title: tab.title
-      };
-
-      if (tab.icon) tabDoc.icon = tab.icon;
-
-      return tabDoc;
-    }
     return platform.currentWindowContext().then(function(store) {
       var stashTime = new Date();
 
       return whenDBReady(function() {
         var tabGroupDoc = {
           created: stashTime.getTime(),
-          tabs: tabs.map(savedTabInfo)
+          tabs: tabs
         };
 
         return tabgroups.post(tabGroupDoc).then(function(response) {
