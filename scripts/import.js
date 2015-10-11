@@ -1,4 +1,4 @@
-/* global tabalanche */
+/* global tabalanche platform */
 
 var dumpTextArea = document.getElementById('dump');
 
@@ -10,3 +10,14 @@ function importDump() {
 }
 
 document.getElementById('import-button').addEventListener('click', importDump);
+
+var optslink = document.getElementById('options');
+
+// Set href so this link works mostly like the others
+optslink.href = platform.getOptionsURL();
+
+// Perform platform-specific options opening on click anyway
+optslink.addEventListener('click', function(evt) {
+  platform.openOptionsPage();
+  evt.preventDefault();
+});
