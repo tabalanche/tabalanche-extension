@@ -61,16 +61,20 @@ var tabalanche = {};
       var stashTime = new Date();
 
       return whenDBReady(function() {
-        var tabGroupDoc = {
-          created: stashTime.getTime(),
-          tabs: tabs
-        };
+        if (tabs.length > 0) {
+          var tabGroupDoc = {
+            created: stashTime.getTime(),
+            tabs: tabs
+          };
 
-        return tabgroups.post(tabGroupDoc).then(function(response) {
-          platform.closeTabs(tabs);
-          var dashboard = platform.extensionURL('dashboard.html');
-          open(dashboard + '#' + response.id, '_blank');
-        });
+          return tabgroups.post(tabGroupDoc).then(function(response) {
+            platform.closeTabs(tabs);
+            var dashboard = platform.extensionURL('dashboard.html');
+            open(dashboard + '#' + response.id, '_blank');
+          });
+        } else {
+          throw new Error('No tabs to save');
+        }
       });
     });
   }
