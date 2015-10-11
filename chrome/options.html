@@ -11,10 +11,23 @@
       Ignore pinned tabs
     </label>
   </figure>
+  <div id="advanced" hidden>
+    <figure>
+      <button type="button" id="destroy">Delete all data</button>
+      <figcaption><p>
+      This <strong>can not be undone</strong>. You might want to consider
+      <a href="/export.html">exporting</a> your data to a backup file before
+      destroying it.
+      </p></figcaption>
+    </figure>
+  </div>
+  <a is="action-link" id="show-advanced">Show advanced options...</a>
   <figure>
     <button type="button" id="save">Save</button>
   </figure>
   <script src="/scripts/platform.js"></script>
+  <script src="/vendor/pouchdb-5.0.0.js"></script>
+  <script src="/scripts/tabalanche.js"></script>
   <script src="/chrome/options.js"></script>
 </body>
 </html>

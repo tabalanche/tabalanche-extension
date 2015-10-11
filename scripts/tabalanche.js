@@ -148,4 +148,8 @@ var tabalanche = {};
   tabalanche.getDB = function getDB() {
     return tabgroupsReady.then();
   };
+
+  tabalanche.destroyAllTabGroups = function destroyAllTabGroups() {
+    return tabgroups.destroy();
+  };
 })();

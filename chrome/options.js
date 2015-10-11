@@ -1,4 +1,4 @@
-/* global chrome platform */
+/* global chrome platform tabalanche */
 
 var boundInputs = [
   {id: 'ignorepin', opt: 'ignorePinnedTabs'},
@@ -32,6 +32,24 @@ function restore_options() {
     }
   });
 }
+
+var advancedDiv = document.getElementById('advanced');
+var advancedLink = document.getElementById('show-advanced');
+
+advancedLink.addEventListener('click', function (evt) {
+  if (advancedDiv.hidden) {
+    advancedDiv.hidden = false;
+    advancedLink.textContent = 'Hide advanced options...';
+  } else {
+    advancedDiv.hidden = true;
+    advancedLink.textContent = 'Show advanced options...';
+  }
+});
+
+var destroyButton = document.getElementById('destroy');
+
+destroyButton.addEventListener('click',
+  tabalanche.destroyAllTabGroups);
 
 document.addEventListener('DOMContentLoaded', restore_options);
 document.getElementById('save').addEventListener('click', save_options);
