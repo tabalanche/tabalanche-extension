@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tabalanche",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "icons": { "16": "images/tabalanche-box-16px.png",
              "48": "images/tabalanche-box-48px.png",
             "128": "images/tabalanche-box-128px-20pxborder.png" },
