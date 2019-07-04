@@ -1,4 +1,4 @@
-/* global chrome */
+/* global browser */
 
 var platform = {};
 (function(){
@@ -36,33 +36,28 @@ platform.currentWindowContext = function currentWindowContext() {
   }
 
   var iface = {get: getContext, set: setContext};
-  return new Promise(function(resolve, reject) {
-    chrome.windows.getCurrent({populate: false}, function (crWindow) {
+  return browser.windows.getCurrent({populate: false})
+    .then(function (crWindow) {
       prefix = 'wins_' + crWindow.id + '=';
       preLength = prefix.length;
-      return resolve(iface);
+      return iface;
     });
-  });
 };
 
 // clear window session cookies when the window is closed
-chrome.windows.onRemoved.addListener(function (wid) {
+browser.windows.onRemoved.addListener(function (wid) {
   document.cookie = 'wins_' + wid + '=';
 });
 
 platform.getWindowTabs = {};
 
 function getOptions() {
-  return new Promise(function(resolve) {
-    chrome.storage.sync.get(optionDefaults, resolve);
-  });
+  return browser.storage.sync.get(optionDefaults);
 }
 
 function queryCurrentWindowTabs (params) {
-  return new Promise(function (resolve) {
-    params.currentWindow = true;
-    return chrome.tabs.query(params, resolve);
-  });
+  params.currentWindow = true;
+  return browser.tabs.query(params);
 }
 
 platform.getWindowTabs.all = function getAllWindowTabs() {
@@ -103,29 +98,28 @@ function tabIdMap(tab) {
 }
 
 platform.closeTabs = function closeTabs(tabs) {
-  return new Promise(function(resolve) {
-    return chrome.tabs.remove(tabs.map(tabIdMap), resolve);
-  });
+  return browser.tabs.remove(tabs.map(tabIdMap));
 };
 
 platform.faviconPath = function faviconPath(url) {
+  // TODO: cross-browser-compatible version of this
+  // see https://bugzilla.mozilla.org/show_bug.cgi?id=1315616
   return 'chrome://favicon/' + url;
 };
 
 platform.extensionURL = function extensionURL(path) {
-  return chrome.extension.getURL(path);
+  return browser.extension.getURL(path);
 };
 
 platform.getOptionsURL = function getOptionsURL() {
-  return 'chrome://extensions/?options=' + chrome.runtime.id;
+  // TODO: Review newer options UI paradigm and revise this
+  return 'chrome://extensions/?options=' + browser.runtime.id;
 };
 
-platform.openOptionsPage = chrome.runtime.openOptionsPage;
+platform.openOptionsPage = browser.runtime.openOptionsPage;
 
 platform.openBackgroundTab = function openBackgroundTab(url) {
-  return new Promise(function(resolve){
-    return chrome.tabs.create({url: url, active: false}, resolve);
-  });
+  return browser.tabs.create({url: url, active: false});
 };
 
 })();

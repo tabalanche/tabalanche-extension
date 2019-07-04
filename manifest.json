@@ -42,7 +42,6 @@
     }
   },
   "homepage_url": "https://www.tabalanche.com/",
-  "incognito": "split",
   "options_ui": {
     "page": "chrome/options.html",
     "chrome_style": true
