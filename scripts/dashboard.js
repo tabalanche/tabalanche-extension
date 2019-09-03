@@ -77,7 +77,7 @@ function createTabGroupDiv(tabGroupDoc) {
 
   var container;
   var tabCount = cre('span', [tabCountString(tabGroupDoc.tabs.length)]);
-
+  
   function createTabListItem(tab) {
     var tabButton = cre(templateTabButton, {type: 'button'});
     
@@ -87,11 +87,13 @@ function createTabGroupDiv(tabGroupDoc) {
     var tabLink = cre(templateTabLink, {href: tab.url},
       [tabIcon, tab.title]);
 
-    tabLink.classList.toggle('highlight', searchFilter ?
-      (searchFilter.test(tab.url) || searchFilter.test(tab.title)) :
-      false);
-    
     var listItem = cre(templateTabListItem, [tabButton, tabLink]);
+    
+    var searchIncluded = Boolean(searchFilter &&
+      (searchFilter.test(tab.url) || searchFilter.test(tab.title)));
+    
+    listItem.classList.toggle('search-included', Boolean(searchFilter && searchIncluded));
+    listItem.classList.toggle('search-excluded', Boolean(searchFilter && !searchIncluded));
     
     function removeTabListItem() {
       // We could technically do this stuff in a callback that only fires
@@ -99,8 +101,9 @@ function createTabGroupDiv(tabGroupDoc) {
       // with the link getting clicked twice, or the tab group getting
       // updated before the link gets removed, or a bunch of issues it's
       // better to just not have to deal with.
-      tabGroupDoc.tabs.splice(getElementIndex(listItem), 1);
-      if (tabGroupDoc.tabs.length == 0) {
+      var index = getElementIndex(listItem);
+      tabGroupDoc.tabs.splice(index, 1);
+      if (tabGroupDoc.tabs.length == 0 || isExcludedBySearch(index)) {
         container.remove();
       } else {
         listItem.remove();
@@ -147,6 +150,19 @@ function createTabGroupDiv(tabGroupDoc) {
   var hgroup = cre('hgroup', [name, details]);
   var flap = cre(templateFlap, [hgroup]);
   var list = cre(templateTabList, tabListItems);
+  
+  function isExcludedBySearch(removedIndex) {
+    if (!searchFilter) {
+      return false;
+    }
+    var i;
+    for (i = 0; i < list.children.length; i++) {
+      if (i != removedIndex && list.children[i].classList.contains('search-included')) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   container = cre(templateTabStash, [flap, list]);
 
