@@ -2,6 +2,9 @@
   text-decoration: none;
   color: #22a;
 }
+.tablist-item.search-excluded {
+  display: none;
+}
 .highlight {
   background: rgba(256, 256, 256, 0.8);
 }
