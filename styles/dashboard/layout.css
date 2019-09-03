@@ -1,3 +1,13 @@
+.tabbutton {
+  height: 16px;
+  width: 16px;
+  vertical-align: bottom;
+  margin-right: 12px;
+  font-size: 12px;
+  padding: 2px 0;
+  text-align: center;
+  line-height: 1;
+}
 .tabicon {
   height: 16px;
   width: 16px;

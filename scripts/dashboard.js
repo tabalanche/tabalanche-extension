@@ -4,6 +4,7 @@ var tabGroupContainer = document.getElementById('tab-groups');
 
 var tabGroupData = new Map();
 
+var templateTabButton = cre('button.tabbutton', ['x']);
 var templateTabIcon = cre('img.tabicon');
 var templateTabLink = cre('a.tablink');
 var templateTabListItem = cre('li.tablist-item');
@@ -78,13 +79,41 @@ function createTabGroupDiv(tabGroupDoc) {
   var tabCount = cre('span', [tabCountString(tabGroupDoc.tabs.length)]);
 
   function createTabListItem(tab) {
+    var tabButton = cre(templateTabButton, {type: 'button'});
+    
     var tabIcon = cre(templateTabIcon,
       {src: tab.icon || platform.faviconPath(tab.url)});
 
     var tabLink = cre(templateTabLink, {href: tab.url},
       [tabIcon, tab.title]);
 
-    var listItem = cre(templateTabListItem, [tabLink]);
+    var listItem = cre(templateTabListItem, [tabButton, tabLink]);
+    
+    function removeTabListItem() {
+      // We could technically do this stuff in a callback that only fires
+      // once the background tab is opened, but then we'd run into issues
+      // with the link getting clicked twice, or the tab group getting
+      // updated before the link gets removed, or a bunch of issues it's
+      // better to just not have to deal with.
+      tabGroupDoc.tabs.splice(getElementIndex(listItem), 1);
+      if (tabGroupDoc.tabs.length == 0) {
+        container.remove();
+      } else {
+        listItem.remove();
+        tabCount.textContent = tabCountString(tabGroupDoc.tabs.length);
+      }
+      updateTabGroup();      
+    }
+    
+    tabButton.addEventListener('click', function(evt) {
+      var type = getLinkClickType(evt);
+      
+      if (type == 'visit') {
+        removeTabListItem();
+        
+        evt.preventDefault();
+      }
+    });
 
     tabLink.addEventListener('click', function(evt) {
       var type = getLinkClickType(evt);
@@ -92,21 +121,9 @@ function createTabGroupDiv(tabGroupDoc) {
       // we have a special behavior for normal-visiting
       if (type == 'visit') {
         platform.openBackgroundTab(tab.url);
-
-        // We could technically do this stuff in a callback that only fires
-        // once the background tab is opened, but then we'd run into issues
-        // with the link getting clicked twice, or the tab group getting
-        // updated before the link gets removed, or a bunch of issues it's
-        // better to just not have to deal with.
-        tabGroupDoc.tabs.splice(getElementIndex(listItem), 1);
-        if (tabGroupDoc.tabs.length == 0) {
-          container.remove();
-        } else {
-          listItem.remove();
-          tabCount.textContent = tabCountString(tabGroupDoc.tabs.length);
-        }
-        updateTabGroup();
-
+        
+        removeTabListItem();
+        
         evt.preventDefault();
       }
     });
