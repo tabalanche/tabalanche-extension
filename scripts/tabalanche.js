@@ -135,10 +135,6 @@ var tabalanche = {};
       queryOpts.skip = 1;
     }
     
-    if (filter && typeof filter == 'string') {
-      filter = new RegExp(filter, 'i');
-    }
-
     return tabgroupsReady.then(function () {
       return tabgroups.query('dashboard/by_creation', queryOpts)
       .then(function (response) {

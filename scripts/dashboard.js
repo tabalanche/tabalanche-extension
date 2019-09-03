@@ -87,6 +87,10 @@ function createTabGroupDiv(tabGroupDoc) {
     var tabLink = cre(templateTabLink, {href: tab.url},
       [tabIcon, tab.title]);
 
+    tabLink.classList.toggle('highlight', searchFilter ?
+      (searchFilter.test(tab.url) || searchFilter.test(tab.title)) :
+      false);
+    
     var listItem = cre(templateTabListItem, [tabButton, tabLink]);
     
     function removeTabListItem() {
@@ -156,6 +160,18 @@ function createTabGroupDiv(tabGroupDoc) {
   });
 }
 
+var searchbar = document.getElementById('searchbar');
+var searchFilter;
+
+searchbar.addEventListener('submit', function (evt) {
+  evt.preventDefault();
+  
+  var value = searchbar['search-field'].value.trim();
+  searchFilter = value ? new RegExp(value, 'i') : null;
+  
+  reloadTabGroups();
+});
+
 var lastTabGroup;
 var loadingTabGroups = false;
 var allTabGroupsLoaded = false;
@@ -190,13 +206,19 @@ function loadMoreTabGroups() {
     // (which could technically always be visible)
 
     // Get the next groups
-    tabalanche.getSomeTabGroups([lastTabGroup.created, lastTabGroup._id])
+    tabalanche.getSomeTabGroups([lastTabGroup.created, lastTabGroup._id], searchFilter)
       .then(showLoadedTabGroups);
   }
 }
 
+function reloadTabGroups() {
+  tabGroupContainer.innerHTML = '';
+  allTabGroupsLoaded = false;
+  tabalanche.getSomeTabGroups(null, searchFilter).then(showLoadedTabGroups);
+}
+
 // Get the first groups
-tabalanche.getSomeTabGroups().then(showLoadedTabGroups);
+reloadTabGroups();
 
 // How many window-heights from the bottom of the page we should be before
 // loading more tabs.
