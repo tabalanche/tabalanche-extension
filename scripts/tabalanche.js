@@ -123,7 +123,7 @@ var tabalanche = {};
     });
   };
 
-  tabalanche.getSomeTabGroups = function(startKey) {
+  tabalanche.getSomeTabGroups = function getSomeTabGroups(startKey, filter) {
     var queryOpts = {
       include_docs: true,
       descending: true,
@@ -134,13 +134,34 @@ var tabalanche = {};
       queryOpts.startkey = startKey;
       queryOpts.skip = 1;
     }
+    
+    if (filter && typeof filter == 'string') {
+      filter = new RegExp(filter, 'i');
+    }
 
     return tabgroupsReady.then(function () {
       return tabgroups.query('dashboard/by_creation', queryOpts)
       .then(function (response) {
-        return response.rows.map(function (row) {
-          return row.doc;
-        });
+        if (!response.rows.length) {
+          return [];
+        }
+        
+        var docs = response.rows
+          .map(function (row) {
+            return row.doc;
+          })
+          .filter(function (doc) {
+            return !filter || doc.tabs.some(function (tab) {
+              return filter.test(tab.title) || filter.test(tab.url);
+            });
+          });
+          
+        if (docs.length) {
+          return docs;
+        }
+        
+        var lastDoc = response.rows[response.rows.length - 1].doc;
+        return getSomeTabGroups([lastDoc.created, lastDoc._id], filter);
       });
     });
   };
