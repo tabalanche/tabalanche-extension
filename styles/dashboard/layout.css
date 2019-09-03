@@ -1,3 +1,14 @@
+#searchbar {
+  display: flex;
+  margin: 36px 36px 0;
+}
+#search-field {
+  flex: 1;
+  margin-right: 24px;
+}
+.search-button {
+  flex: 0;
+}
 .tabbutton {
   height: 16px;
   width: 16px;
