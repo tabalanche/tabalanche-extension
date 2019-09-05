@@ -74,6 +74,8 @@ var tabalanche = {};
 
           return tabgroups.post(tabGroupDoc).then(function(response) {
             platform.closeTabs(tabs);
+            // FIXME: this won't trigger the listener in the same frame
+            chrome.runtime.sendMessage({type: 'newTabGroup', tabGroupId: response.id});
             return platform.queryCurrentWindowTabs({url: extensionPrefix + '*'})
               .then(function (extensionTabs) {
                 if (!extensionTabs.length) {
@@ -130,6 +132,12 @@ var tabalanche = {};
           return row.doc;
         });
       });
+    });
+  };
+  
+  tabalanche.getTabGroup = function (id) {
+    return tabgroupsReady.then(function () {
+      return tabgroups.get(id);
     });
   };
 
