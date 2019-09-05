@@ -109,7 +109,8 @@ function createTabGroupDiv(tabGroupDoc) {
         listItem.remove();
         tabCount.textContent = tabCountString(tabGroupDoc.tabs.length);
       }
-      updateTabGroup();      
+      updateTabGroup();
+      loadMoreIfNearBottom();
     }
     
     tabButton.addEventListener('click', function(evt) {
