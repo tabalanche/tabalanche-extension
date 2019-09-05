@@ -2,6 +2,7 @@
 
 var tabGroupContainer = document.getElementById('tab-groups');
 
+// FIXME: why do we need this?
 var tabGroupData = new Map();
 
 var templateTabButton = cre('button.tabbutton', ['x']);

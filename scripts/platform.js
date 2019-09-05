@@ -65,6 +65,8 @@ function queryCurrentWindowTabs (params) {
   });
 }
 
+platform.queryCurrentWindowTabs = queryCurrentWindowTabs;
+
 platform.getWindowTabs.all = function getAllWindowTabs() {
   var params = {};
   return getOptions().then(function (opts) {
