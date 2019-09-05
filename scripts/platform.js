@@ -60,6 +60,8 @@ function queryCurrentWindowTabs (params) {
   return browser.tabs.query(params);
 }
 
+platform.queryCurrentWindowTabs = queryCurrentWindowTabs;
+
 platform.getWindowTabs.all = function getAllWindowTabs() {
   var params = {};
   return getOptions().then(function (opts) {

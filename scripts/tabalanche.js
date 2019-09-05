@@ -50,6 +50,11 @@ var tabalanche = {};
   var tabgroupsReady = ensureCurrentDesignDoc(tabgroups, dashboardDesignDoc);
 
   function stashTabs(tabs) {
+    // ignore extension pages
+    var extensionPrefix = platform.extensionURL('');
+    tabs = tabs.filter(function (tab) {
+      return !tab.url.startsWith(extensionPrefix);
+    });
     return platform.currentWindowContext().then(function(store) {
       var stashTime = new Date();
 
@@ -69,8 +74,13 @@ var tabalanche = {};
 
           return tabgroups.post(tabGroupDoc).then(function(response) {
             platform.closeTabs(tabs);
-            var dashboard = platform.extensionURL('dashboard.html');
-            open(dashboard + '#' + response.id, '_blank');
+            return platform.queryCurrentWindowTabs({url: extensionPrefix + '*'})
+              .then(function (extensionTabs) {
+                if (!extensionTabs.length) {
+                  var dashboard = platform.extensionURL('dashboard.html');
+                  open(dashboard + '#' + response.id, '_blank');
+                }
+              });
           });
         } else {
           throw new Error('No tabs to save');
