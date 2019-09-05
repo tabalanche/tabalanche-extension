@@ -49,7 +49,8 @@
   "permissions": [
     "tabs",
     "storage",
-    "chrome://favicon/"
+    "chrome://favicon/",
+    "unlimitedStorage"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
