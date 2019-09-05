@@ -168,7 +168,6 @@ function createTabGroupDiv(tabGroupDoc) {
 
   container = cre(templateTabStash, [flap, list]);
 
-  tabGroupContainer.appendChild(container);
   tabGroupData.set(tabGroupDoc._id, {
     doc: tabGroupDoc,
     container: container,
@@ -176,6 +175,8 @@ function createTabGroupDiv(tabGroupDoc) {
     count: tabCount,
     name: name
   });
+  
+  return container;
 }
 
 var searchbar = document.getElementById('searchbar');
@@ -205,7 +206,7 @@ function capTabGroupLoading() {
 function showLoadedTabGroups(tabGroups) {
   loadingTabGroups = false;
   for (var i = 0; i < tabGroups.length; i++) {
-    createTabGroupDiv(tabGroups[i]);
+    tabGroupContainer.appendChild(createTabGroupDiv(tabGroups[i]));
   }
   if (tabGroups.length > 0) {
     lastTabGroup = tabGroups[tabGroups.length-1];
@@ -214,6 +215,17 @@ function showLoadedTabGroups(tabGroups) {
   } else {
     return capTabGroupLoading();
   }
+}
+
+function loadTabGroup(id) {
+  tabalanche.getTabGroup(id).then(function (tabGroup) {
+    if (!searchFilter || tabGroup.tabs.some(function (tab) {
+      return searchFilter.test(tab.title) || searchFilter.test(tab.url);
+    })) {
+      // FIXME: should we find the correct position to insert the DIV?
+      tabGroupContainer.prepend(createTabGroupDiv(tabGroup));
+    }
+  });
 }
 
 function loadMoreTabGroups() {
@@ -263,4 +275,11 @@ optslink.href = platform.getOptionsURL();
 optslink.addEventListener('click', function(evt) {
   platform.openOptionsPage();
   evt.preventDefault();
+});
+
+chrome.runtime.onMessage.addListener(function (evt) {
+  if (evt.type == 'newTabGroup') {
+    // FIXME: handle cases that the initial load is not started/completed
+    loadTabGroup(evt.tabGroupId);
+  }
 });
