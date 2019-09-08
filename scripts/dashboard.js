@@ -245,6 +245,7 @@ function reloadTabGroups() {
   tabGroupContainer.innerHTML = '';
   allTabGroupsLoaded = false;
   tabalanche.getSomeTabGroups(null, searchFilter).then(showLoadedTabGroups);
+  document.addEventListener('scroll', loadMoreIfNearBottom);
 }
 
 // Get the first groups
@@ -263,8 +264,6 @@ function loadMoreIfNearBottom() {
     loadMoreTabGroups();
   }
 }
-
-document.addEventListener('scroll', loadMoreIfNearBottom);
 
 var optslink = document.getElementById('options');
 
