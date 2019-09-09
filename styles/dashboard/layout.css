@@ -4,7 +4,9 @@
 }
 #search-field {
   flex: 1;
-  margin-right: 24px;
+}
+#searchbar button {
+  margin-left: 16px;
 }
 .search-button {
   flex: 0;
