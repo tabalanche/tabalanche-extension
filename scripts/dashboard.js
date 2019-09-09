@@ -191,6 +191,11 @@ searchbar.addEventListener('submit', function (evt) {
   reloadTabGroups();
 });
 
+searchbar.addEventListener('reset', function (evt) {
+  searchFilter = null;
+  reloadTabGroups();
+});
+
 var lastTabGroup;
 var loadingTabGroups = false;
 var allTabGroupsLoaded = false;
