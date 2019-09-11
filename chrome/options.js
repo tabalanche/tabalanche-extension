@@ -2,6 +2,7 @@
 
 var boundInputs = [
   {id: 'ignorepin', opt: 'ignorePinnedTabs'},
+  {id: 'ignoredupurl', opt: 'ignoreDuplicatedUrls'}
 ];
 
 // Saves options to chrome.storage.sync.
