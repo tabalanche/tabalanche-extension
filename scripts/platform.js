@@ -5,6 +5,7 @@ var platform = {};
 
 var optionDefaults = {
   ignorePinnedTabs: true,
+  ignoreDuplicatedUrls: false
 };
 
 // exposed for the options page
@@ -57,6 +58,8 @@ function getOptions() {
     chrome.storage.sync.get(optionDefaults, resolve);
   });
 }
+
+platform.getOptions = getOptions;
 
 function queryCurrentWindowTabs (params) {
   return new Promise(function (resolve) {
