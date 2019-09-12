@@ -76,7 +76,7 @@ var tabalanche = {};
       })
     ]).then(function (result) {
       // FIXME: what does `store` do?
-      var store = result[0], dupTabs = result[2];
+      var store = result[0], dupTabs = result[2] || {};
       
       var stashTime = new Date();
         
@@ -88,10 +88,16 @@ var tabalanche = {};
       }
       var tabGroupDoc = {
         created: stashTime.getTime(),
-        tabs: tabs
-          .filter(function (tab) {return !dupTabs || !dupTabs[tab.url]})
-          .map(stashedTab)
+        tabs: []
       };
+      
+      var i;
+      for (i = 0; i < tabs.length; i++) {
+        if (!dupTabs[tabs[i].url]) {
+          dupTabs[tabs[i].url] = true;
+          tabGroupDoc.tabs.push(stashedTab(tabs[i]));
+        }
+      }
       
       if (!tabGroupDoc.tabs.length) {
         // FIXME: should we just close these tabs without posting a new doc?
