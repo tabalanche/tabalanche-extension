@@ -10,3 +10,13 @@
 .stash-button label {
   background-color: #eacfbc;
 }
+.pending::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: no-repeat center url(/images/spinner.svg), rgba(0, 0, 0, 0.5);
+}
