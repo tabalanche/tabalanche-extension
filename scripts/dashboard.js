@@ -2,6 +2,15 @@
 
 var tabGroupContainer = document.getElementById('tab-groups');
 
+const totalTabsContainer = document.getElementById('total-tabs');
+
+async function updateTotalTabs() {
+  const count = await tabalanche.totalTabs();
+  totalTabsContainer.textContent = tabCountString(count);
+}
+
+updateTotalTabs();
+
 // FIXME: why do we need this?
 var tabGroupData = new Map();
 
@@ -110,7 +119,7 @@ function createTabGroupDiv(tabGroupDoc) {
         listItem.remove();
         tabCount.textContent = tabCountString(tabGroupDoc.tabs.length);
       }
-      updateTabGroup();
+      updateTabGroup().then(updateTotalTabs);
       loadMoreIfNearBottom();
     }
     
@@ -285,5 +294,6 @@ chrome.runtime.onMessage.addListener(function (evt) {
   if (evt.type == 'newTabGroup') {
     // FIXME: handle cases that the initial load is not started/completed
     loadTabGroup(evt.tabGroupId);
+    updateTotalTabs();
   }
 });

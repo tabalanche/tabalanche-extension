@@ -228,4 +228,10 @@ var tabalanche = {};
         });
     });
   };
+  
+  tabalanche.totalTabs = async () => {
+    await tabgroupsReady;
+    const result = await tabgroups.query('dashboard/total_tabs');
+    return result.rows[0].value;
+  };
 })();
