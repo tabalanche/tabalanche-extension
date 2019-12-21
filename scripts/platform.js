@@ -113,9 +113,14 @@ platform.closeTabs = function closeTabs(tabs) {
   });
 };
 
-platform.faviconPath = function faviconPath(url) {
-  return 'chrome://favicon/' + url;
-};
+platform.faviconPath = typeof InstallTrigger === "undefined" ? 
+  function faviconPath(url) {
+    return 'chrome://favicon/' + url;
+  } :
+  url => {
+    url = new URL(url);
+    return `https://icons.duckduckgo.com/ip3/${url.hostname}.ico`;
+  };
 
 platform.extensionURL = function extensionURL(path) {
   return chrome.extension.getURL(path);
