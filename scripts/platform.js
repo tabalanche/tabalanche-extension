@@ -106,11 +106,16 @@ platform.closeTabs = function closeTabs(tabs) {
   return browser.tabs.remove(tabs.map(tabIdMap));
 };
 
-platform.faviconPath = function faviconPath(url) {
-  // TODO: cross-browser-compatible version of this
-  // see https://bugzilla.mozilla.org/show_bug.cgi?id=1315616
-  return 'chrome://favicon/' + url;
-};
+// TODO: use Firefox native favicon
+// see https://bugzilla.mozilla.org/show_bug.cgi?id=1315616
+platform.faviconPath = typeof InstallTrigger === "undefined" ? 
+  function faviconPath(url) {
+    return 'chrome://favicon/' + url;
+  } :
+  url => {
+    url = new URL(url);
+    return `https://icons.duckduckgo.com/ip3/${url.hostname}.ico`;
+  };
 
 platform.extensionURL = function extensionURL(path) {
   return browser.extension.getURL(path);
