@@ -1,0 +1,32 @@
+{
+  "name": "tabalanche-extension",
+  "version": "1.0.0",
+  "description": "[![Join the chat at https://gitter.im/tabalanche/tabalanche-extension](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tabalanche/tabalanche-extension)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eight04/tabalanche-extension.git"
+  },
+  "keywords": [],
+  "author": "eight <eight04@gmail.com> (http://eight04.blogspot.tw)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eight04/tabalanche-extension/issues"
+  },
+  "homepage": "https://github.com/eight04/tabalanche-extension#readme",
+  "devDependencies": {
+    "web-ext": "^3.2.1"
+  },
+  "webExt": {
+    "ignoreFiles": [
+      "package.json",
+      "package-lock.json"
+    ],
+    "build": {
+      "overwriteDest": true
+    }
+  }
+}
