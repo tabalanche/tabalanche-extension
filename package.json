@@ -4,7 +4,8 @@
   "description": "[![Join the chat at https://gitter.im/tabalanche/tabalanche-extension](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tabalanche/tabalanche-extension)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "web-ext build"
   },
   "repository": {
     "type": "git",
