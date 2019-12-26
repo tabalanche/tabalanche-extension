@@ -191,11 +191,40 @@ function createTabGroupDiv(tabGroupDoc) {
 var searchbar = document.getElementById('searchbar');
 var searchFilter;
 
+function createSearchFilter(raw) {
+  const rules = [];
+  for (const term of raw.split(/\s+/)) {
+    let negative, rx;
+    if (term.startsWith('-')) {
+      negative = true;
+      rx = term.slice(1);
+    } else {
+      negative = false;
+      rx = term;
+    }
+    rules.push({
+      rx: new RegExp(rx, 'i'),
+      negative
+    });
+  }
+  
+  return {test};
+  
+  function test(text) {
+    for (const rule of rules) {
+      if (rule.rx.test(text) === rule.negative) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+
 searchbar.addEventListener('submit', function (evt) {
   evt.preventDefault();
   
   var value = searchbar['search-field'].value.trim();
-  searchFilter = value ? new RegExp(value, 'i') : null;
+  searchFilter = value ? createSearchFilter(value) : null;
   
   reloadTabGroups();
 });
