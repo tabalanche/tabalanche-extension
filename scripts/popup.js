@@ -14,10 +14,24 @@ function onclick(elementId,handler) {
     .addEventListener('click', handler);
 }
 
-onclick('stash-all', tabalanche.stashAllTabs);
-onclick('stash-this', tabalanche.stashThisTab);
-onclick('stash-other', tabalanche.stashOtherTabs);
-onclick('stash-right', tabalanche.stashTabsToTheRight);
+var ACTIONS = {
+  'stash-all': tabalanche.stashAllTabs,
+  'stash-this': tabalanche.stashThisTab,
+  'stash-other': tabalanche.stashOtherTabs,
+  'stash-right': tabalanche.stashTabsToTheRight
+};
+
+for (const [key, fn] of Object.entries(ACTIONS)) {
+  onclick(key, async () => {
+    document.body.classList.add('pending');
+    try {
+      await fn();
+    } finally {
+      document.body.classList.remove('pending');
+    }
+  });
+}
+
 onclick('dash', function(evt) {
   open(platform.extensionURL('dashboard.html'), '_blank');
 });

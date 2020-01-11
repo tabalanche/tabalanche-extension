@@ -42,7 +42,6 @@
     }
   },
   "homepage_url": "https://www.tabalanche.com/",
-  "incognito": "split",
   "options_ui": {
     "page": "chrome/options.html",
     "chrome_style": true
@@ -50,7 +49,13 @@
   "permissions": [
     "tabs",
     "storage",
-    "chrome://favicon/"
+    "chrome://favicon/",
+    "unlimitedStorage"
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tabalanche-extension@eight04.blogspot.com"
+    }
+  }
 }

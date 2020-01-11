@@ -4,7 +4,7 @@ var tabalanche = {};
 (function(){
   var dashboardDesignDoc = {
     _id: '_design/dashboard',
-    version: 2,
+    version: 3,
     views: {
       by_creation: {
         map: function(doc) {
@@ -16,6 +16,14 @@ var tabalanche = {};
           emit(doc._id, doc.tabs.length);
         }.toString(),
         reduce: '_sum'
+      },
+      by_tab_url: {
+        map: function(doc) {
+          var i;
+          for (i = 0; i < doc.tabs.length; i++) {
+            emit(doc.tabs[i].url);
+          }
+        }.toString()
       }
     }
   };
@@ -50,31 +58,63 @@ var tabalanche = {};
   var tabgroupsReady = ensureCurrentDesignDoc(tabgroups, dashboardDesignDoc);
 
   function stashTabs(tabs) {
-    return platform.currentWindowContext().then(function(store) {
+    // ignore extension pages
+    var extensionPrefix = platform.extensionURL('');
+    tabs = tabs.filter(function (tab) {
+      return !tab.url.startsWith(extensionPrefix);
+    });
+    if (!tabs.length) {
+      throw new Error('No tabs to save');
+    }
+    return Promise.all([
+      platform.currentWindowContext(),
+      tabgroupsReady,
+      platform.getOptions().then(function (opts) {
+        if (opts.ignoreDuplicatedUrls) {
+          return tabalanche.hasUrls(tabs.map(function (tab) {return tab.url;}));
+        }
+      })
+    ]).then(function (result) {
+      // FIXME: what does `store` do?
+      var store = result[0], dupTabs = result[2] || {};
+      
       var stashTime = new Date();
-
+        
       function stashedTab(tab) {
         return {
           url: tab.url,
           title: tab.title,
         };
       }
-
-      return tabgroupsReady.then(function() {
-        if (tabs.length > 0) {
-          var tabGroupDoc = {
-            created: stashTime.getTime(),
-            tabs: tabs.map(stashedTab)
-          };
-
-          return tabgroups.post(tabGroupDoc).then(function(response) {
-            platform.closeTabs(tabs);
-            var dashboard = platform.extensionURL('dashboard.html');
-            open(dashboard + '#' + response.id, '_blank');
-          });
-        } else {
-          throw new Error('No tabs to save');
+      var tabGroupDoc = {
+        created: stashTime.getTime(),
+        tabs: []
+      };
+      
+      var i;
+      for (i = 0; i < tabs.length; i++) {
+        if (!dupTabs[tabs[i].url]) {
+          dupTabs[tabs[i].url] = true;
+          tabGroupDoc.tabs.push(stashedTab(tabs[i]));
         }
+      }
+      
+      if (!tabGroupDoc.tabs.length) {
+        // FIXME: should we just close these tabs without posting a new doc?
+        throw new Error('The tab group has no tab');
+      }
+      
+      return tabgroups.post(tabGroupDoc).then(function(response) {
+        platform.closeTabs(tabs);
+        // FIXME: this won't trigger the listener in the same frame
+        chrome.runtime.sendMessage({type: 'newTabGroup', tabGroupId: response.id});
+        return platform.queryCurrentWindowTabs({url: extensionPrefix + '*'})
+          .then(function (extensionTabs) {
+            if (!extensionTabs.length) {
+              var dashboard = platform.extensionURL('dashboard.html');
+              open(dashboard + '#' + response.id, '_blank');
+            }
+          });
       });
     });
   }
@@ -122,8 +162,14 @@ var tabalanche = {};
       });
     });
   };
+  
+  tabalanche.getTabGroup = function (id) {
+    return tabgroupsReady.then(function () {
+      return tabgroups.get(id);
+    });
+  };
 
-  tabalanche.getSomeTabGroups = function(startKey) {
+  tabalanche.getSomeTabGroups = function getSomeTabGroups(startKey, filter) {
     var queryOpts = {
       include_docs: true,
       descending: true,
@@ -134,13 +180,30 @@ var tabalanche = {};
       queryOpts.startkey = startKey;
       queryOpts.skip = 1;
     }
-
+    
     return tabgroupsReady.then(function () {
       return tabgroups.query('dashboard/by_creation', queryOpts)
       .then(function (response) {
-        return response.rows.map(function (row) {
-          return row.doc;
-        });
+        if (!response.rows.length) {
+          return [];
+        }
+        
+        var docs = response.rows
+          .map(function (row) {
+            return row.doc;
+          })
+          .filter(function (doc) {
+            return !filter || doc.tabs.some(function (tab) {
+              return filter.test(tab.title) || filter.test(tab.url);
+            });
+          });
+          
+        if (docs.length) {
+          return docs;
+        }
+        
+        var lastDoc = response.rows[response.rows.length - 1].doc;
+        return getSomeTabGroups([lastDoc.created, lastDoc._id], filter);
       });
     });
   };
@@ -151,5 +214,24 @@ var tabalanche = {};
 
   tabalanche.destroyAllTabGroups = function destroyAllTabGroups() {
     return tabgroups.destroy();
+  };
+  
+  tabalanche.hasUrls = function (urls) {
+    return tabgroupsReady.then(function () {
+      return tabgroups.query('dashboard/by_tab_url', {keys: urls})
+        .then(function (response) {
+          var i, result = {};
+          for (i = 0; i < response.rows.length; i++) {
+            result[response.rows[i].key] = true;
+          }
+          return result;
+        });
+    });
+  };
+  
+  tabalanche.totalTabs = async () => {
+    await tabgroupsReady;
+    const result = await tabgroups.query('dashboard/total_tabs');
+    return result.rows[0].value;
   };
 })();

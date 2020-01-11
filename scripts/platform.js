@@ -5,6 +5,7 @@ var platform = {};
 
 var optionDefaults = {
   ignorePinnedTabs: true,
+  ignoreDuplicatedUrls: false
 };
 
 // exposed for the options page
@@ -58,12 +59,16 @@ function getOptions() {
   });
 }
 
+platform.getOptions = getOptions;
+
 function queryCurrentWindowTabs (params) {
   return new Promise(function (resolve) {
     params.currentWindow = true;
     return chrome.tabs.query(params, resolve);
   });
 }
+
+platform.queryCurrentWindowTabs = queryCurrentWindowTabs;
 
 platform.getWindowTabs.all = function getAllWindowTabs() {
   var params = {};
@@ -108,9 +113,14 @@ platform.closeTabs = function closeTabs(tabs) {
   });
 };
 
-platform.faviconPath = function faviconPath(url) {
-  return 'chrome://favicon/' + url;
-};
+platform.faviconPath = typeof InstallTrigger === "undefined" ? 
+  function faviconPath(url) {
+    return 'chrome://favicon/' + url;
+  } :
+  url => {
+    url = new URL(url);
+    return `https://icons.duckduckgo.com/ip3/${url.hostname}.ico`;
+  };
 
 platform.extensionURL = function extensionURL(path) {
   return chrome.extension.getURL(path);
