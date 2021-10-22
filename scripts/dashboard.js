@@ -326,3 +326,14 @@ chrome.runtime.onMessage.addListener(function (evt) {
     updateTotalTabs();
   }
 });
+
+(async () => {
+  // FIXME: move db operation into background so it won't be interrupted when the popup is closed
+  // FIXME: sync when options change
+  const opts = await platform.getOptions();
+  tabalanche.on('syncChange', info => {
+    // FIXME: what about deleted docs?
+    info.docs.forEach(d => loadTabGroup(d._id));
+  });
+  await tabalanche.sync(opts.serverUrl);
+})();

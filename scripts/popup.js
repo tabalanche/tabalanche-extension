@@ -29,6 +29,9 @@ for (const [key, fn] of Object.entries(ACTIONS)) {
     } finally {
       document.body.classList.remove('pending');
     }
+    // FIXME: move db operation into background so it won't be interrupted when the popup is closed
+    const opts = await platform.getOptions();
+    await tabalanche.sync(opts.serverUrl);
   });
 }
 

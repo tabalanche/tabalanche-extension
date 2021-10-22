@@ -2,7 +2,8 @@
 
 var boundInputs = [
   {id: 'ignorepin', opt: 'ignorePinnedTabs'},
-  {id: 'ignoredupurl', opt: 'ignoreDuplicatedUrls'}
+  {id: 'ignoredupurl', opt: 'ignoreDuplicatedUrls'},
+  {id: 'serverurl', opt: 'serverUrl'}
 ];
 
 // Saves options to chrome.storage.sync.
@@ -13,6 +14,8 @@ function save_options() {
     // right now this is the only input we have
     if (input.type == 'checkbox') {
       opts[boundInputs[i].opt] = input.checked;
+    } else if (input.type == 'text') {
+      opts[boundInputs[i].opt] = input.value;
     }
   }
 
@@ -29,6 +32,8 @@ function restore_options() {
       var input = document.getElementById(boundInputs[i].id);
       if (input.type == 'checkbox') {
         input.checked = items[boundInputs[i].opt];
+      } else if (input.type == '') {
+        input.value = items[boundInputs[i].opt];
       }
     }
   });

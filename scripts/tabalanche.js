@@ -27,6 +27,9 @@ var tabalanche = {};
       }
     }
   };
+  let syncHandler;
+  let remoteUrl = '';
+  const events = new Map;
 
   function ensureCurrentDesignDoc(db, designDoc) {
     function checkAgainstExistingDesignDoc(existing) {
@@ -233,5 +236,41 @@ var tabalanche = {};
     await tabgroupsReady;
     const result = await tabgroups.query('dashboard/total_tabs');
     return result.rows[0].value;
+  };
+  
+  tabalanche.sync = async url => {
+    await tabgroupsReady;
+    if (remoteUrl == url) return;
+    remoteUrl = url;
+    if (syncHandler) {
+      syncHandler.cancel();
+      syncHandler = null;
+      remoteUrl = '';
+    }
+    if (!url) return;
+    syncHandler = tabgroups.sync(remoteUrl, {
+      live: true,
+      retry: true,
+    });
+    syncHandler.on('change', info => tabalanche.emit('syncChange', info));
+  };
+  
+  tabalanche.emit = (ev, ...args) => {
+    const cbs = events.get(ev);
+    if (!cbs) return;
+    for (const cb of cbs) {
+      try {
+        cb(...args);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+  
+  tabalanche.on = (ev, cb) => {
+    if (!events.has(ev)) {
+      events.set(ev, []);
+    }
+    events.get(ev).push(cb);
   };
 })();
