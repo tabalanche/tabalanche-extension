@@ -1,18 +1,36 @@
+/* eslint-env webextensions */
 /* global platform tabalanche cre */
+/* global createSearchFilter createInfiniteLoader */
 
-var tabGroupContainer = document.getElementById('tab-groups');
+const searchFilter = createSearchFilter({
+  el: document.querySelector('#search-field'),
+  updateAt: 'submit',
+  props: ['title', 'url']
+});
 
-const totalTabsContainer = document.getElementById('total-tabs');
+let loader;
+
+searchFilter.on('change', () => {
+  if (loader) loader.uninit();
+  const container = cre('#tab-groups');
+  const oldContainer = document.querySelector('#tab-groups');
+  oldContainer.parentNode.replaceChild(container, oldContainer);
+  loader = createInfiniteLoader({
+    root: container,
+    createElement: createTabGroupDiv,
+    getSome: lastDoc => tabalanche.getSomeTabGroups([lastDoc.created, lastDoc._id])
+  });
+  loader.on('stateChange', updateState);
+  loader.init();
+}, {runNow: true});
 
 async function updateTotalTabs() {
+  const totalTabsContainer = document.getElementById('total-tabs');
   const count = await tabalanche.totalTabs();
   totalTabsContainer.textContent = tabCountString(count);
 }
 
 updateTotalTabs();
-
-// FIXME: why do we need this?
-var tabGroupData = new Map();
 
 var templateTabButton = cre('button.tabbutton', ['x']);
 var templateTabIcon = cre('img.tabicon');
@@ -24,7 +42,7 @@ var templateTabList = cre('ul.tablist');
 
 function getElementIndex(node) {
   var i = 0;
-  while (node = node.previousElementSibling) ++i;
+  while ((node = node.previousElementSibling)) ++i;
   return i;
 }
 
@@ -85,7 +103,6 @@ function createTabGroupDiv(tabGroupDoc) {
     return pendingPutPromise;
   }
 
-  var container;
   var tabCount = cre('span', [tabCountString(tabGroupDoc.tabs.length)]);
   
   function createTabListItem(tab) {
@@ -99,11 +116,12 @@ function createTabGroupDiv(tabGroupDoc) {
 
     var listItem = cre(templateTabListItem, [tabButton, tabLink]);
     
-    var searchIncluded = Boolean(searchFilter &&
-      (searchFilter.test(tab.url) || searchFilter.test(tab.title)));
+    var searchIncluded = searchFilter.testObj(tab);
     
-    listItem.classList.toggle('search-included', Boolean(searchFilter && searchIncluded));
-    listItem.classList.toggle('search-excluded', Boolean(searchFilter && !searchIncluded));
+    listItem.classList.toggle(
+      'search-included', Boolean(!searchFilter.empty() && searchIncluded));
+    listItem.classList.toggle(
+      'search-excluded', Boolean(!searchFilter.empty() && !searchIncluded));
     
     function removeTabListItem() {
       // We could technically do this stuff in a callback that only fires
@@ -114,13 +132,13 @@ function createTabGroupDiv(tabGroupDoc) {
       var index = getElementIndex(listItem);
       tabGroupDoc.tabs.splice(index, 1);
       if (tabGroupDoc.tabs.length == 0 || isExcludedBySearch(index)) {
-        container.remove();
+        loader.delete(tabGroupDoc._id);
+        // container.remove();
       } else {
         listItem.remove();
         tabCount.textContent = tabCountString(tabGroupDoc.tabs.length);
       }
       updateTabGroup().then(updateTotalTabs);
-      loadMoreIfNearBottom();
     }
     
     tabButton.addEventListener('click', function(evt) {
@@ -163,7 +181,7 @@ function createTabGroupDiv(tabGroupDoc) {
   var list = cre(templateTabList, tabListItems);
   
   function isExcludedBySearch(removedIndex) {
-    if (!searchFilter) {
+    if (searchFilter.empty()) {
       return false;
     }
     var i;
@@ -175,136 +193,17 @@ function createTabGroupDiv(tabGroupDoc) {
     return true;
   }
 
-  container = cre(templateTabStash, [flap, list]);
-
-  tabGroupData.set(tabGroupDoc._id, {
-    doc: tabGroupDoc,
-    container: container,
-    list: list,
-    count: tabCount,
-    name: name
-  });
-  
-  return container;
+  return {
+    el: cre(templateTabStash, [flap, list])
+  };
 }
 
-var searchbar = document.getElementById('searchbar');
-var searchFilter;
-
-function createSearchFilter(raw) {
-  const rules = [];
-  for (const term of raw.split(/\s+/)) {
-    let negative, rx;
-    if (term.startsWith('-')) {
-      negative = true;
-      rx = term.slice(1);
-    } else {
-      negative = false;
-      rx = term;
-    }
-    rules.push({
-      rx: new RegExp(rx, 'i'),
-      negative
-    });
-  }
-  
-  return {test};
-  
-  function test(text) {
-    for (const rule of rules) {
-      if (rule.rx.test(text) === rule.negative) {
-        return false;
-      }
-    }
-    return true;
-  }
-}
-
-searchbar.addEventListener('submit', function (evt) {
-  evt.preventDefault();
-  
-  var value = searchbar['search-field'].value.trim();
-  searchFilter = value ? createSearchFilter(value) : null;
-  
-  reloadTabGroups();
-});
-
-searchbar.addEventListener('reset', function (evt) {
-  searchFilter = null;
-  reloadTabGroups();
-});
-
-var lastTabGroup;
-var loadingTabGroups = false;
-var allTabGroupsLoaded = false;
-
-function capTabGroupLoading() {
-  allTabGroupsLoaded = true;
-  // we can stop listening to load on scroll
-  document.removeEventListener('scroll', loadMoreIfNearBottom);
-  // TODO: set the "Loading..." message to be "No older tab groups"
-  // or a message stating there are *no* tab groups
-}
-
-function showLoadedTabGroups(tabGroups) {
-  loadingTabGroups = false;
-  for (var i = 0; i < tabGroups.length; i++) {
-    tabGroupContainer.appendChild(createTabGroupDiv(tabGroups[i]));
-  }
-  if (tabGroups.length > 0) {
-    lastTabGroup = tabGroups[tabGroups.length-1];
-    // in case there's still visible window, recurse
-    return loadMoreIfNearBottom();
-  } else {
-    return capTabGroupLoading();
-  }
-}
-
-function loadTabGroup(id) {
-  tabalanche.getTabGroup(id).then(function (tabGroup) {
-    if (!searchFilter || tabGroup.tabs.some(function (tab) {
-      return searchFilter.test(tab.title) || searchFilter.test(tab.url);
-    })) {
-      // FIXME: should we find the correct position to insert the DIV?
-      tabGroupContainer.prepend(createTabGroupDiv(tabGroup));
-    }
-  });
-}
-
-function loadMoreTabGroups() {
-  if (!loadingTabGroups && !allTabGroupsLoaded) {
-    loadingTabGroups = true;
-
-    // TODO: Set "Loading..." message
-    // (which could technically always be visible)
-
-    // Get the next groups
-    tabalanche.getSomeTabGroups([lastTabGroup.created, lastTabGroup._id], searchFilter)
-      .then(showLoadedTabGroups);
-  }
-}
-
-function reloadTabGroups() {
-  tabGroupContainer.innerHTML = '';
-  allTabGroupsLoaded = false;
-  tabalanche.getSomeTabGroups(null, searchFilter).then(showLoadedTabGroups);
-  document.addEventListener('scroll', loadMoreIfNearBottom);
-}
-
-// Get the first groups
-reloadTabGroups();
-
-// How many window-heights from the bottom of the page we should be before
-// loading more tabs.
-var loadMoreMargin = 1/2;
-
-function loadMoreIfNearBottom() {
-  var bottomOffset = window.innerHeight * (1 + loadMoreMargin);
-  var scrollTop = window.scrollY;
-  var scrollHeight = document.documentElement.scrollHeight;
-
-  if (scrollTop + bottomOffset >= scrollHeight) {
-    loadMoreTabGroups();
+async function loadTabGroup(id) {
+  const doc = await tabalanche.getTabGroup(id);
+  if (doc._deleted) {
+    loader.delete(id);
+  } else if (doc.tabs.some(t => searchFilter.testObj(t))) {
+    loader.add(doc);
   }
 }
 
@@ -321,7 +220,6 @@ optslink.addEventListener('click', function(evt) {
 
 chrome.runtime.onMessage.addListener(function (evt) {
   if (evt.type == 'newTabGroup') {
-    // FIXME: handle cases that the initial load is not started/completed
     loadTabGroup(evt.tabGroupId);
     updateTotalTabs();
   }
@@ -333,7 +231,32 @@ chrome.runtime.onMessage.addListener(function (evt) {
   const opts = await platform.getOptions();
   tabalanche.on('syncChange', info => {
     // FIXME: what about deleted docs?
-    info.docs.forEach(d => loadTabGroup(d._id));
+    if (info.direction !== 'pull') return;
+    // console.log(info);
+    // FIXME: we can't load the doc all the time or the page will explodes when there are lots of items.
+    info.change.docs.forEach(d => {
+      if (d._id[0] !== '_') {
+        loadTabGroup(d._id);
+      }
+    });
+    updateTotalTabs();
   });
   await tabalanche.sync(opts.serverUrl);
 })();
+
+function updateState() {
+  const span = document.querySelector('#loader-state');
+  switch (loader.state()) {
+    case 'loading':
+      span.textContent = 'Loading...';
+      break;
+    case 'complete':
+      span.textContent = 'You have reached the end of the stack';
+      break;
+    case 'pause':
+      span.textContent = 'Scroll down to load more';
+      break;
+    default:
+      throw new Error(`unknown loader.state: ${loader.state()}`);
+  }
+}

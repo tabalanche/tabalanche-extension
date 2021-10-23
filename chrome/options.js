@@ -16,7 +16,9 @@ function save_options() {
       opts[boundInputs[i].opt] = input.checked;
     } else if (input.type == 'text') {
       opts[boundInputs[i].opt] = input.value;
-    }
+    } else {
+        throw new Error(`unknown input type ${input.type}`);
+      }
   }
 
   chrome.storage.sync.set(opts, function() {
@@ -26,17 +28,18 @@ function save_options() {
 
 // Restores select box and checkbox state using the preferences
 // stored in chrome.storage.
-function restore_options() {
-  chrome.storage.sync.get(platform.optionDefaults, function(items) {
-    for (var i = 0; i < boundInputs.length; i++) {
-      var input = document.getElementById(boundInputs[i].id);
-      if (input.type == 'checkbox') {
-        input.checked = items[boundInputs[i].opt];
-      } else if (input.type == '') {
-        input.value = items[boundInputs[i].opt];
-      }
+async function restore_options() {
+  const items = await platform.getOptions();
+  for (var i = 0; i < boundInputs.length; i++) {
+    var input = document.getElementById(boundInputs[i].id);
+    if (input.type == 'checkbox') {
+      input.checked = items[boundInputs[i].opt];
+    } else if (input.type == 'text') {
+      input.value = items[boundInputs[i].opt];
+    } else {
+      throw new Error(`unknown input type ${input.type}`);
     }
-  });
+  }
 }
 
 var advancedDiv = document.getElementById('advanced');

@@ -4,8 +4,9 @@
   "description": "[![Join the chat at https://gitter.im/tabalanche/tabalanche-extension](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tabalanche/tabalanche-extension)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "web-ext build"
+    "test": "eslint .",
+    "build": "web-ext build",
+    "start": "web-ext run"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,7 @@
   },
   "homepage": "https://github.com/eight04/tabalanche-extension#readme",
   "devDependencies": {
+    "eslint": "^7.32.0",
     "web-ext": "^6.5.0"
   },
   "webExt": {
@@ -29,5 +31,15 @@
     "build": {
       "overwriteDest": true
     }
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "ignorePatterns": [
+      "vendor"
+    ]
   }
 }

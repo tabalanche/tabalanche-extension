@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/styles/dashboard/style.css">
   <link rel="stylesheet" href="/styles/ui.css">
   <link rel="icon" href="/images/tabalanche-box-16px.png">
+  <meta charset="utf-8">
 </head>
 <body>
   <header>
@@ -28,11 +29,16 @@
   </form>
   <div id="tab-groups"></div>
   </div>
+  <span id="loader-state"></span>
   <script src="/vendor/browser-polyfill.js"></script>
   <script src="/vendor/pouchdb-5.0.0.js"></script>
   <script src="/vendor/cre.js"></script>
+  <script src="/vendor/read-write-lock.min.js"></script>
   <script src="/scripts/platform.js"></script>
   <script src="/scripts/tabalanche.js"></script>
+  <script src="/scripts/search-filter.js"></script>
+  <script src="/scripts/event-emitter.js"></script>
+  <script src="/scripts/infinite-loader.js"></script>
   <script src="/scripts/dashboard.js"></script>
 </body>
 </html>

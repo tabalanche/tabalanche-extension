@@ -5,7 +5,8 @@ var platform = {};
 
 var optionDefaults = {
   ignorePinnedTabs: true,
-  ignoreDuplicatedUrls: false
+  ignoreDuplicatedUrls: false,
+  serverUrl: ''
 };
 
 // exposed for the options page

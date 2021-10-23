@@ -1,6 +1,6 @@
-/* global PouchDB platform emit */
+/* global PouchDB platform emit eventEmitter */
 
-var tabalanche = {};
+var tabalanche = eventEmitter();
 (function(){
   var dashboardDesignDoc = {
     _id: '_design/dashboard',
@@ -195,11 +195,7 @@ var tabalanche = {};
           .map(function (row) {
             return row.doc;
           })
-          .filter(function (doc) {
-            return !filter || doc.tabs.some(function (tab) {
-              return filter.test(tab.title) || filter.test(tab.url);
-            });
-          });
+          .filter(doc => !filter || doc.tabs.some(filter.testObj));
           
         if (docs.length) {
           return docs;
@@ -235,7 +231,7 @@ var tabalanche = {};
   tabalanche.totalTabs = async () => {
     await tabgroupsReady;
     const result = await tabgroups.query('dashboard/total_tabs');
-    return result.rows[0].value;
+    return result.rows[0]?.value || 0;
   };
   
   tabalanche.sync = async url => {
@@ -253,24 +249,5 @@ var tabalanche = {};
       retry: true,
     });
     syncHandler.on('change', info => tabalanche.emit('syncChange', info));
-  };
-  
-  tabalanche.emit = (ev, ...args) => {
-    const cbs = events.get(ev);
-    if (!cbs) return;
-    for (const cb of cbs) {
-      try {
-        cb(...args);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-  };
-  
-  tabalanche.on = (ev, cb) => {
-    if (!events.has(ev)) {
-      events.set(ev, []);
-    }
-    events.get(ev).push(cb);
   };
 })();
