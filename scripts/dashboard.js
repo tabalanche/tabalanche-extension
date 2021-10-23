@@ -18,7 +18,8 @@ searchFilter.on('change', () => {
   loader = createInfiniteLoader({
     root: container,
     createElement: createTabGroupDiv,
-    getSome: lastDoc => tabalanche.getSomeTabGroups(lastDoc && [lastDoc.created, lastDoc._id]),
+    getSome: lastDoc => tabalanche.getSomeTabGroups(
+      lastDoc && [lastDoc.created, lastDoc._id], searchFilter),
     key: doc => doc.created,
     id: doc => doc._id
   });

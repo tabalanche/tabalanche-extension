@@ -13,12 +13,15 @@ function createSearchFilter({
   buildRules();
   
   if (el.form) {
-    el.form.addEventListener('reset', updateValue);
+    el.form.addEventListener('reset', () => setTimeout(updateValue));
   }
   if (updateAt === 'change' || updateAt === 'input') {
     el.addEventListener(updateAt, updateValue);
   } else if (updateAt === 'submit') {
-    el.form.addEventListener('submit', updateValue);
+    el.form.addEventListener('submit', e => {
+      e.preventDefault();
+      updateValue();
+    });
   } else {
     throw new Error(`invalid updateAt: ${updateAt}`);
   }
