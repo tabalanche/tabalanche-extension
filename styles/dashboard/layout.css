@@ -47,3 +47,21 @@ h3, h4 {
 #tab-groups {
   padding: 24px;
 }
+
+@media (max-width: 480px) {
+  header {
+    display: none;
+  }
+  #searchbar {
+    margin: .8em .6em;
+  }
+  #searchbar button {
+    margin-left: .6em;
+  }
+  #tab-groups {
+    padding: 0;
+  }
+  .tabgroup {
+    margin-inline: .6em;
+  }
+}
