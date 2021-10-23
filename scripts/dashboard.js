@@ -204,7 +204,7 @@ function createTabGroupDiv(tabGroupDoc) {
 async function addTabGroup(id) {
   const doc = await tabalanche.getTabGroup(id);
   if (doc.tabs.some(t => searchFilter.testObj(t))) {
-    loader.add(doc);
+    await loader.add(doc);
     if (!loader.items.length) {
       loader.init();
     }
@@ -235,6 +235,7 @@ chrome.runtime.onMessage.addListener(function (evt) {
   const opts = await platform.getOptions();
   tabalanche.on('syncChange', info => {
     if (info.direction !== 'pull') return;
+    console.log(info);
     info.change.docs.forEach(d => {
       if (d._id[0] !== '_') {
         if (d._deleted) {

@@ -6,7 +6,8 @@
   "scripts": {
     "test": "eslint .",
     "build": "web-ext build",
-    "start": "web-ext run"
+    "start": "web-ext run",
+    "start-chrome": "web-ext run --target chromium"
   },
   "repository": {
     "type": "git",

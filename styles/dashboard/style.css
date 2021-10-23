@@ -26,6 +26,9 @@ h4 {
 #tab-groups {
   background-color: #953;
 }
+.tablink {
+  word-break: break-all;
+}
 #total-tabs {
   font-size: 0.7em;
 }
