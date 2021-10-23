@@ -7,7 +7,7 @@ function eventEmitter() {
   function emit(ev, ...args) {
     const cbs = events.get(ev);
     if (!cbs) return;
-    for (const [cb, opts] of cbs.values()) {
+    for (const [cb, opts] of cbs.entries()) {
       try {
         cb(...args);
       } catch (err) {

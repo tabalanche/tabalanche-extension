@@ -12,13 +12,15 @@ let loader;
 
 searchFilter.on('change', () => {
   if (loader) loader.uninit();
-  const container = cre('#tab-groups');
+  const container = cre('div#tab-groups');
   const oldContainer = document.querySelector('#tab-groups');
   oldContainer.parentNode.replaceChild(container, oldContainer);
   loader = createInfiniteLoader({
     root: container,
     createElement: createTabGroupDiv,
-    getSome: lastDoc => tabalanche.getSomeTabGroups([lastDoc.created, lastDoc._id])
+    getSome: lastDoc => tabalanche.getSomeTabGroups(lastDoc && [lastDoc.created, lastDoc._id]),
+    key: doc => doc.created,
+    id: doc => doc._id
   });
   loader.on('stateChange', updateState);
   loader.init();
@@ -198,12 +200,13 @@ function createTabGroupDiv(tabGroupDoc) {
   };
 }
 
-async function loadTabGroup(id) {
+async function addTabGroup(id) {
   const doc = await tabalanche.getTabGroup(id);
-  if (doc._deleted) {
-    loader.delete(id);
-  } else if (doc.tabs.some(t => searchFilter.testObj(t))) {
+  if (doc.tabs.some(t => searchFilter.testObj(t))) {
     loader.add(doc);
+    if (!loader.items.length) {
+      loader.init();
+    }
   }
 }
 
@@ -220,7 +223,7 @@ optslink.addEventListener('click', function(evt) {
 
 chrome.runtime.onMessage.addListener(function (evt) {
   if (evt.type == 'newTabGroup') {
-    loadTabGroup(evt.tabGroupId);
+    addTabGroup(evt.tabGroupId);
     updateTotalTabs();
   }
 });
@@ -230,13 +233,14 @@ chrome.runtime.onMessage.addListener(function (evt) {
   // FIXME: sync when options change
   const opts = await platform.getOptions();
   tabalanche.on('syncChange', info => {
-    // FIXME: what about deleted docs?
     if (info.direction !== 'pull') return;
-    // console.log(info);
-    // FIXME: we can't load the doc all the time or the page will explodes when there are lots of items.
     info.change.docs.forEach(d => {
       if (d._id[0] !== '_') {
-        loadTabGroup(d._id);
+        if (d._deleted) {
+          loader.delete(d._id);
+        } else {
+          addTabGroup(d._id);
+        }
       }
     });
     updateTotalTabs();

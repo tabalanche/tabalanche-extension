@@ -23,7 +23,8 @@ function createInfiniteLoader({
     delete: delete_,
     state: () => state,
     init,
-    uninit
+    uninit,
+    items
   };
   
   async function init() {
@@ -52,9 +53,9 @@ function createInfiniteLoader({
         items.push(o);
         root.append(o.el);
       }
+      state = 'pause';
+      ee.emit('stateChange');
     });
-    state = 'pause';
-    ee.emit('stateChange');
   }
   
   function buildItem(item) {
@@ -82,11 +83,17 @@ function createInfiniteLoader({
   
   async function add(item) {
     await lock.write(async () => {
-      const key = item2key(item);
-      const i = items.findIndex(i => item2key(i.item) > key);
-      if (i < 0) return;
-      
       await pauseXO(() => {
+        const key = item2key(item);
+        const i = items.findIndex(i => item2key(i.item) < key);
+        if (i < 0) {
+          if (state === 'complete') {
+            state = 'pause';
+            ee.emit('stateChange');
+          }
+          return;
+        }
+        
         const newItem = buildItem(item);
         // FIXME: this only works if the order of each item doesn't change
         if (i > 0 && item2id(items[i - 1].item) === item2id(item)) {
@@ -119,6 +126,7 @@ function createInfiniteLoader({
         const i = items.indexOf(item);
         destroyItem(item);
         items.splice(i, 1);
+        item.el.remove();
       });
     });
   }
