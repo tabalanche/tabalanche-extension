@@ -94,16 +94,19 @@ function createInfiniteLoader({
           return;
         }
         
-        const newItem = buildItem(item);
         // FIXME: this only works if the order of each item doesn't change
         if (i > 0 && item2id(items[i - 1].item) === item2id(item)) {
           // replace
           const oldItem = items[i - 1];
           destroyItem(oldItem);
+          // NOTE: call `buildItem` after `destroyItem` so idMap is correctly configured
+          const newItem = buildItem(item);
           items.splice(i - 1, 1, newItem);
           root.replaceChild(newItem.el, oldItem.el);
+          
         } else {
           // insert
+          const newItem = buildItem(item);
           root.insertBefore(newItem.el, items[i].el);
           items.splice(i, 0, newItem);
           // drop last item so the list doesn't grow
