@@ -26,6 +26,9 @@ function createSearchFilter({
     throw new Error(`invalid updateAt: ${updateAt}`);
   }
   
+  // Chrome re-fill the form after pageshow, should we delay the initial load or...?
+  window.addEventListener('pageshow', updateValue);
+  
   return {test, testObj, empty, ...events};
   
   function empty() {
