@@ -16,7 +16,7 @@ var ACTIONS = {
   'stash-right': () => withLoader(tabalanche.stashTabsToTheRight).then(sync),
   'dash': () => {
     open(platform.extensionURL('dashboard.html'), '_blank');
-    if (/mobi/i.test(navigator.userAgent)) window.close();
+    if (platform.isMobile()) window.close();
   }
 };
 
@@ -24,7 +24,7 @@ for (const key in ACTIONS) {
   document.getElementById(key).addEventListener('click', ACTIONS[key]);
 }
 
-if (/mobi/i.test(navigator.userAgent)) {
+if (platform.isMobile()) {
   initSnapshotUI();
 }
 
@@ -67,7 +67,7 @@ async function initSnapshotUI() {
     }
   });
   
-  if (await platform.hasAllUrlsPermission()) {
+  if (await platform.hasAllUrlsPermission() && browser.tabs.captureTab) {
     for (const tab of tabs) {
       await tab.loadSnapshot();
     }

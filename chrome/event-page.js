@@ -8,7 +8,7 @@ if (chrome.commands) {
   });
 }
 
-if (/mobi/i.test(navigator.userAgent)) {
+if (platform.isMobile()) {
   browser.browserAction.onClicked.addListener(tab => {
     platform.openTab({
       url: browser.runtime.getURL("popup.html"),

@@ -50,9 +50,25 @@ label {
   object-fit: cover;
   object-position: center top;
 }
-.snapshot-ui-no-snapshot .snapshot-ui-tab .tab-snapshot {
+
+.snapshot-ui-no-snapshot #snapshot-ui {
+  grid: auto-flow / 1fr;
+}
+.snapshot-ui-no-snapshot .tab-title {
+  word-break: break-all;
+  white-space: normal;
+}
+.snapshot-ui-no-snapshot .tab-url {
+  display: block;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 1.2em;
+  word-break: break-all;
+  white-space: normal;
+}
+.snapshot-ui-no-snapshot .tab-snapshot {
   display: none;
 }
+
 body.snapshot-ui-enabled {
   /* TODO: adjust width when snapshot ui comes to desktop */    
   /* min-width: 450px; */

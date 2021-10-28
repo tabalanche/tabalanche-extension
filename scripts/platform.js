@@ -149,4 +149,6 @@ platform.openTab = async ({url, openerTab, openerTabId = openerTab?.id}) => {
 // https://github.com/mozilla-mobile/fenix/issues/16912
 platform.hasAllUrlsPermission = () => Promise.resolve(true);
 
+platform.isMobile = () => /mobi/i.test(navigator.userAgent);
+
 })();

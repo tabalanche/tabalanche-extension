@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', restore_options);
 document.getElementById('save').addEventListener('click', save_options);
 
 const enableSnapshot = document.querySelector('#enableSnapshot');
-if (/mobi/i.test(navigator.userAgent)) {
+if (platform.isMobile()) {
   enableSnapshot.hidden = true;
 }
 platform.hasAllUrlsPermission()
