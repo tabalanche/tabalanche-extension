@@ -20,3 +20,15 @@
   bottom: 0;
   background: no-repeat center url(/images/spinner.svg), rgba(0, 0, 0, 0.5);
 }
+
+.snapshot-ui-tab-inner {
+  background: rgba(255, 255, 255, 0.5);
+}
+.snapshot-ui-tab input:checked + .snapshot-ui-tab-inner {
+  background: rgba(255, 255, 255, 0.8);
+}
+.snapshot-ui-tab .tab-title,
+.snapshot-ui-tab .tab-url {
+  font-size: 0.7em;
+  text-overflow: ellipsis;
+}

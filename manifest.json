@@ -11,8 +11,7 @@
       "19": "images/tabalanche-box-19px.png",
       "38": "images/tabalanche-box-38px.png"
     },
-    "default_title": "Tabalanche",
-    "default_popup": "popup.html"
+    "default_title": "Tabalanche"
   },
   "author": "Stuart P. Bentley",
   "background": {
@@ -52,6 +51,9 @@
     "storage",
     "chrome://favicon/",
     "unlimitedStorage"
+  ],
+  "optional_permissions": [
+    "<all_urls>"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "browser_specific_settings": {

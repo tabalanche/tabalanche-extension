@@ -70,7 +70,7 @@ var tabalanche = eventEmitter();
       throw new Error('No tabs to save');
     }
     return Promise.all([
-      platform.currentWindowContext(),
+      browser.windows && platform.currentWindowContext(),
       tabgroupsReady,
       platform.getOptions().then(function (opts) {
         if (opts.ignoreDuplicatedUrls) {
@@ -121,6 +121,8 @@ var tabalanche = eventEmitter();
       });
     });
   }
+  
+  tabalanche.stashTabs = stashTabs;
 
   tabalanche.stashThisTab = function() {
     return platform.getWindowTabs.highlighted().then(stashTabs);

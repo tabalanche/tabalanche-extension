@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tabalanche</title>
   <link rel="stylesheet" href="/vendor/normalize.css">
   <link rel="stylesheet" href="/styles/font-faces.css">
@@ -36,13 +38,16 @@
       </button>
     </div>
   </div>
-  <div id="snapshot-ui" hidden>
+  <div id="snapshot-ui">
   </div>
   <div class="input-row">
     <button type="button" id="dash">Open dashboard</button>
+    <button class="stash-selection">Stash tabs</button>
+    <button class="invert-selection">Invert selection</button>
   </div>
   <script src="/vendor/browser-polyfill.js"></script>
   <script src="/vendor/pouchdb-5.0.0.js"></script>
+  <script src="/vendor/cre.js"></script>
   <script src="/scripts/platform.js"></script>
   <script src="/scripts/event-emitter.js"></script>
   <script src="/scripts/tabalanche.js"></script>

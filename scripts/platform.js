@@ -47,9 +47,11 @@ platform.currentWindowContext = function currentWindowContext() {
 };
 
 // clear window session cookies when the window is closed
-browser.windows.onRemoved.addListener(function (wid) {
-  document.cookie = 'wins_' + wid + '=';
-});
+if (browser.windows) {
+  browser.windows.onRemoved.addListener(function (wid) {
+    document.cookie = 'wins_' + wid + '=';
+  });
+}
 
 platform.getWindowTabs = {};
 
@@ -60,7 +62,9 @@ function getOptions() {
 platform.getOptions = getOptions;
 
 function queryCurrentWindowTabs (params) {
-  params.currentWindow = true;
+  if (browser.windows) {
+    params.currentWindow = true;
+  }
   return browser.tabs.query(params);
 }
 
