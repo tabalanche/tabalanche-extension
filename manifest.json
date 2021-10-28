@@ -19,6 +19,7 @@
       "vendor/pouchdb-5.0.0.js",
       "vendor/browser-polyfill.js",
       "scripts/event-emitter.js",
+      "scripts/platform.js",
       "scripts/tabalanche.js",
       "chrome/event-page.js" ],
     "persistent": false

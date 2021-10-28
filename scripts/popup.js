@@ -67,9 +67,7 @@ async function initSnapshotUI() {
     }
   });
   
-  if (await browser.permissions.contains({
-    origins: ["<all_urls>"]
-  })) {
+  if (await platform.hasAllUrlsPermission()) {
     for (const tab of tabs) {
       await tab.loadSnapshot();
     }

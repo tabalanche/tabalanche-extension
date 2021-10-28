@@ -1,4 +1,4 @@
-/* global tabalanche */
+/* global tabalanche platform */
 
 if (chrome.commands) {
   chrome.commands.onCommand.addListener(function (command) {
@@ -10,12 +10,10 @@ if (chrome.commands) {
 
 if (/mobi/i.test(navigator.userAgent)) {
   browser.browserAction.onClicked.addListener(tab => {
-    const options = {
+    platform.openTab({
       url: browser.runtime.getURL("popup.html"),
-      // FIXME: seems that this doesn't work on FF android
-      openerTabId: tab.id
-    };
-    browser.tabs.create(options).catch(console.error);
+      openerTab: tab
+    }).catch(console.error);
   });
 } else {
   browser.browserAction.setPopup({popup: 'popup.html'});

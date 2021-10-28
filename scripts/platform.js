@@ -135,4 +135,18 @@ platform.openBackgroundTab = function openBackgroundTab(url) {
   return browser.tabs.create({url: url, active: false});
 };
 
+platform.openTab = async ({url, openerTab, openerTabId = openerTab?.id}) => {
+  const options = {url};
+  
+  if (openerTabId && !/mobi.*firefox/i.test(navigator.userAgent)) {
+    options.openerTabId = openerTabId;
+  }
+  return await browser.tabs.create(options);
+};
+
+// FIXME: use permissions.contains when following issues are fixed
+// https://github.com/kiwibrowser/src.next/issues/425
+// https://github.com/mozilla-mobile/fenix/issues/16912
+platform.hasAllUrlsPermission = () => Promise.resolve(true);
+
 })();

@@ -67,9 +67,7 @@ const enableSnapshot = document.querySelector('#enableSnapshot');
 if (/mobi/i.test(navigator.userAgent)) {
   enableSnapshot.hidden = true;
 }
-browser.permissions.contains({
-  origins: ['<all_urls>']
-})
+platform.hasAllUrlsPermission()
   .then(ok => {
     if (ok) {
       enableSnapshot.hidden = true;
