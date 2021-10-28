@@ -116,8 +116,13 @@ platform.faviconPath = typeof InstallTrigger === "undefined" ?
     return 'chrome://favicon/' + url;
   } :
   url => {
-    url = new URL(url);
-    return `https://icons.duckduckgo.com/ip3/${url.hostname}.ico`;
+    try {
+      // This won't work with chrome://extensions/
+      url = new URL(url);
+      return `https://icons.duckduckgo.com/ip3/${url.hostname}.ico`;
+    } catch (err) {
+      return 'https://icons.duckduckgo.com/ip3/undefined.ico';
+    }
   };
 
 platform.extensionURL = function extensionURL(path) {
