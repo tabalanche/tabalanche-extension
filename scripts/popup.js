@@ -1,7 +1,7 @@
 /* global platform tabalanche cre */
 
-var windowStore;
-var windowContext;
+// var windowStore;
+// var windowContext;
 
 // platform.currentWindowContext().then(function(store){
   // windowStore = store;

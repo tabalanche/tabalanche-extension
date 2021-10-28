@@ -1,4 +1,4 @@
-/* global chrome platform tabalanche */
+/* global platform tabalanche */
 
 var boundInputs = [
   {id: 'ignorepin', opt: 'ignorePinnedTabs'},
@@ -45,7 +45,7 @@ async function restore_options() {
 var advancedDiv = document.getElementById('advanced');
 var advancedLink = document.getElementById('show-advanced');
 
-advancedLink.addEventListener('click', function (evt) {
+advancedLink.addEventListener('click', function () {
   if (advancedDiv.hidden) {
     advancedDiv.hidden = false;
     advancedLink.textContent = 'Hide advanced options...';

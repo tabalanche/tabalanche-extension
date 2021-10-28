@@ -29,7 +29,6 @@ var tabalanche = eventEmitter();
   };
   let syncHandler;
   let remoteUrl = '';
-  const events = new Map;
 
   function ensureCurrentDesignDoc(db, designDoc) {
     function checkAgainstExistingDesignDoc(existing) {
@@ -79,7 +78,8 @@ var tabalanche = eventEmitter();
       })
     ]).then(function (result) {
       // FIXME: what does `store` do?
-      var store = result[0], dupTabs = result[2] || {};
+      // var store = result[0]
+      const dupTabs = result[2] || {};
       
       var stashTime = new Date();
         
@@ -137,8 +137,8 @@ var tabalanche = eventEmitter();
     return platform.getWindowTabs.right().then(stashTabs);
   };
 
-  tabalanche.importTabGroup = function importTabGroup(tabGroup, opts) {
-    opts = opts || {};
+  tabalanche.importTabGroup = function importTabGroup(tabGroup, /* opts */) {
+    // opts = opts || {};
     return tabgroupsReady.then(function() {
       if (tabGroup._id) {
         return tabgroups.put({
