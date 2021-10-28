@@ -75,7 +75,14 @@ browser.permissions.contains({
       enableSnapshot.hidden = true;
     }
     enableSnapshot.addEventListener('click', async () => {
-      const ok = await browser.permissions.request({origins: ['<all_urls>']});
+      console.log('requesting permission');
+      let ok = false;
+      try {
+        ok = await browser.permissions.request({origins: ['<all_urls>']});
+      } catch (err) {
+        console.error(err);
+      }
+      console.log(ok);
       if (ok) {
         enableSnapshot.hidden = true;
       }

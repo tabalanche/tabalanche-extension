@@ -23,9 +23,12 @@
 
 .snapshot-ui-tab-inner {
   background: rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  overflow: hidden;
 }
 .snapshot-ui-tab input:checked + .snapshot-ui-tab-inner {
   background: rgba(255, 255, 255, 0.8);
+  outline: white solid 2px;
 }
 .snapshot-ui-tab .tab-title,
 .snapshot-ui-tab .tab-url {
