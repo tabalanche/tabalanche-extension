@@ -20,7 +20,7 @@ async function updateBrowserAction(changes) {
   if (!changes.useSnapshotUI) return;
   
   if (changes.useSnapshotUI.newValue) {
-    browser.browserAction.setPopup({popup: null});
+    browser.browserAction.setPopup({popup: ''});
     browser.browserAction.onClicked.addListener(handleBrowserAction);
   } else {
     browser.browserAction.setPopup({popup: 'popup.html'});
