@@ -20,6 +20,7 @@ function eventEmitter() {
     }
   }
   
+  // opts: {runNow: Boolean, once: Boolean}
   function on(ev, cb, opts = {}) {
     if (!events.has(ev)) {
       events.set(ev, new Map);

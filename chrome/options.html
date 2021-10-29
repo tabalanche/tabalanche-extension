@@ -9,22 +9,25 @@
 <body>
   <figure>
     <label>
-      <input type="checkbox" id="ignorepin">
+      <input type="checkbox" id="ignorePinnedTabs">
       Ignore pinned tabs
     </label>
     <label>
-      <input type="checkbox" id="ignoredupurl">
+      <input type="checkbox" id="ignoreDuplicatedUrls">
       Do not store duplicated URLs
     </label>
     <label>
       Remote server URL
-      <input type="text" id="serverurl">
+      <input type="text" id="serverUrl">
     </label>
-    <div>
-      <button id="enableSnapshot">
-        Display screenshot when selecting tabs
-      </button>
-    </div>
+    <label>
+      <input type="checkbox" id="useSnapshotUI">
+      Enable tab chooser
+    </label>
+    <label>
+      <input type="checkbox" id="useScreenshot">
+      Display screenshots in tab chooser
+    </label>
   </figure>
   <div id="advanced" hidden>
     <figure>
@@ -41,9 +44,9 @@
     <button type="button" id="save">Save</button>
   </figure>
   <script src="/vendor/browser-polyfill.js"></script>
+  <script src="/scripts/event-emitter.js"></script>
   <script src="/scripts/platform.js"></script>
   <script src="/vendor/pouchdb-5.0.0.js"></script>
-  <script src="/scripts/event-emitter.js"></script>
   <script src="/scripts/tabalanche.js"></script>
   <script src="/chrome/options.js"></script>
 </body>

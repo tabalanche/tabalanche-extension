@@ -9,6 +9,8 @@
   // TODO: Set / restore window state
 // });
 
+let opts;
+
 var ACTIONS = {
   'stash-all': () => withLoader(tabalanche.stashAllTabs).then(sync),
   'stash-this': () => withLoader(tabalanche.stashThisTab).then(sync),
@@ -16,7 +18,9 @@ var ACTIONS = {
   'stash-right': () => withLoader(tabalanche.stashTabsToTheRight).then(sync),
   'dash': () => {
     open(platform.extensionURL('dashboard.html'), '_blank');
-    if (platform.isMobile()) window.close();
+    if (opts.useSnapshotUI) {
+      window.close();
+    }
   }
 };
 
@@ -24,9 +28,12 @@ for (const key in ACTIONS) {
   document.getElementById(key).addEventListener('click', ACTIONS[key]);
 }
 
-if (platform.isMobile()) {
-  initSnapshotUI();
-}
+platform.getOptions().then(_opts => {
+  opts = _opts;
+  if (opts.useSnapshotUI) {
+    initSnapshotUI();
+  }
+});
 
 async function withLoader(cb) {
   document.body.classList.add('pending');
@@ -39,7 +46,6 @@ async function withLoader(cb) {
 
 async function sync() {
   // FIXME: move db operation into background so it won't be interrupted when the popup is closed
-  const opts = await platform.getOptions();
   await tabalanche.sync(opts.serverUrl);
 }
 
@@ -67,7 +73,7 @@ async function initSnapshotUI() {
     }
   });
   
-  if (await platform.hasAllUrlsPermission() && browser.tabs.captureTab) {
+  if (opts.useScreenshot && await platform.hasScreenshotPermission()) {
     for (const tab of tabs) {
       await tab.loadSnapshot();
     }

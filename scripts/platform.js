@@ -1,11 +1,24 @@
+/* global eventEmitter */
+
 var platform = {};
 (function(){
+  
+const ee = eventEmitter();
+
+Object.assign(platform, ee);
 
 var optionDefaults = {
   ignorePinnedTabs: true,
   ignoreDuplicatedUrls: false,
-  serverUrl: ''
+  serverUrl: '',
+  useSnapshotUI: isMobile(),
+  useScreenshot: false
 };
+
+const localOptions = [
+  'useSnapshotUI',
+  'useScreenshot'
+];
 
 // exposed for the options page
 platform.optionDefaults = optionDefaults;
@@ -53,11 +66,35 @@ if (browser.windows) {
 
 platform.getWindowTabs = {};
 
-function getOptions() {
-  return browser.storage.sync.get(optionDefaults);
+async function getOptions() {
+  const [syncOpts, localOpts] = await Promise.all([
+    browser.storage.sync.get(optionDefaults),
+    browser.storage.local.get(optionDefaults)
+  ]);
+  return Object.assign(syncOpts, localOpts);
 }
 
 platform.getOptions = getOptions;
+
+platform.setOptions = async opts => {
+  const syncOpts = {};
+  const localOpts = {};
+  for (const key in opts) {
+    if (localOptions.includes(key)) {
+      localOpts[key] = opts[key];
+    } else {
+      syncOpts[key] = opts[key];
+    }
+  }
+  return await Promise.all([
+    browser.storage.sync.set(syncOpts),
+    browser.storage.local.set(localOpts)
+  ]);
+};
+
+browser.storage.onChanged.addListener((changes, area) => {
+  ee.emit('optionChange', changes, area);
+});
 
 function queryCurrentWindowTabs (params) {
   if (browser.windows) {
@@ -149,11 +186,23 @@ platform.openTab = async ({url, openerTab, openerTabId = openerTab?.id}) => {
   return await browser.tabs.create(options);
 };
 
-// FIXME: use permissions.contains when following issues are fixed
+// FIXME: this doesn't work in kiwi browser
 // https://github.com/kiwibrowser/src.next/issues/425
-// https://github.com/mozilla-mobile/fenix/issues/16912
-platform.hasAllUrlsPermission = () => Promise.resolve(true);
+// though Choromium doesn't support screenshot anyway
+platform.hasScreenshotPermission = () =>
+  browser.tabs.captureTab && browser.permissions.contains({
+    origins: ['<all_urls>']
+  });
 
-platform.isMobile = () => /mobi/i.test(navigator.userAgent);
+// FIXME: this doesn't work in firefox android
+// https://github.com/mozilla-mobile/fenix/issues/16912
+// we need to build another manifest merging optional_permissions into permissions for firefox android
+platform.requestScreenshotPermission = () => browser.permissions.request({
+  origins: ['<all_urls>']
+});
+
+function isMobile() { return /mobi/i.test(navigator.userAgent) }
+
+platform.isMobile = isMobile;
 
 })();
