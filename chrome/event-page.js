@@ -10,6 +10,8 @@ if (chrome.commands) {
 
 platform.on('optionChange', updateBrowserAction, {runNow: true});
 
+browser.runtime.onStartup.addListener(updateBrowserAction);
+
 async function updateBrowserAction(changes) {
   if (!changes) {
     changes = await platform.getOptions();
