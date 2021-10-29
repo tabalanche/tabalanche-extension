@@ -69,7 +69,7 @@ platform.getWindowTabs = {};
 async function getOptions() {
   const [syncOpts, localOpts] = await Promise.all([
     browser.storage.sync.get(optionDefaults),
-    browser.storage.local.get(optionDefaults)
+    browser.storage.local.get(localOptions)
   ]);
   return Object.assign(syncOpts, localOpts);
 }
