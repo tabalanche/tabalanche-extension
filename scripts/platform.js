@@ -173,13 +173,16 @@ platform.getOptionsURL = function getOptionsURL() {
 
 platform.openOptionsPage = browser.runtime.openOptionsPage;
 
-platform.openBackgroundTab = function openBackgroundTab(url) {
-  return browser.tabs.create({url: url, active: false});
-};
-
-platform.openTab = async ({url, openerTab, openerTabId = openerTab?.id}) => {
-  const options = {url};
+platform.openTab = async ({link, openerTab, openerTabId = openerTab?.id, ...args}) => {
+  if (isMobile() && link) {
+    const oldTarget = link.target;
+    link.target = '_blank';
+    link.click();
+    link.target = oldTarget;
+    return;
+  }
   
+  const options = {...args};
   if (openerTabId && !/mobi.*firefox/i.test(navigator.userAgent)) {
     options.openerTabId = openerTabId;
   }

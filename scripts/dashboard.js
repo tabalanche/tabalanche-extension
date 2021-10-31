@@ -9,6 +9,7 @@ const searchFilter = createSearchFilter({
 });
 
 let loader;
+const pCurrentTab = browser.tabs.getCurrent();
 
 searchFilter.on('change', () => {
   if (loader) loader.uninit();
@@ -55,6 +56,8 @@ function tabCountString(num) {
 
 // blame http://stackoverflow.com/q/20087368
 function getLinkClickType(evt) {
+  if (!evt.isTrusted) return 'ignore';
+  
   // Technically the click event is only supposed to fire for button 0,
   // but WebKit has shipped it for middle-click (button 1) for years.
   // See http://specifiction.org/t/fixing-the-click-event-in-browsers/933
@@ -154,16 +157,21 @@ function createTabGroupDiv(tabGroupDoc) {
       }
     });
 
-    tabLink.addEventListener('click', function(evt) {
+    tabLink.addEventListener('click', async function(evt) {
       var type = getLinkClickType(evt);
 
       // we have a special behavior for normal-visiting
       if (type == 'visit') {
-        platform.openBackgroundTab(tab.url);
+        evt.preventDefault();
+        
+        platform.openTab({
+          link: tabLink,
+          url: tab.url,
+          active: false,
+          openerTab: await pCurrentTab
+        });
         
         removeTabListItem();
-        
-        evt.preventDefault();
       }
     });
 
