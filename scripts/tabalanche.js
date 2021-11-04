@@ -96,6 +96,8 @@ var tabalanche = eventEmitter();
       
       var i;
       for (i = 0; i < tabs.length; i++) {
+        // NOTE: this prevents users from saving duplicate URLs in a single group.
+        // Even when ignoredDuplicateUrls is false
         if (!dupTabs[tabs[i].url]) {
           dupTabs[tabs[i].url] = true;
           tabGroupDoc.tabs.push(stashedTab(tabs[i]));
