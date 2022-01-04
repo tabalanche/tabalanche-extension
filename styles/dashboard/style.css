@@ -1,6 +1,9 @@
 .tablink {
   text-decoration: none;
   color: #22a;
+  /* word-break doesn't work with symbols */
+  /* https://stackoverflow.com/questions/43396861/the-word-break-style-is-not-applying-on-text-with-symbol */
+  overflow-wrap: break-word;
 }
 .tablist-item.search-excluded {
   display: none;
@@ -25,9 +28,6 @@ h4 {
 }
 #tab-groups {
   background-color: #953;
-}
-.tablink {
-  word-break: break-all;
 }
 #total-tabs {
   font-size: 0.7em;
