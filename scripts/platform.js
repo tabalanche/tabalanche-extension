@@ -148,7 +148,7 @@ platform.closeTabs = function closeTabs(tabs) {
 
 // TODO: use Firefox native favicon
 // see https://bugzilla.mozilla.org/show_bug.cgi?id=1315616
-platform.faviconPath = typeof InstallTrigger === "undefined" ? 
+platform.faviconPath = !window.netscape ? 
   function faviconPath(url) {
     return 'chrome://favicon/' + url;
   } :
