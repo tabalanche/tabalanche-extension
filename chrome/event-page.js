@@ -10,7 +10,16 @@ if (chrome.commands) {
 
 platform.on('optionChange', updateBrowserAction, {runNow: true});
 
-// browser.runtime.onStartup.addListener(updateBrowserAction);
+// https://bugzilla.mozilla.org/show_bug.cgi?id=1791279
+browser.browserAction.onClicked.addListener(async tab => {
+  const {useSnapshotUI} = await platform.getOptions();
+  if (useSnapshotUI) {
+    handleBrowserAction(tab);
+  } else {
+    browser.browserAction.setPopup({popup: 'popup.html'});
+    browser.browserAction.openPopup();
+  }
+});
 
 async function updateBrowserAction(changes) {
   if (!changes) {
@@ -23,10 +32,8 @@ async function updateBrowserAction(changes) {
   
   if (changes.useSnapshotUI.newValue) {
     browser.browserAction.setPopup({popup: ''});
-    browser.browserAction.onClicked.addListener(handleBrowserAction);
   } else {
     browser.browserAction.setPopup({popup: 'popup.html'});
-    browser.browserAction.onClicked.removeListener(handleBrowserAction);
   }
 }
 
