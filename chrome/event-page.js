@@ -8,17 +8,13 @@ if (chrome.commands) {
   });
 }
 
-platform.on('optionChange', updateBrowserAction, {runNow: true});
+platform.on('optionChange', updateBrowserAction);
 
-// https://bugzilla.mozilla.org/show_bug.cgi?id=1791279
-browser.browserAction.onClicked.addListener(async tab => {
-  const {useSnapshotUI} = await platform.getOptions();
-  if (useSnapshotUI) {
-    handleBrowserAction(tab);
-  } else {
-    browser.browserAction.setPopup({popup: 'popup.html'});
-    browser.browserAction.openPopup();
-  }
+browser.runtime.onStartup.addListener(() => updateBrowserAction());
+browser.runtime.onInstalled.addListener(() => updateBrowserAction());
+
+browser.browserAction.onClicked.addListener(tab => {
+  handleBrowserAction(tab);
 });
 
 async function updateBrowserAction(changes) {
