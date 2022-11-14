@@ -10,7 +10,9 @@ if (chrome.commands) {
 
 platform.on('optionChange', updateBrowserAction);
 
-browser.runtime.onStartup.addListener(() => updateBrowserAction());
+browser.runtime.onStartup.addListener(() => {
+  updateBrowserAction();
+});
 browser.runtime.onInstalled.addListener(() => updateBrowserAction());
 
 browser.browserAction.onClicked.addListener(tab => {
@@ -19,6 +21,8 @@ browser.browserAction.onClicked.addListener(tab => {
 
 async function updateBrowserAction(changes) {
   if (!changes) {
+    // NOTE: we have to use persistent background page to make this work
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1741865#c60
     changes = await platform.getOptions();
     for (const key in changes) {
       changes[key] = {newValue: changes[key]};

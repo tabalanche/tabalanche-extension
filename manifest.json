@@ -22,7 +22,7 @@
       "scripts/platform.js",
       "scripts/tabalanche.js",
       "chrome/event-page.js" ],
-    "persistent": false
+    "persistent": true
   },
   "commands": {
     "stashThisTab": {
