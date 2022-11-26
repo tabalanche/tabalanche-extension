@@ -68,19 +68,19 @@ var tabalanche = eventEmitter();
     if (!tabs.length) {
       throw new Error('No tabs to save');
     }
-    return Promise.all([
-      browser.windows && platform.currentWindowContext(),
-      tabgroupsReady,
-      platform.getOptions().then(function (opts) {
-        if (opts.ignoreDuplicatedUrls) {
-          return tabalanche.hasUrls(tabs.map(function (tab) {return tab.url;}));
-        }
-      })
-    ]).then(function (result) {
-      // FIXME: what does `store` do?
-      // var store = result[0]
-      const dupTabs = result[2] || {};
-      
+    const closeTabs = async () => {
+      if (!(await platform.isDashboardAvailable())) {
+        await platform.openDashboard();
+      }
+      await platform.closeTabs(tabs);
+    }
+    const doStash = async () => {
+      await tabgroupsReady;
+
+      const opts = await platform.getOptions();
+      const dupTabs = opts.ignoreDuplicatedUrls ?
+        await tabalanche.hasUrls(tabs.map(function (tab) {return tab.url;})) : {};
+
       var stashTime = new Date();
         
       function stashedTab(tab) {
@@ -105,23 +105,14 @@ var tabalanche = eventEmitter();
       }
       
       if (!tabGroupDoc.tabs.length) {
-        // FIXME: should we just close these tabs without posting a new doc?
-        throw new Error('The tab group has no tab');
+        console.warn('The tab group has no tab');
+      } else {
+        const response = await tabgroups.post(tabGroupDoc);
+        browser.runtime.sendMessage({type: 'newTabGroup', tabGroupId: response.id})
+          .catch(console.warn);
       }
-      
-      return tabgroups.post(tabGroupDoc).then(function(response) {
-        platform.closeTabs(tabs);
-        // FIXME: this won't trigger the listener in the same frame
-        chrome.runtime.sendMessage({type: 'newTabGroup', tabGroupId: response.id});
-        return platform.queryCurrentWindowTabs({url: extensionPrefix + '*'})
-          .then(function (extensionTabs) {
-            if (!extensionTabs.length) {
-              var dashboard = platform.extensionURL('dashboard.html');
-              open(dashboard + '#' + response.id, '_blank');
-            }
-          });
-      });
-    });
+    }
+    return Promise.all([ closeTabs(), doStash() ]);
   }
   
   tabalanche.stashTabs = stashTabs;

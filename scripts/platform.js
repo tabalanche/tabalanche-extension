@@ -173,6 +173,10 @@ platform.getOptionsURL = function getOptionsURL() {
 
 platform.openOptionsPage = browser.runtime.openOptionsPage;
 
+platform.openDashboard = () => {
+  return browser.tabs.create({url: platform.extensionURL('dashboard.html')});
+}
+
 platform.openTab = async ({link, openerTab, openerTabId = openerTab?.id, ...args}) => {
   if (isMobile() && link) {
     const oldTarget = link.target;
@@ -207,5 +211,13 @@ platform.requestScreenshotPermission = () => browser.permissions.request({
 function isMobile() { return /mobi/i.test(navigator.userAgent) }
 
 platform.isMobile = isMobile;
+
+platform.isDashboardAvailable = async () => {
+  const extensionTabs = await browser.tabs.query({url: [
+    platform.extensionURL("dashboard.html"),
+    platform.extensionURL("dashboard.html?*")
+  ]});
+  return extensionTabs.length > 0;
+}
 
 })();

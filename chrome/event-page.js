@@ -1,5 +1,32 @@
 /* global tabalanche platform */
 
+const HANDLE_MESSAGE = {
+  "stash-all": () => {
+    tabalanche.stashAllTabs();
+    return false;
+  },
+  "stash-this": () => {
+    tabalanche.stashThisTab();
+    return false;
+  },
+  "stash-other": () => {
+    tabalanche.stashOtherTabs();
+    return false;
+  },
+  "stash-right": () => {
+    tabalanche.stashTabsToTheRight();
+    return false;
+  },
+  "stash-tabs": ({tabs}) => {
+    tabalanche.stashTabs(tabs);
+    return false;
+  },
+  "open-dashboard": () => {
+    platform.openDashboard();
+    return false;
+  }
+}
+
 if (chrome.commands) {
   chrome.commands.onCommand.addListener(function (command) {
     if (typeof tabalanche[command] == 'function') {
@@ -17,6 +44,12 @@ browser.runtime.onInstalled.addListener(() => updateBrowserAction());
 
 browser.browserAction.onClicked.addListener(tab => {
   handleBrowserAction(tab);
+});
+
+browser.runtime.onMessage.addListener(message => {
+  if (HANDLE_MESSAGE[message.method]) {
+    return HANDLE_MESSAGE[message.method](message);
+  }
 });
 
 async function updateBrowserAction(changes) {
