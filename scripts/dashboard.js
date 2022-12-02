@@ -238,9 +238,7 @@ chrome.runtime.onMessage.addListener(function (evt) {
 });
 
 (async () => {
-  // FIXME: move db operation into background so it won't be interrupted when the popup is closed
-  // FIXME: sync when options change
-  const opts = await platform.getOptions();
+  // FIXME: now the db sync at background, does syncChange fire on dashboard?
   tabalanche.on('syncChange', info => {
     if (info.direction !== 'pull') return;
     console.log(info);
@@ -255,7 +253,6 @@ chrome.runtime.onMessage.addListener(function (evt) {
     });
     updateTotalTabs();
   });
-  await tabalanche.sync(opts.serverUrl);
 })();
 
 function updateState() {

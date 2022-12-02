@@ -35,7 +35,19 @@ if (chrome.commands) {
   });
 }
 
-platform.on('optionChange', updateBrowserAction);
+platform.on('optionChange', changes => {
+  updateBrowserAction(changes);
+  if (changes.serverUrl) {
+    tabalanche.sync(changes.serverUrl.newValue);
+  }
+});
+
+async function init() {
+  const {serverUrl} = await platform.getOptions();
+  tabalanche.sync(serverUrl);
+}
+
+init();
 
 browser.runtime.onStartup.addListener(() => {
   updateBrowserAction();
@@ -76,3 +88,4 @@ function handleBrowserAction(tab) {
     openerTab: tab
   }).catch(console.error);
 }
+
