@@ -17,9 +17,11 @@
   "background": {
     "scripts": [
       "vendor/pouchdb-5.0.0.js",
+      "vendor/pouchdb.upsert.min.js",
       "vendor/browser-polyfill.js",
       "scripts/event-emitter.js",
       "scripts/platform.js",
+      "scripts/search-filter.js",
       "scripts/tabalanche.js",
       "chrome/event-page.js" ],
     "persistent": true

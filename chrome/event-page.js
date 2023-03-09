@@ -21,9 +21,19 @@ const HANDLE_MESSAGE = {
     tabalanche.stashTabs(tabs);
     return false;
   },
+  "tab-count": () => tabalanche.totalTabs(),
   "open-dashboard": () => {
     platform.openDashboard();
     return false;
+  },
+  "get-tab-group": ({id}) => {
+    return tabalanche.getTabGroup(id);
+  },
+  "remove-tabs": ({id, tabs}) => {
+    return tabalanche.removeTabs(id, tabs);
+  },
+  "get-some-tab-groups": ({startKey, filter}) => {
+    return tabalanche.getSomeTabGroups(startKey, filter);
   }
 }
 

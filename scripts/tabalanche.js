@@ -1,4 +1,4 @@
-/* global PouchDB platform emit eventEmitter */
+/* global PouchDB platform emit eventEmitter compileFilter */
 
 var tabalanche = eventEmitter();
 (function(){
@@ -108,7 +108,7 @@ var tabalanche = eventEmitter();
         console.warn('The tab group has no tab');
       } else {
         const response = await tabgroups.post(tabGroupDoc);
-        browser.runtime.sendMessage({type: 'newTabGroup', tabGroupId: response.id})
+        browser.runtime.sendMessage({event: "new-tab-group", tabGroupId: response.id})
           .catch(console.warn);
       }
     }
@@ -167,7 +167,11 @@ var tabalanche = eventEmitter();
     });
   };
 
-  tabalanche.getSomeTabGroups = function getSomeTabGroups(startKey, filter) {
+  const FILTER_PROPS = ['url', 'title'];
+
+  tabalanche.getSomeTabGroups = async function getSomeTabGroups(startKey, filter) {
+    filter = filter && typeof filter === "string" ? compileFilter(filter) : filter;
+
     var queryOpts = {
       include_docs: true,
       descending: true,
@@ -178,28 +182,26 @@ var tabalanche = eventEmitter();
       queryOpts.startkey = startKey;
       queryOpts.skip = 1;
     }
-    
-    return tabgroupsReady.then(function () {
-      return tabgroups.query('dashboard/by_creation', queryOpts)
-      .then(function (response) {
-        if (!response.rows.length) {
-          return [];
-        }
+    await tabgroupsReady;
+    for (;;) {
+      var response = await tabgroups.query('dashboard/by_creation', queryOpts);
+      if (!response.rows.length) {
+        return [];
+      }
+      
+      var docs = response.rows
+        .map(function (row) {
+          return row.doc;
+        })
+        .filter(doc => !filter || doc.tabs.some(t => filter.testObj(t, FILTER_PROPS)));
         
-        var docs = response.rows
-          .map(function (row) {
-            return row.doc;
-          })
-          .filter(doc => !filter || doc.tabs.some(filter.testObj));
-          
-        if (docs.length) {
-          return docs;
-        }
-        
-        var lastDoc = response.rows[response.rows.length - 1].doc;
-        return getSomeTabGroups([lastDoc.created, lastDoc._id], filter);
-      });
-    });
+      if (docs.length) {
+        return docs;
+      }
+      
+      var lastDoc = response.rows[response.rows.length - 1].doc;
+      queryOpts.startkey = [lastDoc.created, lastDoc._id];
+    }
   };
 
   tabalanche.getDB = function getDB() {
@@ -243,6 +245,37 @@ var tabalanche = eventEmitter();
       live: true,
       retry: true,
     });
-    syncHandler.on('change', info => tabalanche.emit('syncChange', info));
+    syncHandler.on('change', info => {
+      browser.runtime.sendMessage({event: "sync-change", info});
+    });
   };
+
+  tabalanche.removeTabs = async (id, tabs) => {
+    await tabgroupsReady;
+    return await tabgroups.upsert(id, doc => {
+      const newTabs = [];
+      // FIXME: this won't work if the same URL is in toRemove twice
+      const toRemove = new Set(tabs.map(t => t.url));
+      let touched = false;
+      for (const tab of doc.tabs) {
+        if (toRemove.has(tab.url)) {
+          toRemove.delete(tab.url);
+          touched = true;
+          continue;
+        }
+        newTabs.push(tab);
+      }
+      if (!touched) {
+        return;
+      }
+      if (newTabs.length) {
+        doc.tabs = newTabs;
+      } else {
+        doc._deleted = true;
+      }
+      return doc;
+    });
+  };
+
 })();
+

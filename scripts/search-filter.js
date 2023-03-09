@@ -1,5 +1,47 @@
 /* global eventEmitter */
-/* exported createSearchFilter */
+/* exported createSearchFilter compileFilter */
+
+function compileFilter(value) {
+  const rules = [];
+  for (const term of value.split(/\s+/)) {
+    let negative, rx;
+    if (term.startsWith('-')) {
+      negative = true;
+      rx = term.slice(1);
+    } else {
+      negative = false;
+      rx = term;
+    }
+    rules.push({
+      rx: new RegExp(rx, 'i'),
+      negative
+    });
+  }
+  return {
+    toString: () => value,
+    rules,
+    test,
+    testObj,
+  };
+  function test(text) {
+    for (const rule of rules) {
+      if (rule.rx.test(text) === rule.negative) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  function testObj(obj, props = Object.keys(obj)) {
+    for (const rule of rules) {
+      if (props.some(p => rule.rx.test(obj[p])) === rule.negative) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+}
 
 function createSearchFilter({
   el,
@@ -7,11 +49,7 @@ function createSearchFilter({
   props
 }) {
   const events = eventEmitter();
-  const rules = [];
-  let value = el.value.trim();
-  
-  buildRules();
-  
+  let filter = compileFilter(el.value.trim());
   if (el.form) {
     el.form.addEventListener('reset', () => setTimeout(updateValue));
   }
@@ -28,55 +66,17 @@ function createSearchFilter({
   
   // Chrome re-fill the form after pageshow, should we delay the initial load or...?
   window.addEventListener('pageshow', updateValue);
-  
-  return {test, testObj, empty, ...events};
-  
-  function empty() {
-    return !rules.length;
-  }
-  
-  function buildRules() {
-    rules.length = 0;
-    for (const term of value.split(/\s+/)) {
-      let negative, rx;
-      if (term.startsWith('-')) {
-        negative = true;
-        rx = term.slice(1);
-      } else {
-        negative = false;
-        rx = term;
-      }
-      rules.push({
-        rx: new RegExp(rx, 'i'),
-        negative
-      });
-    }
-  }
-  
-  // FIXME: this is no longer used
-  function test(text) {
-    for (const rule of rules) {
-      if (rule.rx.test(text) === rule.negative) {
-        return false;
-      }
-    }
-    return true;
-  }
-  
-  function testObj(obj) {
-    for (const rule of rules) {
-      if (props.some(p => rule.rx.test(obj[p])) === rule.negative) {
-        return false;
-      }
-    }
-    return true;
-  }
+  return {
+    ...events,
+    testObj: obj => filter.testObj(obj, props),
+    toString: () => filter.toString(),
+    empty: () => !filter.rules.length
+  };
   
   function updateValue() {
     const newValue = el.value.trim();
-    if (newValue === value) return;
-    value = newValue;
-    buildRules();
+    if (newValue === String(filter)) return;
+    filter = compileFilter(newValue);
     events.emit('change');
   }
 }

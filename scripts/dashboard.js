@@ -1,5 +1,5 @@
 /* eslint-env webextensions */
-/* global platform tabalanche cre */
+/* global platform cre */
 /* global createSearchFilter createInfiniteLoader */
 
 const searchFilter = createSearchFilter({
@@ -19,8 +19,11 @@ searchFilter.on('change', () => {
   loader = createInfiniteLoader({
     root: container,
     createElement: createTabGroupDiv,
-    getSome: lastDoc => tabalanche.getSomeTabGroups(
-      lastDoc && [lastDoc.created, lastDoc._id], searchFilter),
+    getSome: lastDoc => browser.runtime.sendMessage({
+      method: "get-some-tab-groups",
+      startKey: lastDoc ? [lastDoc.created, lastDoc._id] : null,
+      filter: searchFilter.toString()
+    }),
     key: doc => doc.created,
     id: doc => doc._id
   });
@@ -30,7 +33,7 @@ searchFilter.on('change', () => {
 
 async function updateTotalTabs() {
   const totalTabsContainer = document.getElementById('total-tabs');
-  const count = await tabalanche.totalTabs();
+  const count = await browser.runtime.sendMessage({method: "tab-count"});
   totalTabsContainer.textContent = tabCountString(count);
 }
 
@@ -76,39 +79,6 @@ function getLinkClickType(evt) {
 }
 
 function createTabGroupDiv(tabGroupDoc) {
-  var pendingPutPromise = null;
-  var pendingPutIsStale = false;
-
-  function updateTabGroup() {
-    function putNewTabGroupDoc() {
-      pendingPutIsStale = false;
-      return tabalanche.getDB().then(function(db) {
-        var action = tabGroupDoc.tabs.length > 0 ? 'put' : 'remove';
-        return db[action](tabGroupDoc).then(function (result) {
-          tabGroupDoc._rev = result.rev;
-          if (pendingPutIsStale) {
-            return putNewTabGroupDoc();
-          } else {
-            pendingPutPromise = null;
-          }
-        }, function(err) {
-          if (err.name == 'conflict') {
-            return db.get(tabGroupDoc._id)
-            .then(function(newDoc) {
-              tabGroupDoc._rev = newDoc._rev;
-              return putNewTabGroupDoc();
-            });
-          }
-        });
-      });
-    }
-
-    if (!pendingPutPromise) {
-      pendingPutPromise = putNewTabGroupDoc();
-    } else pendingPutIsStale = true;
-    return pendingPutPromise;
-  }
-
   var tabCount = cre('span', [tabCountString(tabGroupDoc.tabs.length)]);
   
   function createTabListItem(tab) {
@@ -136,7 +106,7 @@ function createTabGroupDiv(tabGroupDoc) {
       // updated before the link gets removed, or a bunch of issues it's
       // better to just not have to deal with.
       var index = getElementIndex(listItem);
-      tabGroupDoc.tabs.splice(index, 1);
+      const removedTabs = tabGroupDoc.tabs.splice(index, 1);
       if (tabGroupDoc.tabs.length == 0 || isExcludedBySearch(index)) {
         loader.delete(tabGroupDoc._id);
         // container.remove();
@@ -144,7 +114,12 @@ function createTabGroupDiv(tabGroupDoc) {
         listItem.remove();
         tabCount.textContent = tabCountString(tabGroupDoc.tabs.length);
       }
-      updateTabGroup().then(updateTotalTabs);
+      browser.runtime.sendMessage({
+        method: "remove-tabs",
+        id: tabGroupDoc._id,
+        tabs: removedTabs
+      })
+        .then(updateTotalTabs);
     }
     
     tabButton.addEventListener('click', function(evt) {
@@ -210,7 +185,7 @@ function createTabGroupDiv(tabGroupDoc) {
 }
 
 async function addTabGroup(id) {
-  const doc = await tabalanche.getTabGroup(id);
+  const doc = await browser.runtime.sendMessage({method: "get-tab-group", id});
   if (doc.tabs.some(t => searchFilter.testObj(t))) {
     await loader.add(doc);
     if (!loader.items.length) {
@@ -230,16 +205,12 @@ optslink.addEventListener('click', function(evt) {
   evt.preventDefault();
 });
 
-chrome.runtime.onMessage.addListener(function (evt) {
-  if (evt.type == 'newTabGroup') {
-    addTabGroup(evt.tabGroupId);
+const HANDLE_EVENT = {
+  "new-tab-group": e => {
+    addTabGroup(e.tabGroupId);
     updateTotalTabs();
-  }
-});
-
-(async () => {
-  // FIXME: now the db sync at background, does syncChange fire on dashboard?
-  tabalanche.on('syncChange', info => {
+  },
+  "sync-change": ({info}) => {
     if (info.direction !== 'pull') return;
     console.log(info);
     info.change.docs.forEach(d => {
@@ -252,8 +223,14 @@ chrome.runtime.onMessage.addListener(function (evt) {
       }
     });
     updateTotalTabs();
-  });
-})();
+  }
+}
+
+chrome.runtime.onMessage.addListener(function (e) {
+  if (HANDLE_EVENT[e.event]) {
+    return HANDLE_EVENT[e.event](e);
+  }
+});
 
 function updateState() {
   const span = document.querySelector('#loader-state');
