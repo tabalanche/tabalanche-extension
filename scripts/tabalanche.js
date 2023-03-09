@@ -56,8 +56,15 @@ var tabalanche = eventEmitter();
     });
   }
 
-  var tabgroups = new PouchDB('tabgroups');
-  var tabgroupsReady = ensureCurrentDesignDoc(tabgroups, dashboardDesignDoc);
+  let tabgroups;
+  let tabgroupsReady;
+
+  initDB();
+
+  function initDB() {
+    tabgroups = new PouchDB('tabgroups');
+    tabgroupsReady = ensureCurrentDesignDoc(tabgroups, dashboardDesignDoc);
+  }
 
   function stashTabs(tabs) {
     // ignore extension pages
@@ -129,6 +136,32 @@ var tabalanche = eventEmitter();
   tabalanche.stashTabsToTheRight = function() {
     return platform.getWindowTabs.right().then(stashTabs);
   };
+
+  tabalanche.importTabGroups = async docs => {
+    await tabgroupsReady;
+    const response = await tabgroups.bulkDocs(docs, {new_edits: false});
+    const failed = [];
+    const created = [];
+    for (const result of response) {
+      if (result.error) {
+        failed.push(result);
+      } else {
+        created.push(result);
+      }
+    }
+    const changedIds = [
+      ...docs.map(doc => doc._id),
+      ...created.map(result => result.id)
+    ];
+    for (const id of changedIds) {
+      browser.runtime.sendMessage({event: "new-tab-group", tabGroupId: id})
+        .catch(console.warn);
+    }
+    if (failed.length) {
+      console.error(failed);
+      throw new Error(`Failed to import ${failed.length} tab groups. _id=${failed.map(r => r.id).join(', ')}`);
+    }
+  }
 
   tabalanche.importTabGroup = function importTabGroup(tabGroup, /* opts */) {
     // opts = opts || {};
@@ -208,8 +241,12 @@ var tabalanche = eventEmitter();
     return tabgroupsReady.then();
   };
 
-  tabalanche.destroyAllTabGroups = function destroyAllTabGroups() {
-    return tabgroups.destroy();
+  tabalanche.destroyAllTabGroups = async function destroyAllTabGroups() {
+    if (syncHandler) {
+      throw new Error('Cannot destroy all tab groups while syncing');
+    }
+    await tabgroups.destroy();
+    initDB();
   };
   
   tabalanche.hasUrls = function (urls) {

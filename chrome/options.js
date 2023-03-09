@@ -1,4 +1,4 @@
-/* global platform tabalanche */
+/* global platform */
 
 // Saves options to chrome.storage.sync.
 async function save_options() {
@@ -53,16 +53,54 @@ advancedLink.addEventListener('click', function () {
   }
 });
 
-var destroyButton = document.getElementById('destroy');
-
-destroyButton.addEventListener('click',
-  tabalanche.destroyAllTabGroups);
-
 document.addEventListener('DOMContentLoaded', restore_options);
-document.getElementById('save').addEventListener('click', save_options);
+
+const ACTIONS = {
+  "destroy": () => browser.runtime.sendMessage({
+    method: "destroy-db"
+  }),
+  "save": save_options,
+  "import-tabs": importTabs,
+  "export-tabs": exportTabs,
+};
+
+for (const key in ACTIONS) {
+  document.querySelector(`#${key}`).addEventListener('click', ACTIONS[key]);
+}
 
 document.querySelector('#useScreenshot').addEventListener('click', e => {
   if (e.target.checked) {
     platform.requestScreenshotPermission();
   }
 });
+
+// FIXME: support dropping file on the button
+async function importTabs() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+  input.addEventListener("change", async () => {
+    const file = input.files[0];
+    const text = await file.text();
+    await browser.runtime.sendMessage({
+      method: "import-tabs",
+      text
+    });
+  })
+  input.click();
+}
+
+let lastUrl = "";
+async function exportTabs() {
+  URL.revokeObjectURL(lastUrl);
+  const text = await browser.runtime.sendMessage({
+    method: "export-tabs"
+  });
+  const file = new File([text], "tabalanche-export.json", {
+    type: "application/json",
+  });
+  const a = document.createElement("a");
+  lastUrl = a.href = URL.createObjectURL(file);
+  a.download = file.name;
+  a.click();
+}

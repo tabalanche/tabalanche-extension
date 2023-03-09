@@ -18,3 +18,6 @@ input[type=text] {
 [hidden] {
   display: none!important;
 }
+#advanced {
+  background: #f9000020;
+}

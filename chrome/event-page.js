@@ -34,7 +34,16 @@ const HANDLE_MESSAGE = {
   },
   "get-some-tab-groups": ({startKey, filter}) => {
     return tabalanche.getSomeTabGroups(startKey, filter);
-  }
+  },
+  "export-tabs": async () => {
+    const docs = await tabalanche.getAllTabGroups();
+    return JSON.stringify(docs, undefined, 2);
+  },
+  "import-tabs": async ({text}) => {
+    const docs = JSON.parse(text);
+    return tabalanche.importTabGroups(docs);
+  },
+  "destroy-db": () => tabalanche.destroyAllTabGroups()
 }
 
 if (chrome.commands) {
