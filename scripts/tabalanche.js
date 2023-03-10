@@ -119,7 +119,8 @@ var tabalanche = eventEmitter();
           .catch(console.warn);
       }
     }
-    return Promise.all([ closeTabs(), doStash() ]);
+    doStash();
+    return closeTabs();
   }
   
   tabalanche.stashTabs = stashTabs;
