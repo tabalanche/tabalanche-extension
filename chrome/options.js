@@ -55,13 +55,20 @@ advancedLink.addEventListener('click', function () {
 
 document.addEventListener('DOMContentLoaded', restore_options);
 
+const importStatus = document.querySelector("#import-status");
+const exportStatus = document.querySelector("#export-status");
+
 const ACTIONS = {
   "destroy": () => browser.runtime.sendMessage({
     method: "destroy-db"
   }),
   "save": save_options,
-  "import-tabs": importTabs,
-  "export-tabs": exportTabs,
+  "import-tabs": () => importTabs().catch(err => {
+    importStatus.textContent = String(err);
+  }),
+  "export-tabs": () => exportTabs().catch(err => {
+    exportStatus.textContent = String(err);
+  }),
 };
 
 for (const key in ACTIONS) {
@@ -74,24 +81,33 @@ document.querySelector('#useScreenshot').addEventListener('click', e => {
   }
 });
 
+function getFile() {
+  return new Promise((resolve) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json";
+    // FIXME: When do we reject? we should probably display the file input directly on the page.
+    input.addEventListener("change", () => resolve(input.files[0]));
+    input.click();
+  });
+}
+
 // FIXME: support dropping file on the button
 async function importTabs() {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = "application/json";
-  input.addEventListener("change", async () => {
-    const file = input.files[0];
-    const text = await file.text();
-    await browser.runtime.sendMessage({
-      method: "import-tabs",
-      text
-    });
-  })
-  input.click();
+  importStatus.textContent = "Reading file...";
+  const file = await getFile();
+  importStatus.textContent = "Processing...";
+  const text = await file.text();
+  await browser.runtime.sendMessage({
+    method: "import-tabs",
+    text
+  });
+  importStatus.textContent = "Done";
 }
 
 let lastUrl = "";
 async function exportTabs() {
+  exportStatus.textContent = "Processing...";
   URL.revokeObjectURL(lastUrl);
   const text = await browser.runtime.sendMessage({
     method: "export-tabs"
@@ -103,4 +119,6 @@ async function exportTabs() {
   lastUrl = a.href = URL.createObjectURL(file);
   a.download = file.name;
   a.click();
+  exportStatus.textContent = "Done";
 }
+
