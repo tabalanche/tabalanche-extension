@@ -16,7 +16,7 @@
   "author": "Stuart P. Bentley",
   "background": {
     "scripts": [
-      "vendor/pouchdb-5.0.0.js",
+      "vendor/pouchdb-8.0.1.min.js",
       "vendor/pouchdb.upsert.min.js",
       "vendor/browser-polyfill.js",
       "scripts/event-emitter.js",

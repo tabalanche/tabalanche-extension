@@ -141,7 +141,7 @@ var tabalanche = eventEmitter();
   tabalanche.importTabGroups = async docs => {
     await tabgroupsReady;
     const newDocs = docs.filter(d => !d._id);
-    if (newDocs && newDocs.length < docs.length) {
+    if (newDocs.length && newDocs.length < docs.length) {
       throw new Error("Some documents donnot have correct _id");
     }
     const response = await tabgroups.bulkDocs(docs, {new_edits: Boolean(newDocs.length)});
