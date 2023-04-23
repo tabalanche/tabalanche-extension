@@ -5,3 +5,19 @@ figure, button, textarea {
 textarea {
   width: 100%;
 }
+label {
+  display: block;
+  margin-bottom: .6em;
+}
+input[type=text] {
+  display: block;
+  margin: .3em 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none!important;
+}
+#advanced {
+  background: #f9000020;
+}

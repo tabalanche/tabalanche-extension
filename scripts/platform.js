@@ -1,11 +1,24 @@
-/* global browser */
+/* global eventEmitter */
 
 var platform = {};
 (function(){
+  
+const ee = eventEmitter();
+
+Object.assign(platform, ee);
 
 var optionDefaults = {
   ignorePinnedTabs: true,
+  ignoreDuplicatedUrls: false,
+  serverUrl: '',
+  useSnapshotUI: isMobile(),
+  useScreenshot: false
 };
+
+const localOptions = [
+  'useSnapshotUI',
+  'useScreenshot'
+];
 
 // exposed for the options page
 platform.optionDefaults = optionDefaults;
@@ -45,20 +58,52 @@ platform.currentWindowContext = function currentWindowContext() {
 };
 
 // clear window session cookies when the window is closed
-browser.windows.onRemoved.addListener(function (wid) {
-  document.cookie = 'wins_' + wid + '=';
-});
+if (browser.windows) {
+  browser.windows.onRemoved.addListener(function (wid) {
+    document.cookie = 'wins_' + wid + '=';
+  });
+}
 
 platform.getWindowTabs = {};
 
-function getOptions() {
-  return browser.storage.sync.get(optionDefaults);
+async function getOptions() {
+  const [syncOpts, localOpts] = await Promise.all([
+    browser.storage.sync.get(optionDefaults),
+    browser.storage.local.get(localOptions)
+  ]);
+  return Object.assign(syncOpts, localOpts);
 }
 
+platform.getOptions = getOptions;
+
+platform.setOptions = async opts => {
+  const syncOpts = {};
+  const localOpts = {};
+  for (const key in opts) {
+    if (localOptions.includes(key)) {
+      localOpts[key] = opts[key];
+    } else {
+      syncOpts[key] = opts[key];
+    }
+  }
+  return await Promise.all([
+    browser.storage.sync.set(syncOpts),
+    browser.storage.local.set(localOpts)
+  ]);
+};
+
+browser.storage.onChanged.addListener((changes, area) => {
+  ee.emit('optionChange', changes, area);
+});
+
 function queryCurrentWindowTabs (params) {
-  params.currentWindow = true;
+  if (browser.windows) {
+    params.currentWindow = true;
+  }
   return browser.tabs.query(params);
 }
+
+platform.queryCurrentWindowTabs = queryCurrentWindowTabs;
 
 platform.getWindowTabs.all = function getAllWindowTabs() {
   var params = {};
@@ -101,11 +146,21 @@ platform.closeTabs = function closeTabs(tabs) {
   return browser.tabs.remove(tabs.map(tabIdMap));
 };
 
-platform.faviconPath = function faviconPath(url) {
-  // TODO: cross-browser-compatible version of this
-  // see https://bugzilla.mozilla.org/show_bug.cgi?id=1315616
-  return 'chrome://favicon/' + url;
-};
+// TODO: use Firefox native favicon
+// see https://bugzilla.mozilla.org/show_bug.cgi?id=1315616
+platform.faviconPath = !window.netscape ? 
+  function faviconPath(url) {
+    return 'chrome://favicon/' + url;
+  } :
+  url => {
+    try {
+      // This won't work with chrome://extensions/
+      url = new URL(url);
+      return `https://icons.duckduckgo.com/ip3/${url.hostname}.ico`;
+    } catch (err) {
+      return 'https://icons.duckduckgo.com/ip3/undefined.ico';
+    }
+  };
 
 platform.extensionURL = function extensionURL(path) {
   return browser.extension.getURL(path);
@@ -118,8 +173,51 @@ platform.getOptionsURL = function getOptionsURL() {
 
 platform.openOptionsPage = browser.runtime.openOptionsPage;
 
-platform.openBackgroundTab = function openBackgroundTab(url) {
-  return browser.tabs.create({url: url, active: false});
+platform.openDashboard = () => {
+  return browser.tabs.create({url: platform.extensionURL('dashboard.html')});
+}
+
+platform.openTab = async ({link, openerTab, openerTabId = openerTab?.id, ...args}) => {
+  if (isMobile() && link) {
+    const oldTarget = link.target;
+    link.target = '_blank';
+    link.click();
+    link.target = oldTarget;
+    return;
+  }
+  
+  const options = {...args};
+  if (openerTabId && !/mobi.*firefox/i.test(navigator.userAgent)) {
+    options.openerTabId = openerTabId;
+  }
+  return await browser.tabs.create(options);
 };
+
+// FIXME: this doesn't work in kiwi browser
+// https://github.com/kiwibrowser/src.next/issues/425
+// though Choromium doesn't support screenshot anyway
+platform.hasScreenshotPermission = () =>
+  browser.tabs.captureTab && browser.permissions.contains({
+    origins: ['<all_urls>']
+  });
+
+// FIXME: this doesn't work in firefox android
+// https://github.com/mozilla-mobile/fenix/issues/16912
+// we need to build another manifest merging optional_permissions into permissions for firefox android
+platform.requestScreenshotPermission = () => browser.permissions.request({
+  origins: ['<all_urls>']
+});
+
+function isMobile() { return /mobi/i.test(navigator.userAgent) }
+
+platform.isMobile = isMobile;
+
+platform.isDashboardAvailable = async () => {
+  const extensionTabs = await browser.tabs.query({url: [
+    platform.extensionURL("dashboard.html"),
+    platform.extensionURL("dashboard.html?*")
+  ]});
+  return extensionTabs.length > 0;
+}
 
 })();
