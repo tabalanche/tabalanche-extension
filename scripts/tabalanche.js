@@ -268,9 +268,11 @@ var tabalanche = eventEmitter();
   };
   
   tabalanche.totalTabs = async () => {
-    await tabgroupsReady;
-    const result = await tabgroups.query('dashboard/total_tabs');
-    return result.rows[0]?.value || 0;
+    // FIXME: https://github.com/pouchdb/pouchdb/issues/8626
+    // await tabgroupsReady;
+    // const result = await tabgroups.query('dashboard/total_tabs');
+    // return result.rows[0]?.value || 0;
+    return 0
   };
   
   tabalanche.sync = async url => {
