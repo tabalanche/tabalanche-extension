@@ -21,8 +21,8 @@
   },
   "homepage": "https://github.com/eight04/tabalanche-extension#readme",
   "devDependencies": {
-    "eslint": "^8.6.0",
-    "web-ext": "^6.6.0"
+    "eslint": "^8.54.0",
+    "web-ext": "^7.8.0"
   },
   "webExt": {
     "ignoreFiles": [
