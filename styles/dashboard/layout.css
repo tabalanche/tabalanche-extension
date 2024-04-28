@@ -49,6 +49,11 @@ h3, h4 {
 #tab-groups {
   padding: 24px;
 }
+.tab-container {
+  margin: 0 .6em;
+  padding: .3em;
+  font-size: .8em;
+}
 
 @media (max-width: 480px) {
   header {

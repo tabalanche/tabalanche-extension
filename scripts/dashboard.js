@@ -87,8 +87,10 @@ function createTabGroupDiv(tabGroupDoc) {
     var tabIcon = cre(templateTabIcon,
       {src: tab.icon || platform.faviconPath(tab.url)});
 
+    const tabContainer = tab.container && cre('span.tab-container', {style: {'background': tab.container.colorCode}}, tab.container.name);
+
     var tabLink = cre(templateTabLink, {href: tab.url},
-      [tabIcon, tab.title]);
+      [tabIcon, tab.title, tabContainer]);
 
     var listItem = cre(templateTabListItem, [tabButton, tabLink]);
     
@@ -143,7 +145,8 @@ function createTabGroupDiv(tabGroupDoc) {
           link: tabLink,
           url: tab.url,
           active: false,
-          openerTab: await pCurrentTab
+          openerTab: await pCurrentTab,
+          cookieStoreId: tab.container?.cookieStoreId
         });
         
         removeTabListItem();

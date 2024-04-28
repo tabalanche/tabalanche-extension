@@ -177,8 +177,9 @@ platform.openDashboard = () => {
   return browser.tabs.create({url: platform.extensionURL('dashboard.html')});
 }
 
-platform.openTab = async ({link, openerTab, openerTabId = openerTab?.id, ...args}) => {
-  if (isMobile() && link) {
+platform.openTab = async ({link, openerTab, openerTabId = openerTab?.id, cookieStoreId, ...args}) => {
+  if (isMobile() && link && !cookieStoreId) {
+    // this allows users to return to the previous tab via backspace in kiwi browser
     const oldTarget = link.target;
     link.target = '_blank';
     link.click();
@@ -186,7 +187,7 @@ platform.openTab = async ({link, openerTab, openerTabId = openerTab?.id, ...args
     return;
   }
   
-  const options = {...args};
+  const options = {...args, cookieStoreId};
   if (openerTabId && !/mobi.*firefox/i.test(navigator.userAgent)) {
     options.openerTabId = openerTabId;
   }

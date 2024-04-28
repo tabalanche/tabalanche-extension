@@ -54,7 +54,9 @@
     "tabs",
     "storage",
     "chrome://favicon/",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "contextualIdentities",
+    "cookies"
   ],
   "optional_permissions": [
     "<all_urls>"

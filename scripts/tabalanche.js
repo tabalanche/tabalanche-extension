@@ -81,6 +81,17 @@ var tabalanche = eventEmitter();
       }
       await platform.closeTabs(tabs);
     }
+    const containerCache = {};
+    const getContainer = async (id) => {
+      try {
+        if (!containerCache[id]) {
+          containerCache[id] = browser.contextualIdentities.get(id);
+        }
+        return await containerCache[id];
+      } catch (err) {
+        console.warn(err);
+      }
+    }
     const doStash = async () => {
       await tabgroupsReady;
 
@@ -90,10 +101,12 @@ var tabalanche = eventEmitter();
 
       var stashTime = new Date();
         
-      function stashedTab(tab) {
+      async function stashedTab(tab) {
         return {
           url: tab.url,
           title: tab.title,
+          container: tab.cookieStoreId ?
+            await getContainer(tab.cookieStoreId) : undefined,
         };
       }
       var tabGroupDoc = {
@@ -113,11 +126,14 @@ var tabalanche = eventEmitter();
       
       if (!tabGroupDoc.tabs.length) {
         console.warn('The tab group has no tab');
-      } else {
-        const response = await tabgroups.post(tabGroupDoc);
-        browser.runtime.sendMessage({event: "new-tab-group", tabGroupId: response.id})
-          .catch(console.warn);
+        return;
       }
+
+      tabGroupDoc.tabs = await Promise.all(tabGroupDoc.tabs);
+
+      const response = await tabgroups.post(tabGroupDoc);
+      browser.runtime.sendMessage({event: "new-tab-group", tabGroupId: response.id})
+        .catch(console.warn);
     }
     doStash();
     return closeTabs();
