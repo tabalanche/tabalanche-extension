@@ -258,6 +258,11 @@ var tabalanche = eventEmitter();
     }
   };
 
+  tabalanche.getSomeHistory = async function getSomeHistory(startKey, filter) {
+    filter = filter && typeof filter === "string" ? compileFilter(filter) : filter;
+
+  };
+
   tabalanche.getDB = function getDB() {
     return tabgroupsReady.then();
   };

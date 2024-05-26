@@ -35,6 +35,9 @@ const HANDLE_MESSAGE = {
   "get-some-tab-groups": ({startKey, filter}) => {
     return tabalanche.getSomeTabGroups(startKey, filter);
   },
+  "get-some-history": ({startKey, filter}) => {
+    return tabalanche.getSomeHistory(startKey, filter);
+  },
   "export-tabs": async () => {
     const docs = await tabalanche.getAllTabGroups();
     return JSON.stringify(docs, undefined, 2);
