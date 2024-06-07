@@ -96,11 +96,39 @@ browser.storage.onChanged.addListener((changes, area) => {
   ee.emit('optionChange', changes, area);
 });
 
-function queryCurrentWindowTabs (params) {
+function getRealUrl(tab) {
+  if (tab.pendingUrl) {
+    return tab.pendingUrl;
+  }
+  // FIXME: Firefox doesn't support pendingUrl but seems that we can get the url from title
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1620774
+  const u = `https://${tab.title}`;
+  if (tab.url === "about:blank" && isValidURL(u)) {
+    return u;
+  }
+}
+
+function isValidURL(url) {
+  try {
+    new URL(url);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+async function queryCurrentWindowTabs (params) {
   if (browser.windows) {
     params.currentWindow = true;
   }
-  return browser.tabs.query(params);
+  const tabs = await browser.tabs.query(params);
+  for (const tab of tabs) {
+    const realUrl = getRealUrl(tab);
+    if (realUrl) {
+      tab.url = realUrl;
+    }
+  }
+  return tabs;
 }
 
 platform.queryCurrentWindowTabs = queryCurrentWindowTabs;
