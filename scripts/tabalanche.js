@@ -258,10 +258,109 @@ var tabalanche = eventEmitter();
     }
   };
 
-  tabalanche.getSomeHistory = async function getSomeHistory(startKey, filter) {
+  tabalanche.getSomeHistory = async function getSomeHistory(startKey = 'now', filter) {
+    const LIMIT = 5;
     filter = filter && typeof filter === "string" ? compileFilter(filter) : filter;
+    await tabgroupsReady;
 
+    let isLastPage = false;
+
+    if (startKey === "now") {
+      const r = await tabgroups.changes({
+        since: startKey,
+        limit: LIMIT,
+        descending: true,
+      });
+
+      if (r.results.length < LIMIT) {
+        isLastPage = true;
+      }
+
+      await filterResult(r, filter);
+
+      if (r.results.length) {
+        return r;
+      }
+
+      if (isLastPage) {
+        return null;
+      }
+
+      startKey = r.last_seq;
+    }
+
+    while (!isLastPage) {
+      // FIXME: we can't use since and descending together
+      // https://github.com/pouchdb/pouchdb/issues/8954
+      const since = Math.max(startKey - LIMIT - 1, 0);
+      const r = await tabgroups.changes({
+        since,
+        limit: LIMIT,
+      });
+
+      if (since === 0) {
+        isLastPage = true;
+      }
+
+      r.results = r.results.filter(change => change.seq < startKey);
+      r.results.reverse();
+      r.last_seq = r.results.length ? r.results[r.results.length - 1].seq : startKey - LIMIT;
+
+      await filterResult(r, filter);
+
+      if (r.results.length) {
+        return r;
+      }
+
+      if (isLastPage) {
+        return null;
+      }
+
+      startKey = r.last_seq;
+    }
+
+    return null;
   };
+
+  async function filterResult(r, filter) {
+    for (const change of r.results) {
+      // fetch history
+      const rev = change.changes[0].rev;
+      const doc = await tabgroups.get(change.id, {rev, revs_info: true});
+      const previousRev = getPreviousRev(change.changes[0].rev, doc._revs_info);
+      const previousDoc = previousRev ? await tabgroups.get(change.id, {rev: previousRev}) : null;
+      change.diff = diffTabs(previousDoc?.tabs || [], doc.tabs);
+      change.doc = doc;
+    }
+
+    r.results = r.results.filter(change => {
+      if (!filter || [...change.diff.added, ...change.diff.removed].some(t => filter.testObj(t, FILTER_PROPS))) {
+        return true;
+      }
+      return false;
+    });
+
+  }
+
+  function diffTabs(oldTabs, newTabs) {
+    const oldUrls = new Set(oldTabs.map(t => t.url));
+    const newUrls = new Set(newTabs.map(t => t.url));
+    const added = newTabs.filter(t => !oldUrls.has(t.url));
+    const removed = oldTabs.filter(t => !newUrls.has(t.url));
+    return {added, removed};
+  }
+
+  function getPreviousRev(rev, revs_info) {
+    let foundCurrent = false;
+    for (const info of revs_info) {
+      if (info.rev === rev) {
+        foundCurrent = true;
+      } else if (foundCurrent && info.status === 'available') {
+        return info.rev;
+      }
+    }
+    return null;
+  }
 
   tabalanche.getDB = function getDB() {
     return tabgroupsReady.then();
