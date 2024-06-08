@@ -332,7 +332,7 @@ var tabalanche = eventEmitter();
       // FIXME: if there are multiple changes to the same document, grabbing the previous rev won't work. hence we grab the oldest rev
       const previousRev = getPreviousRev(change.changes[0].rev, doc._revs_info, -1);
       const previousDoc = previousRev ? await tabgroups.get(change.id, {rev: previousRev}) : null;
-      change.diff = diffTabs(previousDoc?.tabs || [], doc.tabs);
+      change.diff = diffTabs(previousDoc?.tabs || [], doc._deleted ? [] : doc.tabs);
       change.doc = doc;
       change.last_seq = r.last_seq;
     }
