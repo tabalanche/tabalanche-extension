@@ -329,7 +329,8 @@ var tabalanche = eventEmitter();
       // fetch history
       const rev = change.changes[0].rev;
       const doc = await tabgroups.get(change.id, {rev, revs_info: true});
-      const previousRev = getPreviousRev(change.changes[0].rev, doc._revs_info);
+      // FIXME: if there are multiple changes to the same document, grabbing the previous rev won't work. hence we grab the oldest rev
+      const previousRev = getPreviousRev(change.changes[0].rev, doc._revs_info, -1);
       const previousDoc = previousRev ? await tabgroups.get(change.id, {rev: previousRev}) : null;
       change.diff = diffTabs(previousDoc?.tabs || [], doc.tabs);
       change.doc = doc;
@@ -353,16 +354,13 @@ var tabalanche = eventEmitter();
     return {added, removed};
   }
 
-  function getPreviousRev(rev, revs_info) {
-    let foundCurrent = false;
-    for (const info of revs_info) {
-      if (info.rev === rev) {
-        foundCurrent = true;
-      } else if (foundCurrent && info.status === 'available') {
-        return info.rev;
-      }
+  function getPreviousRev(rev, revs_info, index = 0) {
+    const currentIndex = revs_info.findIndex(info => info.rev === rev);
+    if (currentIndex === -1) {
+      return null;
     }
-    return null;
+    const infos = revs_info.slice(currentIndex + 1).filter(info => info.status === 'available');
+    return index >= 0 ? infos[index]?.rev : infos[infos.length + index]?.rev;
   }
 
   tabalanche.getDB = function getDB() {
