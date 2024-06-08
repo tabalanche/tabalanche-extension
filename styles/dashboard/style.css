@@ -17,6 +17,12 @@
 .tabstash {
   background-color: #eacfbc;
 }
+.tab-added {
+  background: #afa;
+}
+.tab-removed {
+  background: #faa;
+}
 h3 {
   opacity: 0.8;
 }

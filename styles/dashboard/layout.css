@@ -46,7 +46,7 @@
 h3, h4 {
   margin: 0 6px;
 }
-#tab-groups {
+#tab-groups, #loader-container {
   padding: 24px;
 }
 .tab-container {

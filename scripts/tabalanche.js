@@ -279,11 +279,11 @@ var tabalanche = eventEmitter();
       await filterResult(r, filter);
 
       if (r.results.length) {
-        return r;
+        return r.results;
       }
 
       if (isLastPage) {
-        return null;
+        return [];
       }
 
       startKey = r.last_seq;
@@ -309,20 +309,22 @@ var tabalanche = eventEmitter();
       await filterResult(r, filter);
 
       if (r.results.length) {
-        return r;
+        return r.results;
       }
 
       if (isLastPage) {
-        return null;
+        return [];
       }
 
       startKey = r.last_seq;
     }
 
-    return null;
+    return [];
   };
 
   async function filterResult(r, filter) {
+    // ignore design doc
+    r.results = r.results.filter(change => !change.id.startsWith('_'));
     for (const change of r.results) {
       // fetch history
       const rev = change.changes[0].rev;
@@ -331,6 +333,7 @@ var tabalanche = eventEmitter();
       const previousDoc = previousRev ? await tabgroups.get(change.id, {rev: previousRev}) : null;
       change.diff = diffTabs(previousDoc?.tabs || [], doc.tabs);
       change.doc = doc;
+      change.last_seq = r.last_seq;
     }
 
     r.results = r.results.filter(change => {
