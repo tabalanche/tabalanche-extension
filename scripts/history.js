@@ -46,7 +46,7 @@ function createDocDiv(change) {
       "";
 
     var tabLink = cre(templateTabLink, {href: tab.url},
-      [tabIcon, tab.title, tabContainer]);
+      [tabIcon, String(tab.title), tabContainer]);
 
     var listItem = cre(templateTabListItem, [tabLink]);
     
