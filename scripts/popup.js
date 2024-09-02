@@ -71,7 +71,8 @@ function createTabDiv(tab) {
   const container = cre('label.snapshot-ui-tab', [
     check,
     cre('div.snapshot-ui-tab-inner', [
-      cre('div.tab-title', {title: tab.title}, [tab.title]),
+      // NOTE: on firefox android, tab.title could be undefined when the tab is opened in the background and is not loaded..
+      cre('div.tab-title', {title: tab.title}, [String(tab.title)]),
       cre('div.tab-url', {title: tab.url}, [tab.url]),
       cre('img.tab-snapshot')
     ])
