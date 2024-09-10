@@ -219,7 +219,15 @@ platform.openTab = async ({link, openerTab, openerTabId = openerTab?.id, cookieS
   if (openerTabId && !/mobi.*firefox/i.test(navigator.userAgent)) {
     options.openerTabId = openerTabId;
   }
-  return await browser.tabs.create(options);
+  try {
+    return await browser.tabs.create(options);
+  } catch (err) {
+    if (/cookieStoreId/.test(err.message)) {
+      delete options.cookieStoreId;
+      return await browser.tabs.create(options);
+    }
+    throw err;
+  }
 };
 
 // FIXME: this doesn't work in kiwi browser
