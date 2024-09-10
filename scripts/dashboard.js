@@ -91,8 +91,10 @@ function createTabGroupDiv(tabGroupDoc) {
       cre('span.tab-container', {style: {'background': tab.container.colorCode}}, tab.container.name) :
       "";
 
+    const title = tab.title || tab.url;
+
     var tabLink = cre(templateTabLink, {href: tab.url},
-      [tabIcon, String(tab.title), tabContainer]);
+      [tabIcon, title, tabContainer]);
 
     var listItem = cre(templateTabListItem, [tabButton, tabLink]);
     
