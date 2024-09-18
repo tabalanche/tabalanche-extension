@@ -64,6 +64,18 @@ async function initSnapshotUI() {
   } else {
     document.body.classList.add('snapshot-ui-no-snapshot');
   }
+
+  // FIXME: we have to catch popstate event to close the tab on FF android
+  if (platform.isFirefox() && platform.isMobile()) {
+    onHistoryBack().then(() => window.close())
+  }
+}
+
+function onHistoryBack() {
+  return new Promise(resolve => {
+    window.addEventListener('popstate', resolve);
+    history.pushState(null, '');
+  });
 }
 
 function createTabDiv(tab) {

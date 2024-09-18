@@ -216,6 +216,7 @@ platform.openTab = async ({link, openerTab, openerTabId = openerTab?.id, cookieS
   }
   
   const options = {...args, cookieStoreId};
+  // FIXME: https://bugzilla.mozilla.org/show_bug.cgi?id=1817806
   if (openerTabId && !/mobi.*firefox/i.test(navigator.userAgent)) {
     options.openerTabId = openerTabId;
   }
@@ -248,6 +249,8 @@ platform.requestScreenshotPermission = () => browser.permissions.request({
 function isMobile() { return /mobi/i.test(navigator.userAgent) }
 
 platform.isMobile = isMobile;
+
+platform.isFirefox = () => /firefox/i.test(navigator.userAgent);
 
 platform.isDashboardAvailable = async () => {
   const extensionTabs = await browser.tabs.query({url: [
