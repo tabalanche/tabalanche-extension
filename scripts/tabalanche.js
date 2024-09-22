@@ -67,10 +67,13 @@ var tabalanche = eventEmitter();
   }
 
   function stashTabs(tabs) {
-    // ignore extension pages
     var extensionPrefix = platform.extensionURL('');
     tabs = tabs.filter(function (tab) {
-      return !tab.url.startsWith(extensionPrefix);
+      // ignore extension pages
+      if (tab.url.startsWith(extensionPrefix)) return false;
+      // FIXME: you may get unloaded tabs with undefined URL on FF android
+      if (tab.url.match(/^https?:\/\/undefined/)) return false;
+      return true
     });
     if (!tabs.length) {
       throw new Error('No tabs to save');
