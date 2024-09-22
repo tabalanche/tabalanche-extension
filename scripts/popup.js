@@ -37,7 +37,7 @@ async function withLoader(cb) {
 async function initSnapshotUI() {
   document.body.classList.add('snapshot-ui-enabled');
   const tabs = (await platform.getWindowTabs.all())
-    .filter(t => !t.url.startsWith(browser.runtime.getURL('')))
+    .filter(t => !t.url.startsWith(browser.runtime.getURL('')) && !/^https?:\/\/undefined/.test(t.url))
     .map(createTabDiv);
   document.querySelector('#snapshot-ui').append(...tabs.map(t => t.el));
   
