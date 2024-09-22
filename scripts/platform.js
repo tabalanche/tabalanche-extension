@@ -102,9 +102,14 @@ function getRealUrl(tab) {
   }
   // FIXME: Firefox doesn't support pendingUrl but seems that we can get the url from title
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1620774
-  const u = `https://${tab.title}`;
-  if (tab.url === "about:blank" && isValidURL(u)) {
-    return u;
+  // FIXME: Firefox android may return about:blank with undefined title for unloaded tabs
+  if (tab.url === "about:blank" && tab.title) {
+    // FIXME: when the title is a single word, it's treated as a domain
+    // should we switch to linkify-plus-plus-core?
+    const u = `https://${tab.title}`;
+    if (isValidURL(u)) {
+      return u;
+    }
   }
 }
 
@@ -117,7 +122,7 @@ function isValidURL(url) {
   }
 }
 
-async function queryCurrentWindowTabs (params) {
+async function queryCurrentWindowTabs ({extensionPage = true, aboutBlank = true, ...params} = {}) {
   if (browser.windows) {
     params.currentWindow = true;
   }
@@ -128,13 +133,21 @@ async function queryCurrentWindowTabs (params) {
       tab.url = realUrl;
     }
   }
-  return tabs;
+  const prefix = browser.runtime.getURL('');
+  return tabs.filter(tab => {
+    if (!extensionPage && tab.url.startsWith(prefix)) {
+      return false;
+    }
+    if (!aboutBlank && tab.url === 'about:blank') {
+      return false;
+    }
+    return true;
+  });
 }
 
 platform.queryCurrentWindowTabs = queryCurrentWindowTabs;
 
-platform.getWindowTabs.all = function getAllWindowTabs() {
-  var params = {};
+platform.getWindowTabs.all = function getAllWindowTabs(params = {}) {
   return getOptions().then(function (opts) {
     if (opts.ignorePinnedTabs) params.pinned = false;
     return queryCurrentWindowTabs(params);
