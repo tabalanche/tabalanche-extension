@@ -66,6 +66,8 @@ function createSearchFilter({
   
   // Chrome re-fill the form after pageshow, should we delay the initial load or...?
   window.addEventListener('pageshow', updateValue);
+  // Firefox re-fill even slower e.g. Ctrl+W & Ctrl+Shift+T
+  window.requestIdleCallback(updateValue);
   return {
     ...events,
     testObj: obj => filter.testObj(obj, props),
