@@ -20,6 +20,9 @@ const localOptions = [
   'useScreenshot'
 ];
 
+// FIXME: https://bugzilla.mozilla.org/show_bug.cgi?id=1921279
+platform.brokenTabs = new Map();
+
 // exposed for the options page
 platform.optionDefaults = optionDefaults;
 
@@ -141,9 +144,13 @@ async function queryCurrentWindowTabs ({extensionPage = true, aboutBlank = true,
     if (!aboutBlank && tab.url === 'about:blank') {
       return false;
     }
-    // FIXME: https://bugzilla.mozilla.org/show_bug.cgi?id=1921279
-    if (platform.isFirefox() && platform.isMobile() && !tab.width && !tab.height) {
-      return false;
+    const brokenTab = platform.brokenTabs.get(tab.id);
+    if (brokenTab) {
+      if (tab.url === brokenTab.url) {
+        return false;
+      } else {
+        platform.brokenTabs.delete(tab.id);
+      }
     }
     return true;
   });
@@ -183,12 +190,18 @@ platform.getWindowTabs.right = function getRightWindowTabs() {
   });
 };
 
-function tabIdMap(tab) {
-  return tab.id;
-}
-
 platform.closeTabs = function closeTabs(tabs) {
-  return browser.tabs.remove(tabs.map(tabIdMap));
+  // return browser.tabs.remove(tabs.map(tabIdMap));
+  return Promise.all(tabs.map(async tab => {
+    try {
+      await browser.tabs.remove(tab.id);
+    } catch (err) {
+      console.error(err);
+      if (/tabs\.remove is not supported/.test(err.message)) {
+        platform.brokenTabs.set(tab.id, tab);
+      }
+    }
+  }));
 };
 
 // TODO: use Firefox native favicon
