@@ -141,6 +141,10 @@ async function queryCurrentWindowTabs ({extensionPage = true, aboutBlank = true,
     if (!aboutBlank && tab.url === 'about:blank') {
       return false;
     }
+    // FIXME: https://bugzilla.mozilla.org/show_bug.cgi?id=1921279
+    if (platform.isFirefox() && platform.isMobile() && !tab.width && !tab.height) {
+      return false;
+    }
     return true;
   });
 }
