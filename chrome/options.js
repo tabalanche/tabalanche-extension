@@ -1,7 +1,10 @@
 /* global platform */
 
+const saveStatus = document.querySelector("#save-status");
+
 // Saves options to chrome.storage.sync.
 async function save_options() {
+  saveStatus.textContent = "Saving..."
   const opts = {};
   
   for (const key in platform.optionDefaults) {
@@ -16,10 +19,29 @@ async function save_options() {
       throw new Error(`unknown input type ${input.type}`);
     }
   }
+
+  try {
+
+    if (opts.serverUrl) {
+      const r = await browser.permissions.request({
+        origins: [urlToMatchPattern(opts.serverUrl)]
+      })
+      if (!r) {
+        throw new Error("Failed granting permission for ${opts.serverUrl}")
+      }
+    }
+    
+    await platform.setOptions(opts);
+    saveStatus.textContent = "Saved";
+  } catch (err) {
+    saveStatus.textContent = `Error: ${String(err)}`;
+  }
   
-  await platform.setOptions(opts);
-  
-  // TODO: Update status to let user know options were saved.
+}
+
+function urlToMatchPattern(s) {
+  const u = new URL(s);
+  return `${u.protocol}//${u.hostname}${u.pathname}*`
 }
 
 // Restores select box and checkbox state using the preferences
