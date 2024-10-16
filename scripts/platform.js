@@ -205,6 +205,7 @@ platform.closeTabs = function closeTabs(tabs) {
 
   function closeWithTimeout(tab) {
     // sometimes the popup stuck at spinner, which means some tabs can't be closed?
+    // nah it is this bug: https://github.com/microsoft/MicrosoftEdge-Extensions/issues/134
     return new Promise((resolve, reject) => {
       browser.tabs.remove(tab.id).then(resolve, reject);
       setTimeout(() => reject(new Error(`close tab timeout: ${tab.id}`)), 10 * 1000);
