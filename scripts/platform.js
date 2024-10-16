@@ -194,7 +194,7 @@ platform.closeTabs = function closeTabs(tabs) {
   // return browser.tabs.remove(tabs.map(tabIdMap));
   return Promise.all(tabs.map(async tab => {
     try {
-      await browser.tabs.remove(tab.id);
+      await closeWithTimeout(tab);
     } catch (err) {
       console.error(err);
       if (/tabs\.remove is not supported/.test(err.message)) {
@@ -202,6 +202,13 @@ platform.closeTabs = function closeTabs(tabs) {
       }
     }
   }));
+
+  function closeWithTimeout(tab) {
+    return new Promise((resolve, reject) => {
+      browser.tabs.remove(tab.id).then(resolve, reject);
+      setTimeout(() => reject(new Error(`close tab timeout: ${tab.id}`)), 10 * 1000);
+    });
+  }
 };
 
 // TODO: use Firefox native favicon
