@@ -65,16 +65,12 @@ platform.on('optionChange', changes => {
 });
 
 async function init() {
+  updateBrowserAction();
   const {serverUrl} = await platform.getOptions();
   tabalanche.sync(serverUrl);
 }
 
 init();
-
-browser.runtime.onStartup.addListener(() => {
-  updateBrowserAction();
-});
-browser.runtime.onInstalled.addListener(() => updateBrowserAction());
 
 browser.browserAction.onClicked.addListener(tab => {
   handleBrowserAction(tab);
