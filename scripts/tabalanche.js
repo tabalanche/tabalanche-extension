@@ -61,6 +61,16 @@ var tabalanche = eventEmitter();
 
   initDB();
 
+  function newTabGroupDoc(init = {}) {
+    if (!init.created) {
+      init.created = new Date().getTime();
+    }
+    if (!init.tabs) {
+      init.tabs = [];
+    }
+    return init;
+  }
+
   function initDB() {
     tabgroups = new PouchDB('tabgroups');
     tabgroupsReady = ensureCurrentDesignDoc(tabgroups, dashboardDesignDoc);
@@ -102,8 +112,6 @@ var tabalanche = eventEmitter();
       const dupTabs = opts.ignoreDuplicatedUrls ?
         await tabalanche.hasUrls(tabs.map(function (tab) {return tab.url;})) : {};
 
-      var stashTime = new Date();
-        
       async function stashedTab(tab) {
         return {
           url: tab.url,
@@ -112,31 +120,27 @@ var tabalanche = eventEmitter();
             await getContainer(tab.cookieStoreId) : undefined,
         };
       }
-      var tabGroupDoc = {
-        created: stashTime.getTime(),
-        tabs: []
-      };
-      
+
+      let uniqueTabs = [];
+
       var i;
       for (i = 0; i < tabs.length; i++) {
         // NOTE: this prevents users from saving duplicate URLs in a single group.
         // Even when ignoredDuplicateUrls is false
         if (!dupTabs[tabs[i].url]) {
           dupTabs[tabs[i].url] = true;
-          tabGroupDoc.tabs.push(stashedTab(tabs[i]));
+          uniqueTabs.push(stashedTab(tabs[i]));
         }
       }
       
-      if (!tabGroupDoc.tabs.length) {
+      if (!uniqueTabs.length) {
         console.warn('The tab group has no tab');
         return;
       }
 
-      tabGroupDoc.tabs = await Promise.all(tabGroupDoc.tabs);
+      uniqueTabs = await Promise.all(uniqueTabs);
 
-      const response = await tabgroups.post(tabGroupDoc);
-      browser.runtime.sendMessage({event: "new-tab-group", tabGroupId: response.id})
-        .catch(console.warn);
+      await tabalanche.insertTabs(null, uniqueTabs);
     }
     doStash();
     return closeTabs();
@@ -223,6 +227,21 @@ var tabalanche = eventEmitter();
       return tabgroups.get(id);
     });
   };
+
+  tabalanche.getLastTabGroup = function () {
+    return tabgroupsReady.then(function () {
+      return tabgroups.query('dashboard/by_creation', {
+        include_docs: true,
+        descending: true,
+        limit: 1
+      }).then(function (response) {
+        if (!response.rows.length) {
+          return null;
+        }
+        return response.rows[0].doc;
+      });
+    });
+  }
 
   const FILTER_PROPS = ['url', 'title'];
 
@@ -444,6 +463,27 @@ var tabalanche = eventEmitter();
       return doc;
     });
   };
+
+  tabalanche.insertTabs = async (id, tabs) => {
+    await tabgroupsReady;
+    if (!id) {
+      const doc = newTabGroupDoc();
+      doc.tabs.push(...tabs);
+      const response = await tabgroups.post(doc);
+      browser.runtime.sendMessage({event: "new-tab-group", tabGroupId: response.id})
+        .catch(console.warn);
+      return response;
+    }
+    const response = await tabgroups.upsert(id, doc => {
+      doc = newTabGroupDoc(doc);
+      doc.tabs.push(...tabs);
+      return doc;
+    });
+    // NOTE: we don't know if the id is new or not
+    browser.runtime.sendMessage({event: "new-tab-group", tabGroupId: id})
+      .catch(console.warn);
+    return response;
+  }
 
 })();
 

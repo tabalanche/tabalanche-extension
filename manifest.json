@@ -56,7 +56,8 @@
     "chrome://favicon/",
     "unlimitedStorage",
     "contextualIdentities",
-    "cookies"
+    "cookies",
+    "menus"
   ],
   "optional_permissions": [
     "<all_urls>"

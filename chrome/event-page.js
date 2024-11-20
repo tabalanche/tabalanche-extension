@@ -107,3 +107,31 @@ function handleBrowserAction(tab) {
   }).catch(console.error);
 }
 
+browser.menus.create({
+  command: "stash-link",
+  contexts: ["link"],
+  id: "stash-link",
+  title: "Stash Link",
+});
+
+// let prefix change every day
+const ID_PREFIX = String(Math.ceil(Date.now() / (24 * 60 * 60 * 1000)));
+
+browser.menus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId == "stash-link") {
+    const getGroupId = async () => {
+      if (tab?.id) {
+        return `${ID_PREFIX}-${tab.id}`;
+      }
+      const group = await tabalanche.getLastTabGroup();
+      return group?._id;
+    };
+    getGroupId().then(id => {
+      tabalanche.insertTabs(id, [{
+        title: info.linkText,
+        url: info.linkUrl
+        // FIXME: container?
+      }]);
+    });
+  }
+});
