@@ -92,8 +92,12 @@ async function updateBrowserAction(changes) {
     }
   }
   if (!changes.useSnapshotUI) return;
+
+  // NOTE: tab doesn't work well on FF android
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1935935
+  const popupUseTab = changes.useSnapshotUI.newValue && !(platform.isFirefox() && platform.isMobile());
   
-  if (changes.useSnapshotUI.newValue) {
+  if (popupUseTab) {
     browser.browserAction.setPopup({popup: ''});
   } else {
     browser.browserAction.setPopup({popup: 'popup.html'});
