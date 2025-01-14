@@ -84,7 +84,12 @@ function createTabDiv(tab) {
     check,
     cre('div.snapshot-ui-tab-inner', [
       // NOTE: on firefox android, tab.title could be undefined when the tab is opened in the background and is not loaded..
-      cre('div.tab-title', {title: tab.title}, [title]),
+      cre('div.tab-title', {title: tab.title}, [
+        cre('img.tab-icon', {src: tab.icon || platform.faviconPath(tab.url)}),
+        cre('span', [
+          title
+        ])
+      ]),
       cre('div.tab-url', {title: tab.url}, [tab.url]),
       cre('img.tab-snapshot')
     ])

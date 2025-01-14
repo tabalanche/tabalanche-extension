@@ -40,6 +40,15 @@ label {
   white-space: nowrap;
   overflow: hidden;
 }
+.snapshot-ui-tab .tab-title > * {
+  vertical-align: middle;
+}
+.snapshot-ui-tab .tab-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 0.5em;
+}
 .snapshot-ui-tab .tab-url {
   display: none;
 }
