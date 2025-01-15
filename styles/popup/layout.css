@@ -31,26 +31,35 @@ label {
   grid: auto-flow / repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
+.snapshot-ui-tab {
+  overflow: hidden;
+}
 .snapshot-ui-tab input {
   display: none;
 }
-.snapshot-ui-tab .tab-title,
-.snapshot-ui-tab .tab-url {
+.snapshot-ui-tab .tab-title {
+  display: flex;
+  align-items: center;
   padding: 0.3em 0.5em;
-  white-space: nowrap;
-  overflow: hidden;
-}
-.snapshot-ui-tab .tab-title > * {
-  vertical-align: middle;
+  gap: 0.3em;
 }
 .snapshot-ui-tab .tab-icon {
-  display: inline-block;
   width: 16px;
   height: 16px;
-  margin-right: 0.5em;
+  flex-shrink: 0;
+}
+.snapshot-ui-tab .tab-title-text {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .snapshot-ui-tab .tab-url {
   display: none;
+  padding: 0.3em 0.5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .snapshot-ui-tab .tab-snapshot {
   display: block;
