@@ -15,15 +15,17 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.webextensions,
-      }
+      },
+      sourceType: "script"
     },
   },
   {
-    files: ["test/**/*.js"],
+    files: ["test/**/*.js", "**/*.mjs"],
     languageOptions: {
       globals: {
         ...globals.node,
-      }
+      },
+      sourceType: "module"
     }
   }
 ];

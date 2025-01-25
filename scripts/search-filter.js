@@ -1,6 +1,6 @@
 /* global eventEmitter */
-/* exported createSearchFilter compileFilter */
 
+/* exported createSearchFilter, compileFilter */
 function compileFilter(value) {
   const rules = [];
   for (const term of value.split(/\s+/)) {

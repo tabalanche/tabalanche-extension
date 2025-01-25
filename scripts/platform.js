@@ -21,7 +21,8 @@ const localOptions = [
 ];
 
 // FIXME: https://bugzilla.mozilla.org/show_bug.cgi?id=1921279
-platform.brokenTabs = new Map();
+const closedTabs = new Map();
+platform.closedTabs = closedTabs;
 
 // exposed for the options page
 platform.optionDefaults = optionDefaults;
@@ -120,7 +121,7 @@ function isValidURL(url) {
   try {
     new URL(url);
     return true;
-  } catch (err) {
+  } catch {
     return false;
   }
 }
@@ -144,12 +145,11 @@ async function queryCurrentWindowTabs ({extensionPage = true, aboutBlank = true,
     if (!aboutBlank && tab.url === 'about:blank') {
       return false;
     }
-    const brokenTab = platform.brokenTabs.get(tab.id);
-    if (brokenTab) {
-      if (tab.url === brokenTab.url) {
+    // FIXME: https://bugzilla.mozilla.org/show_bug.cgi?id=1921279
+    const closedTab = closedTabs.get(tab.id);
+    if (closedTab) {
+      if (tab.url === closedTab.url) {
         return false;
-      } else {
-        platform.brokenTabs.delete(tab.id);
       }
     }
     return true;
@@ -191,26 +191,13 @@ platform.getWindowTabs.right = function getRightWindowTabs() {
 };
 
 platform.closeTabs = function closeTabs(tabs) {
-  // return browser.tabs.remove(tabs.map(tabIdMap));
-  return Promise.all(tabs.map(async tab => {
-    try {
-      await closeWithTimeout(tab);
-    } catch (err) {
-      console.error(err);
-      if (/tabs\.remove is not supported/.test(err.message)) {
-        platform.brokenTabs.set(tab.id, tab);
-      }
+  if (isFirefox() && isMobile()) {
+    for (const tab of tabs) {
+      // NOTE: call this in the background script or it won't work
+      closedTabs.set(tab.id, {url: tab.url});
     }
-  }));
-
-  function closeWithTimeout(tab) {
-    // sometimes the popup stuck at spinner, which means some tabs can't be closed?
-    // nah it is this bug: https://github.com/microsoft/MicrosoftEdge-Extensions/issues/134
-    return new Promise((resolve, reject) => {
-      browser.tabs.remove(tab.id).then(resolve, reject);
-      setTimeout(() => reject(new Error(`close tab timeout: ${tab.id}`)), 10 * 1000);
-    });
   }
+  return browser.tabs.remove(tabs.map(tab => tab.id));
 };
 
 // TODO: use Firefox native favicon
@@ -224,7 +211,7 @@ platform.faviconPath = !window.netscape ?
       // This won't work with chrome://extensions/
       url = new URL(url);
       return `https://icons.duckduckgo.com/ip3/${url.hostname}.ico`;
-    } catch (err) {
+    } catch {
       return 'https://icons.duckduckgo.com/ip3/undefined.ico';
     }
   };
@@ -285,11 +272,14 @@ platform.requestScreenshotPermission = () => browser.permissions.request({
   origins: ['<all_urls>']
 });
 
-function isMobile() { return /mobi/i.test(navigator.userAgent) }
+function isMobile() {
+  return /mobi/i.test(navigator.userAgent)
+}
 
 platform.isMobile = isMobile;
 
-platform.isFirefox = () => /firefox/i.test(navigator.userAgent);
+const isFirefox = () => /firefox/i.test(navigator.userAgent);
+platform.isFirefox = isFirefox;
 
 platform.isDashboardAvailable = async () => {
   const extensionTabs = await browser.tabs.query({url: [
