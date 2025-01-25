@@ -36,8 +36,11 @@ async function withLoader(cb) {
 
 async function initSnapshotUI() {
   document.body.classList.add('snapshot-ui-enabled');
-  const tabs = (await platform.getWindowTabs.all({aboutBlank: false, extensionPage: false}))
-    .map(createTabDiv);
+  // NOTE: get tabs from background to filter closed tabs
+  const rawTabs = await browser.runtime.sendMessage({method: 'get-window-tabs', scope: 'all', aboutBlank: false, extensionPage: false});
+  const tabs = rawTabs.map(createTabDiv);
+  // const tabs = (await platform.getWindowTabs.all({aboutBlank: false, extensionPage: false}))
+  //   .map(createTabDiv);
   document.querySelector('#snapshot-ui').append(...tabs.map(t => t.el));
   
   document.querySelector('.stash-selection').addEventListener('click', async () => {

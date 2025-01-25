@@ -38,6 +38,9 @@ const HANDLE_MESSAGE = {
   "get-some-history": ({startKey, filter}) => {
     return tabalanche.getSomeHistory(startKey, filter);
   },
+  "get-window-tabs": ({scope, ...args}) => {
+    return platform.getWindowTabs[scope](args);
+  },
   "export-tabs": async () => {
     const docs = await tabalanche.getAllTabGroups();
     return JSON.stringify(docs, undefined, 2);
@@ -76,9 +79,9 @@ browser.browserAction.onClicked.addListener(tab => {
   handleBrowserAction(tab);
 });
 
-browser.runtime.onMessage.addListener(message => {
-  if (HANDLE_MESSAGE[message.method]) {
-    return HANDLE_MESSAGE[message.method](message);
+browser.runtime.onMessage.addListener(({method, ...message}) => {
+  if (HANDLE_MESSAGE[method]) {
+    return HANDLE_MESSAGE[method](message);
   }
 });
 
