@@ -68,9 +68,12 @@ async function initSnapshotUI() {
   }
 
   // FIXME: we have to catch popstate event to close the tab on FF android
-  if (platform.isFirefox() && platform.isMobile()) {
-    onHistoryBack().then(() => window.close())
-  }
+  // FIXME: this no longer works anymore
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1935935
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1963122
+  // if (platform.isFirefox() && platform.isMobile()) {
+  //   onHistoryBack().then(() => window.close())
+  // }
 }
 
 function onHistoryBack() {
