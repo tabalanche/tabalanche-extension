@@ -1,33 +1,53 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tabalanche Options</title>
   <link rel="stylesheet" href="/chrome/options.css">
 </head>
 <body>
   <figure>
     <label>
-      <input type="checkbox" id="ignorepin">
+      <input type="checkbox" id="ignorePinnedTabs">
       Ignore pinned tabs
     </label>
+    <label>
+      <input type="checkbox" id="ignoreDuplicatedUrls">
+      Do not store duplicated URLs
+    </label>
+    <label>
+      Remote server URL
+      <input type="text" id="serverUrl">
+    </label>
+    <label>
+      <input type="checkbox" id="useSnapshotUI">
+      Enable tab chooser
+    </label>
+    <label>
+      <input type="checkbox" id="useScreenshot">
+      Display screenshots in tab chooser
+    </label>
   </figure>
+  <a is="action-link" id="show-advanced">Show advanced options...</a>
   <div id="advanced" hidden>
     <figure>
       <button type="button" id="destroy">Delete all data</button>
       <figcaption><p>
       This <strong>can not be undone</strong>. You might want to consider
-      <a href="/export.html">exporting</a> your data to a backup file before
+      exporting your data to a backup file before
       destroying it.
       </p></figcaption>
     </figure>
   </div>
-  <a is="action-link" id="show-advanced">Show advanced options...</a>
   <figure>
-    <button type="button" id="save">Save</button>
+    <button type="button" id="save">Save and grant permissions</button> <span id="save-status"></span>
+    <button type="button" id="import-tabs">Import tabs</button> <span id="import-status"></span>
+    <button type="button" id="export-tabs">Export tabs</button> <span id="export-status"></span>
   </figure>
+  <script src="/vendor/browser-polyfill.js"></script>
+  <script src="/scripts/event-emitter.js"></script>
   <script src="/scripts/platform.js"></script>
-  <script src="/vendor/pouchdb-5.0.0.js"></script>
-  <script src="/scripts/tabalanche.js"></script>
   <script src="/chrome/options.js"></script>
 </body>
 </html>

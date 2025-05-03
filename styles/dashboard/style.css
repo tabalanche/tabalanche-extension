@@ -1,12 +1,27 @@
 .tablink {
   text-decoration: none;
   color: #22a;
+  /* word-break doesn't work with symbols */
+  /* https://stackoverflow.com/questions/43396861/the-word-break-style-is-not-applying-on-text-with-symbol */
+  overflow-wrap: break-word;
+}
+.tablist-item.search-excluded {
+  display: none;
+}
+.highlight {
+  background: rgba(256, 256, 256, 0.8);
 }
 .tabgroup {
   box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2);
 }
 .tabstash {
   background-color: #eacfbc;
+}
+.tab-added {
+  background: #afa;
+}
+.tab-removed {
+  background: #faa;
 }
 h3 {
   opacity: 0.8;
@@ -19,4 +34,11 @@ h4 {
 }
 #tab-groups {
   background-color: #953;
+}
+#total-tabs {
+  font-size: 0.7em;
+}
+#loader-state {
+  text-align: center;
+  color: rgba(0, 0, 0, 0.5);
 }

@@ -11,16 +11,20 @@
       "19": "images/tabalanche-box-19px.png",
       "38": "images/tabalanche-box-38px.png"
     },
-    "default_title": "Tabalanche",
-    "default_popup": "popup.html"
+    "default_title": "Tabalanche"
   },
   "author": "Stuart P. Bentley",
   "background": {
     "scripts": [
-      "vendor/pouchdb-5.0.0.js",
+      "vendor/pouchdb-8.0.1.min.js",
+      "vendor/pouchdb.upsert.min.js",
+      "vendor/browser-polyfill.js",
+      "scripts/event-emitter.js",
+      "scripts/platform.js",
+      "scripts/search-filter.js",
       "scripts/tabalanche.js",
       "chrome/event-page.js" ],
-    "persistent": false
+    "persistent": true
   },
   "commands": {
     "stashThisTab": {
@@ -49,7 +53,20 @@
   "permissions": [
     "tabs",
     "storage",
-    "chrome://favicon/"
+    "chrome://favicon/",
+    "unlimitedStorage",
+    "contextualIdentities",
+    "cookies",
+    "menus"
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
+  "optional_permissions": [
+    "<all_urls>"
+  ],
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "tabalanche-extension@eight04.blogspot.com"
+    }
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu/Ql1IPqSFjkqXeywx7GIETyzM3sqfZSydsU4xDvTPerWmmaxxLszrWklillwqPICyyYpwXXhc/xBsAPSF7tvPnnooxPiLalDAd8o3B11p8/rtk4wEiSvA7cQKvtqhBVM54RWMLJh6zTEL0+j/ZYFKkNZDbqEIl/u4w0/h1GAaHvBbZYlzL2N5ngkJ90w0TM/hmcrdx4uYR8XBo+06A040I89qztgz5kn98WjXClagwnWFzSdcTJdrVV1rnLS5xEdn7VDNVx0qs81sS09zPyzU2fUBw/HZ0QkOFBvF5u7QcGRKlT12/+3CWUjwSPSIxjVIPsmmVpwVYD5FiZqRENTwIDAQAB"
 }

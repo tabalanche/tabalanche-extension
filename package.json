@@ -1,0 +1,47 @@
+{
+  "name": "tabalanche-extension",
+  "version": "1.0.0",
+  "description": "[![Join the chat at https://gitter.im/tabalanche/tabalanche-extension](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tabalanche/tabalanche-extension)",
+  "main": "index.js",
+  "scripts": {
+    "test": "eslint .",
+    "build": "web-ext build",
+    "start": "web-ext run",
+    "start-chrome": "web-ext run --target chromium"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eight04/tabalanche-extension.git"
+  },
+  "keywords": [],
+  "author": "eight <eight04@gmail.com> (http://eight04.blogspot.tw)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eight04/tabalanche-extension/issues"
+  },
+  "homepage": "https://github.com/eight04/tabalanche-extension#readme",
+  "devDependencies": {
+    "eslint": "^9.15.0",
+    "web-ext": "^8.3.0"
+  },
+  "webExt": {
+    "ignoreFiles": [
+      "package.json",
+      "package-lock.json"
+    ],
+    "build": {
+      "overwriteDest": true
+    }
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true,
+      "webextensions": true
+    },
+    "extends": "eslint:recommended",
+    "ignorePatterns": [
+      "vendor"
+    ]
+  }
+}

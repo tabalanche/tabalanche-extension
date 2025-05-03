@@ -5,3 +5,32 @@ figure, button, textarea {
 textarea {
   width: 100%;
 }
+label {
+  display: block;
+  margin-bottom: .6em;
+}
+input[type=text] {
+  display: block;
+  margin: .3em 0;
+  padding: .3em .6em;
+  width: 100%;
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none!important;
+}
+#advanced {
+  background: #f9000020;
+}
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #FBFBFE;
+    background-color: #23222B;
+  }
+  input[type=text] {
+    background-color: #23222B;
+    border: 1px solid #7C7B82;
+    border-radius: 3px;
+    color: inherit;
+  }
+}

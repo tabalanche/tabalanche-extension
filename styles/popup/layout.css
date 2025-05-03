@@ -21,3 +21,83 @@ label {
   padding: 0;
   margin: 8px 4px 0;
 }
+.stash-selection,
+.invert-selection {
+  display: none;
+}
+#snapshot-ui {
+  display: none;
+  margin: 10px;
+  grid: auto-flow / repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.snapshot-ui-tab {
+  overflow: hidden;
+}
+.snapshot-ui-tab input {
+  display: none;
+}
+.snapshot-ui-tab .tab-title {
+  display: flex;
+  align-items: center;
+  padding: 0.3em 0.5em;
+  gap: 0.3em;
+}
+.snapshot-ui-tab .tab-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.snapshot-ui-tab .tab-title-text {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.snapshot-ui-tab .tab-url {
+  display: none;
+  padding: 0.3em 0.5em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.snapshot-ui-tab .tab-snapshot {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.snapshot-ui-no-snapshot #snapshot-ui {
+  grid: auto-flow / 1fr;
+}
+.snapshot-ui-no-snapshot .tab-title {
+  word-break: break-all;
+  white-space: normal;
+}
+.snapshot-ui-no-snapshot .tab-url {
+  display: block;
+  background: rgba(255, 255, 255, 0.5);
+  padding: 1.2em;
+  word-break: break-all;
+  white-space: normal;
+}
+.snapshot-ui-no-snapshot .tab-snapshot {
+  display: none;
+}
+
+body.snapshot-ui-enabled {
+  /* TODO: adjust width when snapshot ui comes to desktop */    
+  /* min-width: 450px; */
+}
+.snapshot-ui-enabled #stash-ui {
+  display: none;
+}
+.snapshot-ui-enabled #snapshot-ui {
+  display: grid;
+}
+.snapshot-ui-enabled .stash-selection,
+.snapshot-ui-enabled .invert-selection {
+  display: inline-block;
+}

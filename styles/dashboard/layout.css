@@ -1,3 +1,26 @@
+#searchbar {
+  display: flex;
+  margin: 36px 36px 0;
+}
+#search-field {
+  flex: 1;
+}
+#searchbar button {
+  margin-left: 16px;
+}
+.search-button {
+  flex: 0;
+}
+.tabbutton {
+  height: 16px;
+  width: 16px;
+  vertical-align: bottom;
+  margin-right: 12px;
+  font-size: 12px;
+  padding: 2px 0;
+  text-align: center;
+  line-height: 1;
+}
 .tabicon {
   height: 16px;
   width: 16px;
@@ -11,6 +34,8 @@
 }
 .tablist-item {
   margin: 8px;
+  padding-left: 28px;
+  text-indent: -28px;
 }
 .tabgroup {
   margin: 12px;
@@ -21,6 +46,29 @@
 h3, h4 {
   margin: 0 6px;
 }
-#tab-groups {
+#tab-groups, #loader-container {
   padding: 24px;
+}
+.tab-container {
+  margin: 0 .6em;
+  padding: .3em;
+  font-size: .8em;
+}
+
+@media (max-width: 480px) {
+  header {
+    display: none;
+  }
+  #searchbar {
+    margin: .8em .6em;
+  }
+  #searchbar button {
+    margin-left: .6em;
+  }
+  #tab-groups {
+    padding: 0;
+  }
+  .tabgroup {
+    margin-inline: .6em;
+  }
 }
