@@ -102,9 +102,11 @@ platform.closeTabs = function closeTabs(tabs) {
 };
 
 platform.faviconPath = function faviconPath(url) {
-  // TODO: cross-browser-compatible version of this
-  // see https://bugzilla.mozilla.org/show_bug.cgi?id=1315616
-  return 'chrome://favicon/' + url;
+  // https://developer.chrome.com/docs/extensions/how-to/ui/favicons
+  const url = new URL(browser.runtime.getURL("/_favicon/"));
+  url.searchParams.set("pageUrl", url);
+  url.searchParams.set("size", "32");
+  return url.toString();
 };
 
 platform.extensionURL = function extensionURL(path) {

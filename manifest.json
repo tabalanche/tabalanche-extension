@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Tabalanche",
   "version": "1.1.0",
   "icons": { "16": "images/tabalanche-box-16px.png",
@@ -16,10 +16,7 @@
   },
   "author": "Stuart P. Bentley",
   "background": {
-    "scripts": [
-      "vendor/pouchdb-5.0.0.js",
-      "scripts/tabalanche.js",
-      "chrome/event-page.js" ],
+    "service-worker": "chrome/event-page.js",
     "persistent": false
   },
   "commands": {
@@ -49,7 +46,7 @@
   "permissions": [
     "tabs",
     "storage",
-    "chrome://favicon/"
+    "favicon"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
