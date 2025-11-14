@@ -5,9 +5,30 @@ var tabalanche = {};
 
   var tabgroups = new PouchDB('tabgroups');
 
-  // this used to be where we ensured design docs were current
-  // TODO: perform migration check here
-  var tabgroupsReady = tabgroups.info().then(()=>tabgroups);
+  function postDesignDocMigration(doc) {
+    if (doc._id[0] == '_') return false;
+    
+    const uuid = doc.uuid || doc._id || crypto.randomUUID().toUpperCase();
+    const created = new Date(doc.created).toISOString();
+
+    if (!doc.uuid) {
+      doc.uuid = uuid;
+      doc._id = `${created}_${uuid}`;
+    }
+
+    // ensure document timestamp is in ISO format
+    doc.created = created;
+
+    return doc;
+  }
+
+  alreadyMigrated = localStorage.getItem("postDesignDocMigration");
+
+  var tabgroupsReady = alreadyMigrated ? tabgroups.info().then(()=>tabgroups)
+    : tabgroups.migrate(postDesignDocMigration).then(()=>{
+      localStorage.setItem("postDesignDocMigration", "complete");
+      return tabgroups;
+    });
 
   function stashTabs(tabs) {
     return platform.currentWindowContext().then(function(store) {
