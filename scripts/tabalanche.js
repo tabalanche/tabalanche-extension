@@ -23,7 +23,7 @@ var tabalanche = {};
           var tabGroupDoc = {
             _id: stashTime.toISOString() + '_' + uuid,
             uuid,
-            created: stashTime.getTime(),
+            created: stashTime.toISOString(),
             tabs: tabs.map(stashedTab)
           };
 
@@ -54,17 +54,21 @@ var tabalanche = {};
 
   tabalanche.importTabGroup = function importTabGroup(tabGroup, opts) {
     opts = opts || {};
-    // TODO: migrate schema during import
     return tabgroupsReady.then(function() {
-      if (tabGroup._id) {
+      if (tabGroup.uuid) {
         return tabgroups.put({
           _id: tabGroup._id,
+          uuid: tabGroup.uuid,
           created: tabGroup.created,
           tabs: tabGroup.tabs
         });
       } else {
-        return tabgroups.post({
-          created: tabGroup.created,
+        const uuid = tabGroup._id || crypto.randomUUID().toUpperCase();
+        const created = new Date(tabGroup.created).toISOString();
+        return tabgroups.put({
+          _id: `${created}_${uuid}`,
+          uuid: uuid,
+          created: created,
           tabs: tabGroup.tabs
         });
       }
