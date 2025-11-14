@@ -110,7 +110,7 @@ platform.faviconPath = function faviconPath(urlForIcon) {
 };
 
 platform.extensionURL = function extensionURL(path) {
-  return browser.extension.getURL(path);
+  return browser.runtime.getURL(path);
 };
 
 platform.getOptionsURL = function getOptionsURL() {
