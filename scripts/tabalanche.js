@@ -4,7 +4,10 @@ var tabalanche = {};
 (function(){
 
   var tabgroups = new PouchDB('tabgroups');
-  var tabgroupsReady = tabgroups;
+
+  // this used to be where we ensured design docs were current
+  // TODO: perform migration check here
+  var tabgroupsReady = tabgroups.info().then(()=>tabgroups);
 
   function stashTabs(tabs) {
     return platform.currentWindowContext().then(function(store) {
