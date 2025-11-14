@@ -101,10 +101,10 @@ platform.closeTabs = function closeTabs(tabs) {
   return browser.tabs.remove(tabs.map(tabIdMap));
 };
 
-platform.faviconPath = function faviconPath(url) {
+platform.faviconPath = function faviconPath(urlForIcon) {
   // https://developer.chrome.com/docs/extensions/how-to/ui/favicons
   const url = new URL(browser.runtime.getURL("/_favicon/"));
-  url.searchParams.set("pageUrl", url);
+  url.searchParams.set("pageUrl", urlForIcon);
   url.searchParams.set("size", "32");
   return url.toString();
 };
