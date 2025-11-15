@@ -33,13 +33,16 @@ async function importFromOldToNew(oldDb, newDb) {
 
   let lastKey = localStorage.getItem("pouch9MigrationLastKey");
 
-  let response = getNextBatch(lastKey);
+  let response = await getNextBatch(lastKey);
   const imports = [];
 
   while (response.rows.length > 0) {
-    for (const doc of response.rows) {
+    for (const {doc} of response.rows) {
       // ignore design docs etc. (not using them for Tabalanche 1.2.0+)
       if (doc._id[0] == '_') continue;
+
+      // imports get rejected if they have revision history
+      delete doc._rev;
 
       imports.push(postDesignDocMigration(doc));
     }
@@ -49,14 +52,15 @@ async function importFromOldToNew(oldDb, newDb) {
     await newDb.bulkDocs(imports);
 
     importedDocCount += response.rows.length;
+    lastKey = response.rows[response.rows.length-1].id;
     localStorage.setItem("pouch9MigrationLastKey", lastKey);
     localStorage.setItem("pouch9MigrationProgress", importedDocCount);
     localStorage.setItem("slowBanner",
       `Updating stash records for Tabalanche 1.2.0 (${
-        totalDocs}/${importedDocCount})`)
+        importedDocCount}/${totalDocs})`)
 
     imports.length = 0;
-    response = getNextBatch(lastKey);
+    response = await getNextBatch(lastKey);
   }
 }
 
