@@ -5,8 +5,9 @@ var tabalanche = {};
 
   var tabgroups = new PouchDB('tabgroups');
 
-  // these numbers aren't gonna be exact due to design docs / new stashes happening mid-migration
-  // but they're good enough to explain that a slowdown on load is going to end someday
+  // these numbers aren't gonna be exact due to design docs
+  // and/or new stashes happening mid-migration, but they're good
+  // enough to explain that a slowdown on load is going to end someday
   let totalTabGroups = 'many';
   let currentGroup = 0;
 
@@ -35,7 +36,9 @@ var tabalanche = {};
     return doc;
   }
 
-  const migrated = navigator.locks.request("zeroDesignDocMigration", async () => {
+  const migrated = navigator.locks.request(
+    "zeroDesignDocMigration", async () => {
+
     const migrationStatus = localStorage.getItem("zeroDesignDocMigration");
     if (migrationStatus == 'complete') return tabgroups;
 
