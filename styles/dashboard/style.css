@@ -20,3 +20,7 @@ h4 {
 #tab-groups {
   background-color: #953;
 }
+footer h1, footer h2 {
+  text-align: center;
+  color: white;
+}

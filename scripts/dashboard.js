@@ -11,6 +11,33 @@ var templateTabStash = cre('div.tabgroup.tabstash');
 var templateFlap = cre('div.flap');
 var templateTabList = cre('ul.tablist');
 
+const loadingH1 = document.querySelector('footer h1');
+const loadingH2 = document.querySelector('footer h2');
+
+function updateSlowBanner() {
+  const banner = localStorage.getItem("slowBanner");
+  if (banner) {
+    loadingH2.textContent = banner;
+  }
+  // if there's no banner, just don't touch the h2
+  // (let the other functions set it, or let it be frozen)
+}
+
+let slowBannerTimer = null;
+
+function watchSlowBanner() {
+  if (!slowBannerTimer) {
+    return slowBannerTimer = setInterval(updateSlowBanner,1000);
+  }
+}
+
+function unwatchSlowBanner() {
+  if (slowBannerTimer) {
+    clearInterval(slowBannerTimer);
+    slowBannerTimer = null;
+  }
+}
+
 function getElementIndex(node) {
   var i = 0;
   while (node = node.previousElementSibling) ++i;
@@ -25,7 +52,7 @@ function tabCountString(num) {
 function getLinkClickType(evt) {
   // Technically the click event is only supposed to fire for button 0,
   // but WebKit has shipped it for middle-click (button 1) for years.
-  // See http://specifiction.org/t/fixing-the-click-event-in-browsers/933
+  // See https://discourse.wicg.io/t/ui-events-wd-compliance/933/
   if (evt.button == 1 ||
     evt.button === 0 && (evt.ctrlKey || evt.shiftKey || evt.metaKey)) {
     return 'new';
@@ -41,31 +68,32 @@ function getLinkClickType(evt) {
 }
 
 function createTabGroupDiv(tabGroupDoc) {
-  var pendingPutPromise = null;
-  var pendingPutIsStale = false;
+  let pendingPutPromise = null;
+  let pendingPutIsStale = false;
 
   function updateTabGroup() {
-    function putNewTabGroupDoc() {
+    async function putNewTabGroupDoc() {
       pendingPutIsStale = false;
-      return tabalanche.getDB().then(function(db) {
-        var action = tabGroupDoc.tabs.length > 0 ? 'put' : 'remove';
-        return db[action](tabGroupDoc).then(function (result) {
-          tabGroupDoc._rev = result.rev;
-          if (pendingPutIsStale) {
+      const db = await tabalanche.getDB();
+
+      const action = tabGroupDoc.tabs.length > 0 ? 'put' : 'remove';
+      return db[action](tabGroupDoc).then(function (result) {
+        tabGroupDoc._rev = result.rev;
+        if (pendingPutIsStale) {
+          return putNewTabGroupDoc();
+        } else {
+          pendingPutPromise = null;
+        }
+      }, function(err) {
+        if (err.name == 'conflict') {
+          return db.get(tabGroupDoc._id)
+          .then(function(newDoc) {
+            tabGroupDoc._rev = newDoc._rev;
             return putNewTabGroupDoc();
-          } else {
-            pendingPutPromise = null;
-          }
-        }, function(err) {
-          if (err.name == 'conflict') {
-            return db.get(tabGroupDoc._id)
-            .then(function(newDoc) {
-              tabGroupDoc._rev = newDoc._rev;
-              return putNewTabGroupDoc();
-            });
-          }
-        });
+          });
+        }
       });
+
     }
 
     if (!pendingPutPromise) {
@@ -139,7 +167,7 @@ function createTabGroupDiv(tabGroupDoc) {
   });
 }
 
-var lastTabGroup;
+let lastTabGroup = null;
 var loadingTabGroups = false;
 var allTabGroupsLoaded = false;
 
@@ -147,8 +175,13 @@ function capTabGroupLoading() {
   allTabGroupsLoaded = true;
   // we can stop listening to load on scroll
   document.removeEventListener('scroll', loadMoreIfNearBottom);
-  // TODO: set the "Loading..." message to be "No older tab groups"
-  // or a message stating there are *no* tab groups
+
+  // don't need to check slowBanner any more
+  clearInterval(slowBannerTimer);
+
+  loadingH1.textContent = lastTabGroup ? "All stashes loaded" : "Nothing stashed (yet)";
+  loadingH2.textContent = lastTabGroup ? "That's all, folks!"
+    : "Import data or stash some tabs to get started"
 }
 
 function showLoadedTabGroups(tabGroups) {
@@ -158,6 +191,13 @@ function showLoadedTabGroups(tabGroups) {
   }
   if (tabGroups.length > 0) {
     lastTabGroup = tabGroups[tabGroups.length-1];
+
+    // loadMoreIfNearBottom/loadMoreTabGroups will replace this
+    // if/when relevant; unwatching slowBanner, however, we only
+    // do if we're sure we're not still loading
+    // (so as to not interrupt it, for politeness's sake)
+    loadingH2.textContent = "Waiting for viewport to get this low";
+
     // in case there's still visible window, recurse
     return loadMoreIfNearBottom();
   } else {
@@ -166,11 +206,15 @@ function showLoadedTabGroups(tabGroups) {
 }
 
 function loadMoreTabGroups() {
+
+  // this function gets called unconditionally by the scroll handler
+  // whenever the page gets low, so we winnow the load down to
+  // one call at a time (if necessary at all) here
   if (!loadingTabGroups && !allTabGroupsLoaded) {
     loadingTabGroups = true;
 
-    // TODO: Set "Loading..." message
-    // (which could technically always be visible)
+    loadingH2.textContent = "Getting more stashes";
+    watchSlowBanner();
 
     // Get the next groups
     tabalanche.getSomeTabGroups(lastTabGroup._id)
@@ -179,10 +223,14 @@ function loadMoreTabGroups() {
 }
 
 // Get the first groups
+// Note that delays like migration etc. will replace this via slowBanner
+// TODO: jump to a specific point if in the fragment (is that doable?)
+loadingH2.textContent = "Getting latest stashes";
+watchSlowBanner();
 tabalanche.getSomeTabGroups().then(showLoadedTabGroups);
 
-// How many window-heights from the bottom of the page we should be before
-// loading more tabs.
+// How many viewport-heights from the bottom of the page we should be
+// before loading more tabs; half the window seems reasonable.
 var loadMoreMargin = 1/2;
 
 function loadMoreIfNearBottom() {
@@ -192,6 +240,10 @@ function loadMoreIfNearBottom() {
 
   if (scrollTop + bottomOffset >= scrollHeight) {
     loadMoreTabGroups();
+
+  } else {
+    // don't need to watch slow banner until we scroll that low
+    unwatchSlowBanner();
   }
 }
 
