@@ -64,7 +64,7 @@ var tabalanche = {};
       }
 
       if (tabs.length > 0) {
-        var uuid = crypto.randomUUID().toUpperCase();
+        const uuid = crypto.randomUUID().toUpperCase();
         var tabGroupDoc = {
           _id: stashTime.toISOString() + '_' + uuid,
           uuid,
@@ -75,6 +75,9 @@ var tabalanche = {};
         return tabgroups.put(tabGroupDoc).then(function(response) {
           platform.closeTabs(tabs);
           var dashboard = platform.extensionURL('dashboard.html');
+          // This used to be the UUID, but now it's the sort ID
+          // which is... probably what'll be needed to make it
+          // functional at whatever point that gets added
           open(dashboard + '#' + response.id, '_blank');
         });
       } else {
