@@ -173,7 +173,7 @@ function loadMoreTabGroups() {
     // (which could technically always be visible)
 
     // Get the next groups
-    tabalanche.getSomeTabGroups([lastTabGroup.created, lastTabGroup._id])
+    tabalanche.getSomeTabGroups(lastTabGroup._id)
       .then(showLoadedTabGroups);
   }
 }
