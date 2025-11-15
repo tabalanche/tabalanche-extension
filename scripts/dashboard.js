@@ -1,13 +1,13 @@
 /* global platform tabalanche cre */
 
-var tabGroupContainer = document.getElementById('tab-groups');
+var stashContainer = document.getElementById('stashes');
 
-var tabGroupData = new Map();
+var stashData = new Map();
 
 var templateTabIcon = cre('img.tabicon');
 var templateTabLink = cre('a.tablink');
 var templateTabListItem = cre('li.tablist-item');
-var templateTabStash = cre('div.tabgroup.tabstash');
+var templateTabStash = cre('div.tabstash');
 var templateFlap = cre('div.flap');
 var templateTabList = cre('ul.tablist');
 
@@ -67,29 +67,29 @@ function getLinkClickType(evt) {
   }
 }
 
-function createTabGroupDiv(tabGroupDoc) {
+function createStashDiv(stashDoc) {
   let pendingPutPromise = null;
   let pendingPutIsStale = false;
 
-  function updateTabGroup() {
-    async function putNewTabGroupDoc() {
+  function updateStash() {
+    async function putNewStashDoc() {
       pendingPutIsStale = false;
       const db = await tabalanche.getDB();
 
-      const action = tabGroupDoc.tabs.length > 0 ? 'put' : 'remove';
-      return db[action](tabGroupDoc).then(function (result) {
-        tabGroupDoc._rev = result.rev;
+      const action = stashDoc.tabs.length > 0 ? 'put' : 'remove';
+      return db[action](stashDoc).then(function (result) {
+        stashDoc._rev = result.rev;
         if (pendingPutIsStale) {
-          return putNewTabGroupDoc();
+          return putNewStashDoc();
         } else {
           pendingPutPromise = null;
         }
       }, function(err) {
         if (err.name == 'conflict') {
-          return db.get(tabGroupDoc._id)
+          return db.get(stashDoc._id)
           .then(function(newDoc) {
-            tabGroupDoc._rev = newDoc._rev;
-            return putNewTabGroupDoc();
+            stashDoc._rev = newDoc._rev;
+            return putNewStashDoc();
           });
         }
       });
@@ -97,13 +97,13 @@ function createTabGroupDiv(tabGroupDoc) {
     }
 
     if (!pendingPutPromise) {
-      pendingPutPromise = putNewTabGroupDoc();
+      pendingPutPromise = putNewStashDoc();
     } else pendingPutIsStale = true;
     return pendingPutPromise;
   }
 
   var container;
-  var tabCount = cre('span', [tabCountString(tabGroupDoc.tabs.length)]);
+  var tabCount = cre('span', [tabCountString(stashDoc.tabs.length)]);
 
   function createTabListItem(tab) {
     var tabIcon = cre(templateTabIcon,
@@ -126,14 +126,14 @@ function createTabGroupDiv(tabGroupDoc) {
         // with the link getting clicked twice, or the tab group getting
         // updated before the link gets removed, or a bunch of issues it's
         // better to just not have to deal with.
-        tabGroupDoc.tabs.splice(getElementIndex(listItem), 1);
-        if (tabGroupDoc.tabs.length == 0) {
+        stashDoc.tabs.splice(getElementIndex(listItem), 1);
+        if (stashDoc.tabs.length == 0) {
           container.remove();
         } else {
           listItem.remove();
-          tabCount.textContent = tabCountString(tabGroupDoc.tabs.length);
+          tabCount.textContent = tabCountString(stashDoc.tabs.length);
         }
-        updateTabGroup();
+        updateStash();
 
         evt.preventDefault();
       }
@@ -142,12 +142,12 @@ function createTabGroupDiv(tabGroupDoc) {
     return listItem;
   }
 
-  var tabListItems = tabGroupDoc.tabs.map(createTabListItem);
+  var tabListItems = stashDoc.tabs.map(createTabListItem);
 
-  var nameString = tabGroupDoc.name ||
-    new Date(tabGroupDoc.created).toLocaleString();
+  var nameString = stashDoc.name ||
+    new Date(stashDoc.created).toLocaleString();
 
-  var className = tabGroupDoc.name ? 'explicit-name' : 'implicit-name';
+  var className = stashDoc.name ? 'explicit-name' : 'implicit-name';
 
   var name = cre('h3', {className: className}, [nameString]);
   var details = cre('h4', [tabCount]);
@@ -157,9 +157,9 @@ function createTabGroupDiv(tabGroupDoc) {
 
   container = cre(templateTabStash, [flap, list]);
 
-  tabGroupContainer.appendChild(container);
-  tabGroupData.set(tabGroupDoc._id, {
-    doc: tabGroupDoc,
+  stashContainer.appendChild(container);
+  stashData.set(stashDoc._id, {
+    doc: stashDoc,
     container: container,
     list: list,
     count: tabCount,
@@ -167,32 +167,32 @@ function createTabGroupDiv(tabGroupDoc) {
   });
 }
 
-let lastTabGroup = null;
-var loadingTabGroups = false;
-var allTabGroupsLoaded = false;
+let lastStash = null;
+var loadingStashes = false;
+var allStashesLoaded = false;
 
-function capTabGroupLoading() {
-  allTabGroupsLoaded = true;
+function capStashLoading() {
+  allStashesLoaded = true;
   // we can stop listening to load on scroll
   document.removeEventListener('scroll', loadMoreIfNearBottom);
 
   // don't need to check slowBanner any more
   clearInterval(slowBannerTimer);
 
-  loadingH1.textContent = lastTabGroup ? "All stashes loaded" : "Nothing stashed (yet)";
-  loadingH2.textContent = lastTabGroup ? "That's all, folks!"
+  loadingH1.textContent = lastStash ? "All stashes loaded" : "Nothing stashed (yet)";
+  loadingH2.textContent = lastStash ? "That's all, folks!"
     : "Import data or stash some tabs to get started"
 }
 
-function showLoadedTabGroups(tabGroups) {
-  loadingTabGroups = false;
-  for (var i = 0; i < tabGroups.length; i++) {
-    createTabGroupDiv(tabGroups[i]);
+function showLoadedStashes(stashes) {
+  loadingStashes = false;
+  for (var i = 0; i < stashes.length; i++) {
+    createStashDiv(stashes[i]);
   }
-  if (tabGroups.length > 0) {
-    lastTabGroup = tabGroups[tabGroups.length-1];
+  if (stashes.length > 0) {
+    lastStash = stashes[stashes.length-1];
 
-    // loadMoreIfNearBottom/loadMoreTabGroups will replace this
+    // loadMoreIfNearBottom/loadMoreStashes will replace this
     // if/when relevant; unwatching slowBanner, however, we only
     // do if we're sure we're not still loading
     // (so as to not interrupt it, for politeness's sake)
@@ -201,24 +201,24 @@ function showLoadedTabGroups(tabGroups) {
     // in case there's still visible window, recurse
     return loadMoreIfNearBottom();
   } else {
-    return capTabGroupLoading();
+    return capStashLoading();
   }
 }
 
-function loadMoreTabGroups() {
+function loadMoreStashes() {
 
   // this function gets called unconditionally by the scroll handler
   // whenever the page gets low, so we winnow the load down to
   // one call at a time (if necessary at all) here
-  if (!loadingTabGroups && !allTabGroupsLoaded) {
-    loadingTabGroups = true;
+  if (!loadingStashes && !allStashesLoaded) {
+    loadingStashes = true;
 
     loadingH2.textContent = "Getting more stashes";
     watchSlowBanner();
 
     // Get the next groups
-    tabalanche.getSomeTabGroups(lastTabGroup._id)
-      .then(showLoadedTabGroups);
+    tabalanche.getSomeStashes(lastStash._id)
+      .then(showLoadedStashes);
   }
 }
 
@@ -227,7 +227,7 @@ function loadMoreTabGroups() {
 // TODO: jump to a specific point if in the fragment (is that doable?)
 loadingH2.textContent = "Getting latest stashes";
 watchSlowBanner();
-tabalanche.getSomeTabGroups().then(showLoadedTabGroups);
+tabalanche.getSomeStashes().then(showLoadedStashes);
 
 // How many viewport-heights from the bottom of the page we should be
 // before loading more tabs; half the window seems reasonable.
@@ -239,7 +239,7 @@ function loadMoreIfNearBottom() {
   var scrollHeight = document.documentElement.scrollHeight;
 
   if (scrollTop + bottomOffset >= scrollHeight) {
-    loadMoreTabGroups();
+    loadMoreStashes();
 
   } else {
     // don't need to watch slow banner until we scroll that low

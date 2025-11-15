@@ -1,13 +1,20 @@
 /* global tabalanche platform */
 
-var dumpTextArea = document.getElementById('dump');
+async function populateExportTextArea() {
+  const dumpTextArea = document.getElementById('dump');
 
-tabalanche.getAllTabGroups().then(function(tabGroups) {
-  tabGroups.forEach(function(group) {
-    delete group._rev;
-  });
-  dumpTextArea.value = JSON.stringify(tabGroups, null, 2);
-});
+  if (window.migrating) await window.migrating;
+
+  const stashes = await tabalanche.getAllStashes();
+
+  for (const stash of stashes) {
+    delete stash._rev;
+  };
+
+  dumpTextArea.value = JSON.stringify(stashes, null, 2);
+}
+
+populateExportTextArea();
 
 var optslink = document.getElementById('options');
 
@@ -19,4 +26,3 @@ optslink.addEventListener('click', function(evt) {
   platform.openOptionsPage();
   evt.preventDefault();
 });
-

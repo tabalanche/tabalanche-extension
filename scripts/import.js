@@ -5,21 +5,22 @@ var importButton = document.getElementById('import-button');
 var importProgress = document.getElementById('import-progress');
 
 function importDump() {
-  var tabGroups = JSON.parse(dumpTextArea.value);
+  var stashes = JSON.parse(dumpTextArea.value);
 
-  importProgress.max = tabGroups.length;
+  importProgress.max = stashes.length;
   var imported = 0;
   importProgress.value = imported;
-  importProgress.textContent = '0 / ' + tabGroups.length;
+  importProgress.textContent = '0 / ' + stashes.length;
 
   importButton.hidden = true;
   importProgress.hidden = false;
 
-  for (var i = 0; i < tabGroups.length; i++) {
-    tabalanche.importTabGroup(tabGroups[i]).then(function(){
+  // TODO: import in bulk with bulkDocs
+  for (var i = 0; i < stashes.length; i++) {
+    tabalanche.importStash(stashes[i]).then(function(){
       importProgress.value = ++imported;
-      importProgress.textContent = imported + ' / ' + tabGroups.length;
-      if (imported == tabGroups.length) {
+      importProgress.textContent = imported + ' / ' + stashes.length;
+      if (imported == stashes.length) {
         importButton.textContent = 'Import complete';
         importButton.hidden = false;
         importProgress.hidden = true;

@@ -49,7 +49,7 @@ advancedLink.addEventListener('click', function (evt) {
 var destroyButton = document.getElementById('destroy');
 
 destroyButton.addEventListener('click',
-  tabalanche.destroyAllTabGroups);
+  tabalanche.destroyAllStashes);
 
 document.addEventListener('DOMContentLoaded', restore_options);
 document.getElementById('save').addEventListener('click', save_options);
