@@ -4,7 +4,7 @@
 }
 .tabstash {
   box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2);
-  background-color: #eacfbc;
+  background-color: hsl(20 50% 80%);
 }
 h3 {
   opacity: 0.8;
@@ -13,12 +13,12 @@ h4 {
   opacity: 0.7;
 }
 .tabstash .flap {
-  background-color: #deaa87;
+  background-color: hsl(20 60% 70%);
 }
 #tab-groups {
-  background-color: #953;
+  background-color: hsl(20 50% 40%);
 }
 footer h1, footer h2 {
   text-align: center;
-  color: white;
+  color: hsl(20 50% 99%);
 }
