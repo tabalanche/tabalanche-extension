@@ -1,9 +1,9 @@
 #dash {
-  background-color: #b7daf5;
+  background-color: light-dark(hsl(205 75% 85%), hsl(205 75% 35%));
 }
 .stash-button {
-  background-color: hsl(20 33% 60%);
+  background-color: light-dark(hsl(20 33% 60%), hsl(20 33% 30%));
 }
 .stash-button label {
-  background-color: hsl(20 50% 80%);
+  background-color: light-dark(hsl(20 50% 80%), hsl(20 50% 35%));
 }

@@ -1,6 +1,9 @@
+:root {
+  color-scheme: light dark;
+}
 body {
   font-family: Open Sans, sans-serif;
-  background-color: hsl(20 45% 40%);
+  background-color: light-dark(hsl(20 45% 40%), hsl(20 25% 15%));
 }
 button {
   border: none;
@@ -9,10 +12,10 @@ button {
 header {
   text-transform: uppercase;
   font-family: Montserrat, sans-serif;
-  background-color: hsl(210 33% 55%);
+  background-color: light-dark(hsl(210 33% 55%), hsl(210 33% 25%));
   color: #fbfdfe;
   text-shadow: .5px 1px 2px #4568;
-  box-shadow: 0 1px 32px #fff4;
+  box-shadow: 0 1px 32px light-dark(#fff4, #fff2);
 }
 nav a {
   color: inherit;

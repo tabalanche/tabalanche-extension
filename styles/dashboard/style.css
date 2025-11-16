@@ -1,10 +1,10 @@
 .tablink {
   text-decoration: none;
-  color: #22a;
+  color: light-dark(#22a, #ddf);
 }
 .tabstash {
   box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2);
-  background-color: hsl(20 50% 80%);
+  background-color: light-dark(hsl(20 50% 80%), hsl(20 30% 20%));
 }
 h3 {
   opacity: 0.8;
@@ -13,10 +13,7 @@ h4 {
   opacity: 0.7;
 }
 .tabstash .flap {
-  background-color: hsl(20 60% 70%);
-}
-#tab-groups {
-  background-color: hsl(20 50% 40%);
+  background-color: light-dark(hsl(20 60% 70%), hsl(20 40% 30%));
 }
 footer h1, footer h2 {
   text-align: center;
