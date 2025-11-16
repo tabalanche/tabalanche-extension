@@ -16,6 +16,7 @@ h1 {
 h1 img {
   vertical-align: middle;
   height: 90px;
+  margin: 0 12px;
 }
 nav {
   margin: 0 24px;
