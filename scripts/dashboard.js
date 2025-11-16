@@ -248,6 +248,7 @@ function loadMoreIfNearBottom() {
 }
 
 document.addEventListener('scroll', loadMoreIfNearBottom);
+window.addEventListener('resize', loadMoreIfNearBottom);
 
 var optslink = document.getElementById('options');
 
