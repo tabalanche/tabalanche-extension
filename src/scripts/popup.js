@@ -76,12 +76,12 @@ async function initSnapshotUI() {
   // }
 }
 
-function onHistoryBack() {
-  return new Promise(resolve => {
-    window.addEventListener('popstate', resolve);
-    history.pushState(null, '');
-  });
-}
+// function onHistoryBack() {
+//   return new Promise(resolve => {
+//     window.addEventListener('popstate', resolve);
+//     history.pushState(null, '');
+//   });
+// }
 
 function createTabDiv(tab) {
   const title = tab.title || tab.url;

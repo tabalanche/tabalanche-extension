@@ -98,7 +98,8 @@ async function updateBrowserAction(changes) {
 
   // NOTE: tab doesn't work well on FF android
   // https://bugzilla.mozilla.org/show_bug.cgi?id=1935935
-  const popupUseTab = changes.useSnapshotUI.newValue && !(platform.isFirefox() && platform.isMobile());
+  // edge on mobile doesn't work well too
+  const popupUseTab = changes.useSnapshotUI.newValue && !platform.isMobile();
   
   if (popupUseTab) {
     browser.browserAction.setPopup({popup: ''});
@@ -114,31 +115,35 @@ function handleBrowserAction(tab) {
   }).catch(console.error);
 }
 
-browser.menus.create({
-  command: "stash-link",
-  contexts: ["link"],
-  id: "stash-link",
-  title: "Stash Link",
-});
+//  there is no menu API on Firefox for Android
+if (browser.menus && browser.menus.create) {
+  browser.menus.create({
+    command: "stash-link",
+    contexts: ["link"],
+    id: "stash-link",
+    title: "Stash Link",
+  });
 
-// let prefix change every day
-const ID_PREFIX = String(Math.ceil(Date.now() / (24 * 60 * 60 * 1000)));
+  // let prefix change every day
+  const ID_PREFIX = String(Math.ceil(Date.now() / (24 * 60 * 60 * 1000)));
 
-browser.menus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId == "stash-link") {
-    const getGroupId = async () => {
-      if (tab?.id) {
-        return `${ID_PREFIX}-${tab.id}`;
-      }
-      const group = await tabalanche.getLastTabGroup();
-      return group?._id;
-    };
-    getGroupId().then(id => {
-      tabalanche.insertTabs(id, [{
-        title: info.linkText,
-        url: info.linkUrl
-        // FIXME: container?
-      }]);
-    });
-  }
-});
+  browser.menus.onClicked.addListener((info, tab) => {
+    if (info.menuItemId == "stash-link") {
+      const getGroupId = async () => {
+        if (tab?.id) {
+          return `${ID_PREFIX}-${tab.id}`;
+        }
+        const group = await tabalanche.getLastTabGroup();
+        return group?._id;
+      };
+      getGroupId().then(id => {
+        tabalanche.insertTabs(id, [{
+          title: info.linkText,
+          url: info.linkUrl
+          // FIXME: container?
+        }]);
+      });
+    }
+  });
+}
+
