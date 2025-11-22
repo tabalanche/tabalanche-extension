@@ -31,7 +31,8 @@
     ],
     "build": {
       "overwriteDest": true
-    }
+    },
+    "sourceDir": "src"
   },
   "eslintConfig": {
     "env": {

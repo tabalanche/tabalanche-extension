@@ -103,6 +103,12 @@ document.querySelector('#useScreenshot').addEventListener('click', e => {
   }
 });
 
+browser.runtime.onMessage.addListener(({event, ...message}) => {
+  if (event === "sync-error") {
+    saveStatus.textContent = `Sync error: ${message.error}`;
+  }
+});
+
 function getFile() {
   return new Promise((resolve) => {
     const input = document.createElement("input");

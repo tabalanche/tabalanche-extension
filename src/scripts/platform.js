@@ -20,6 +20,18 @@ const localOptions = [
   'useScreenshot'
 ];
 
+function isMobile() {
+  return /mobi/i.test(navigator.userAgent)
+}
+
+platform.isMobile = isMobile;
+
+const isFirefox = () => /firefox/i.test(navigator.userAgent);
+platform.isFirefox = isFirefox;
+
+const isEdge = () => /edg/i.test(navigator.userAgent);
+platform.isEdge = isEdge;
+
 // FIXME: https://bugzilla.mozilla.org/show_bug.cgi?id=1921279
 const closedTabs = new Map();
 platform.closedTabs = closedTabs;
@@ -202,10 +214,7 @@ platform.closeTabs = function closeTabs(tabs) {
 
 // TODO: use Firefox native favicon
 // see https://bugzilla.mozilla.org/show_bug.cgi?id=1315616
-platform.faviconPath = !window.netscape ? 
-  function faviconPath(url) {
-    return 'chrome://favicon/' + url;
-  } :
+platform.faviconPath = isFirefox() || (isEdge() && isMobile()) ? 
   url => {
     try {
       // This won't work with chrome://extensions/
@@ -214,6 +223,9 @@ platform.faviconPath = !window.netscape ?
     } catch {
       return 'https://icons.duckduckgo.com/ip3/undefined.ico';
     }
+  } : 
+  (url) => {
+    return 'chrome://favicon/' + url;
   };
 
 platform.extensionURL = function extensionURL(path) {
@@ -271,15 +283,6 @@ platform.hasScreenshotPermission = () =>
 platform.requestScreenshotPermission = () => browser.permissions.request({
   origins: ['<all_urls>']
 });
-
-function isMobile() {
-  return /mobi/i.test(navigator.userAgent)
-}
-
-platform.isMobile = isMobile;
-
-const isFirefox = () => /firefox/i.test(navigator.userAgent);
-platform.isFirefox = isFirefox;
 
 platform.isDashboardAvailable = async () => {
   const extensionTabs = await browser.tabs.query({url: [

@@ -435,6 +435,10 @@ var tabalanche = eventEmitter();
     syncHandler.on('change', info => {
       browser.runtime.sendMessage({event: "sync-change", info});
     });
+    syncHandler.on('error', err => {
+      console.error('Sync error:', err);
+      browser.runtime.sendMessage({event: "sync-error", error: String(err)});
+    });
   };
 
   tabalanche.removeTabs = async (id, tabs) => {
